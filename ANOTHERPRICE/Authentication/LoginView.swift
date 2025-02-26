@@ -9,49 +9,72 @@ import SwiftUI
 struct LoginView: View {
     @State private var username = ""
     @State private var password = ""
+    @State private var showAlert = false
     @State private var errorMessage = ""
-
+    @State private var showSignupView = false
+    
     var body: some View {
-        VStack {
-            Text("Login")
-                .font(.largeTitle)
-                .padding()
-
-            // 帳號輸入框
-            TextField("Username", text: $username)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding() // 給 TextField 增加內邊距
-                .padding(.horizontal) // 給左右增加更多內邊距
-
-            // 密碼輸入框
-            SecureField("Password", text: $password)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding() // 給 SecureField 增加內邊距
-                .padding(.horizontal) // 給左右增加更多內邊距
-
-            // 錯誤訊息顯示
-            if !errorMessage.isEmpty {
-                Text(errorMessage)
-                    .foregroundColor(.red)
-                    .padding()
+        VStack{
+            UIImageCustom(imageName: "Title")
+                .padding(.horizontal, 80)
+                .padding(.vertical, 10)
+            ZStack{
+                RoundedRectangle(cornerRadius: 7)
+                    .stroke(ColorConstants.systemDarkColor, lineWidth: 0.5)
+                VStack{
+                    UITextTitle(title: "帳號登入")
+                    UITextFieldCustom(title: "帳號", input: $username)
+                    UISecureFieldCustom(title: "密碼", input: $password)
+                    HStack{
+                        Spacer()
+                        Button() {
+                            
+                        } label: {
+                            Text("忘記密碼")
+                                .font(.custom("NotoSerifTC-Regular", size: 16))
+                                .foregroundColor(ColorConstants.systemMainColor)
+                                .fontWeight(.light)
+                                .underline()
+                        }
+                        .padding(.top, -5)
+                    }
+                    UIButtonCustom(title: "登入")
+                        .padding(.top, 10)
+                    HStack{
+                        Spacer()
+                        Text("還沒有帳號嗎？")
+                            .font(.custom("NotoSerifTC-Regular", size: 16))
+                            .foregroundColor(ColorConstants.systemSubColor)
+                            .fontWeight(.light)
+                        Button() {
+                            showSignupView = true
+                        } label: {
+                            Text("帳號註冊")
+                                .font(.custom("NotoSerifTC-Regular", size: 16))
+                                .foregroundColor(ColorConstants.systemMainColor)
+                                .fontWeight(.light)
+                                .underline()
+                        }
+                        .fullScreenCover(isPresented: $showSignupView) {
+                            SignupView()
+                        }
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 12)
+                .padding(.top, 10)
             }
-
-            // 登入按鈕
-            Button(action: {
-                loginAction()
-            }) {
-                Text("Login")
-                    .font(.title)
-                    .frame(width: 250, height: 50)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
-            .padding()
+            .frame(height: 400)
+            .padding(20)
+            Spacer()
         }
-        .padding()
+        .alert("登入錯誤", isPresented: $showAlert) {
+            Button("確定", role: .cancel) { }
+        } message: {
+            Text(errorMessage)
+        }
     }
-
+    
     private func loginAction() {
         if username == "user" && password == "password" {
             errorMessage = "Login Successful!"
@@ -59,9 +82,9 @@ struct LoginView: View {
             errorMessage = "Invalid username or password."
         }
     }
+    
 }
 
 #Preview {
     LoginView()
 }
-
