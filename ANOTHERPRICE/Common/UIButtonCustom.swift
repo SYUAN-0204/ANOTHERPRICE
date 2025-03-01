@@ -9,11 +9,13 @@ import SwiftUI
 
 struct UIButtonCustom: View {
     var title: String
+    var action: (() -> Void)?
+    
     var body: some View {
-        Button() {
-            
-        } label: {
-            ZStack{
+        Button(action: {
+            action?()
+        }) {
+            ZStack {
                 ColorConstants.systemMainColor
                 Text(title)
                     .font(.custom("NotoSerifTC-Regular", size: 20))
@@ -26,5 +28,6 @@ struct UIButtonCustom: View {
 }
 
 #Preview {
-    UIButtonCustom(title: "")
+    UIButtonCustom(title: "", action: { })
 }
+
