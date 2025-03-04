@@ -4,15 +4,20 @@
 //
 //  Created by 宜真 on 2025/2/21.
 //
+
 import SwiftUI
 import FirebaseAuth
 import FirebaseFirestore
 
 struct LoginView: View {
+    
+    @Environment(\.dismiss) var dismiss
+    
     @State private var account = ""
     @State private var password = ""
     @State private var showAlert = false
     @State private var errorMessage = ""
+    @State private var showForgotPasswordView = false
     @State private var showSignupView = false
     @State private var isLoggedIn = false
     
@@ -31,7 +36,7 @@ struct LoginView: View {
                     HStack{
                         Spacer()
                         Button() {
-                            
+                            showForgotPasswordView = true
                         } label: {
                             Text("忘記密碼")
                                 .font(.custom("NotoSerifTC-Regular", size: 16))
@@ -40,6 +45,10 @@ struct LoginView: View {
                                 .underline()
                         }
                         .padding(.top, -5)
+                        .sheet(isPresented: $showForgotPasswordView) {
+                            ForgotPasswordView()
+                                .presentationDetents([.fraction(0.9)])
+                        }
                     }
                     UIButtonCustom(title: "登入", action: loginAction)
                         .padding(.top, 10)
@@ -58,8 +67,9 @@ struct LoginView: View {
                                 .fontWeight(.light)
                                 .underline()
                         }
-                        .fullScreenCover(isPresented: $showSignupView) {
+                        .sheet(isPresented: $showSignupView) {
                             SignupView()
+                                .presentationDetents([.fraction(0.9)])
                         }
                     }
                     Spacer()
@@ -70,17 +80,13 @@ struct LoginView: View {
             .frame(height: 400)
             .padding(20)
             Spacer()
-            
-            .fullScreenCover(isPresented: $isLoggedIn) {
-                ProfileView()  
-            }
         }
         .alert("登入錯誤", isPresented: $showAlert) {
             Button("確定", role: .cancel) { }
         } message: {
             Text(errorMessage)
         }
-        
+        .padding(.top, 20)
     }
     
     private func loginAction() {
@@ -110,6 +116,7 @@ struct LoginView: View {
                     } else {
                         print("登入成功，使用者 ID: \(authResult?.user.uid ?? "")")
                         self.isLoggedIn = true
+                        dismiss()
                     }
                 }
             } else {

@@ -10,6 +10,9 @@ import FirebaseAuth
 import FirebaseFirestore
 
 struct SignupView: View {
+    
+    @Environment(\.dismiss) var dismiss
+    
     @State private var username = ""
     @State private var account = ""
     @State private var password = ""
@@ -17,13 +20,9 @@ struct SignupView: View {
     @State private var email = ""
     @State private var errorMessage = ""
     @State private var showAlert = false
-    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         VStack{
-            UIImageCustom(imageName: "Title")
-                .padding(.horizontal, 80)
-                .padding(.vertical, 10)
             ZStack{
                 RoundedRectangle(cornerRadius: 7)
                     .stroke(ColorConstants.systemDarkColor, lineWidth: 0.5)
@@ -66,8 +65,8 @@ struct SignupView: View {
         } message: {
             Text(errorMessage)
         }
+        .padding(.top, 20)
     }
-    
     
     private func signupAction() {
         // checkrule
