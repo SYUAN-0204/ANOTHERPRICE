@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseAuth
 import FirebaseFirestore
+import KeychainSwift
 
 struct LoginView: View {
     
@@ -20,6 +21,8 @@ struct LoginView: View {
     @State private var showForgotPasswordView = false
     @State private var showSignupView = false
     @State private var isLoggedIn = false
+    
+    private let keychain = KeychainSwift()
     
     var body: some View {
         VStack{
@@ -101,7 +104,7 @@ struct LoginView: View {
         
         let db = Firestore.firestore()
         db.collection("users").whereField("account", isEqualTo: account).getDocuments { (querySnapshot, error) in
-            if let error = error {                self.showAlertWithMessage("網路錯誤，請稍後再試")
+            if error != nil {                self.showAlertWithMessage("網路錯誤，請稍後再試")
                 return
             }
             
@@ -114,6 +117,8 @@ struct LoginView: View {
                     if let error = error {
                         self.handleLoginError(error)
                     } else {
+                        let authUid = authResult?.user.uid ?? ""
+                        self.keychain.set(authUid, forKey: "authUid")
                         print("登入成功，使用者 ID: \(authResult?.user.uid ?? "")")
                         self.isLoggedIn = true
                         dismiss()

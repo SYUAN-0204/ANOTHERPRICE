@@ -99,7 +99,8 @@ struct SignupView: View {
                 db.collection("users").document(user.uid).setData([
                     "username": username,
                     "email": email,
-                    "account": account
+                    "account": account,
+                    "registrationTime": Timestamp(date: Date())
                 ]) { error in
                     if let error = error {
                         errorMessage = "儲存資料到 Firestore 時發生錯誤: \(error.localizedDescription)"

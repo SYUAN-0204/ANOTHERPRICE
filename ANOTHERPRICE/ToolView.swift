@@ -6,8 +6,11 @@
 //
 
 import SwiftUI
+import KeychainSwift
 
 struct ToolView: View {
+    @State private var isLoggedIn = false
+    private let keychain = KeychainSwift()
     var body: some View {
         TabView {
             Text("Home")
@@ -21,9 +24,9 @@ struct ToolView: View {
                 }
             
             Text("Ask")
-            .tabItem {
-                Label("Add", systemImage: "plus.circle.fill")
-            }
+                .tabItem {
+                    Label("Add", systemImage: "plus.circle.fill")
+                }
             
             Text("Settings")
                 .tabItem {
@@ -36,6 +39,11 @@ struct ToolView: View {
                 }
         }
         .accentColor(ColorConstants.systemMainColor)
+        .onAppear {
+            if let token = keychain.get("authUid"), !token.isEmpty {
+                isLoggedIn = true
+            }
+        }
     }
 }
 

@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import FirebaseAuth
+import FirebaseFirestore
 
 struct ForgotPasswordView: View {
     
@@ -13,7 +15,7 @@ struct ForgotPasswordView: View {
     
     @State private var account = ""
     @State private var showAlert = false
-    @State private var errorMessage = ""
+    @State private var message = ""
     
     var body: some View {
         VStack{
@@ -23,7 +25,7 @@ struct ForgotPasswordView: View {
                 VStack{
                     UITextTitle(title: "忘記密碼")
                     UITextFieldCustom(title: "帳號", input: $account)
-                    UIButtonCustom(title: "申請", action: {})
+                    UIButtonCustom(title: "申請", action:{sendPasswordReset()})
                         .padding(.top, 26)
                     HStack{
                         Spacer()
@@ -50,12 +52,49 @@ struct ForgotPasswordView: View {
             .padding(20)
             Spacer()
         }
-        .alert("登入錯誤", isPresented: $showAlert) {
+        .alert("訊息", isPresented: $showAlert) {
             Button("確定", role: .cancel) { }
         } message: {
-            Text(errorMessage)
+            Text(message)
         }
         .padding(.top, 20)
+    }
+    
+    private func sendPasswordReset() {
+        guard !account.isEmpty else {
+            self.message = "請輸入帳號"
+            self.showAlert = true
+            return
+        }
+        
+        let db = Firestore.firestore()
+        db.collection("users").whereField("account", isEqualTo: account).getDocuments { (querySnapshot, error) in
+            if let error = error {
+                self.message = "網路錯誤，請稍後再試"
+                self.showAlert = true
+                return
+            }
+            
+            guard let snapshot = querySnapshot, !snapshot.isEmpty else {
+                self.message = "帳號不存在"
+                self.showAlert = true
+                return
+            }
+            
+            if let document = snapshot.documents.first, let email = document.data()["email"] as? String {                Auth.auth().sendPasswordReset(withEmail: email) { error in
+                    if let error = error {
+                        self.message = error.localizedDescription
+                        self.showAlert = true
+                    } else {
+                        self.message = "密碼重置郵件已發送，請檢查您的信箱"
+                        self.showAlert = true
+                    }
+                }
+            } else {
+                self.message = "無法找到該帳號的資料"
+                self.showAlert = true
+            }
+        }
     }
 }
 
