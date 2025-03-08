@@ -34,7 +34,7 @@ struct LoginView: View {
                     .stroke(ColorConstants.systemDarkColor, lineWidth: 0.5)
                 VStack{
                     UITextTitle(title: "帳號登入")
-                    UITextFieldCustom(title: "帳號", input: $account)
+                    UITextFieldCustom(title: "帳號/E-mail", input: $account)
                     UISecureFieldCustom(title: "密碼", input: $password)
                     HStack{
                         Spacer()
@@ -102,9 +102,28 @@ struct LoginView: View {
             return
         }
         
+        if isValidEmail(account) {
+            loginWithEmail(account)
+        } else {
+            loginWithFirestoreAccount(account)
+        }
+    }
+    
+    private func loginWithEmail(_ email: String) {
+        Auth.auth().signIn(withEmail: email, password: password) { (authResult, error) in
+            if let error = error {
+                self.handleAuthError(error)
+            } else {
+                handleSuccessfulLogin(authResult)
+            }
+        }
+    }
+    
+    private func loginWithFirestoreAccount(_ account: String) {
         let db = Firestore.firestore()
         db.collection("users").whereField("account", isEqualTo: account).getDocuments { (querySnapshot, error) in
-            if error != nil {                self.showAlertWithMessage("網路錯誤，請稍後再試")
+            if error != nil {
+                self.showAlertWithMessage("網路錯誤，請稍後再試")
                 return
             }
             
@@ -112,40 +131,51 @@ struct LoginView: View {
                 self.showAlertWithMessage("帳號不存在")
                 return
             }
+            
             if let document = snapshot.documents.first, let email = document.data()["email"] as? String {
-                Auth.auth().signIn(withEmail: email, password: password) { (authResult, error) in
-                    if let error = error {
-                        self.handleLoginError(error)
-                    } else {
-                        let authUid = authResult?.user.uid ?? ""
-                        self.keychain.set(authUid, forKey: "authUid")
-                        print("登入成功，使用者 ID: \(authResult?.user.uid ?? "")")
-                        self.isLoggedIn = true
-                        dismiss()
-                    }
-                }
+                self.loginWithEmail(email)
             } else {
-                self.showAlertWithMessage("無法找到該帳號的資料")
+                self.showAlertWithMessage("帳號不存在")
             }
         }
+    }
+    
+    private func handleAuthError(_ error: Error) {
+        if let errorCode = AuthErrorCode(rawValue: (error as NSError).code) {
+            var errorMessage = ""
+            
+            switch errorCode {
+            case .userNotFound:
+                errorMessage = "帳號不存在"
+            case .networkError:
+                errorMessage = "網路錯誤，請稍後再試"
+            default:
+                errorMessage = "密碼錯誤"
+            }
+            
+            self.showAlertWithMessage(errorMessage)
+        } else {
+            self.showAlertWithMessage("發生未知錯誤: \(error.localizedDescription)")
+        }
+    }
+    
+    private func handleSuccessfulLogin(_ authResult: AuthDataResult?) {
+        let authUid = authResult?.user.uid ?? ""
+        self.keychain.set(authUid, forKey: "authUid")
+        print("登入成功，使用者 ID: \(authResult?.user.uid ?? "")")
+        self.isLoggedIn = true
+        dismiss()
+    }
+    
+    private func isValidEmail(_ email: String) -> Bool {
+        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+        let emailTest = NSPredicate(format: "SELF MATCHES %@", emailRegex)
+        return emailTest.evaluate(with: email)
     }
     
     private func showAlertWithMessage(_ message: String) {
         errorMessage = message
         showAlert = true
-    }
-    
-    private func handleLoginError(_ error: Error) {
-        if let errorCode = AuthErrorCode(rawValue: (error as NSError).code) {
-            switch errorCode {
-            case .userNotFound:
-                showAlertWithMessage("帳號不存在")
-            default:
-                showAlertWithMessage("密碼錯誤")
-            }
-        } else {
-            showAlertWithMessage("發生未知錯誤: \(error.localizedDescription)")
-        }
     }
 }
 

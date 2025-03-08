@@ -24,7 +24,7 @@ struct ForgotPasswordView: View {
                     .stroke(ColorConstants.systemDarkColor, lineWidth: 0.5)
                 VStack{
                     UITextTitle(title: "忘記密碼")
-                    UITextFieldCustom(title: "帳號", input: $account)
+                    UITextFieldCustom(title: "帳號/E-mail", input: $account)
                     UIButtonCustom(title: "申請", action:{sendPasswordReset()})
                         .padding(.top, 26)
                     HStack{
@@ -62,11 +62,25 @@ struct ForgotPasswordView: View {
     
     private func sendPasswordReset() {
         guard !account.isEmpty else {
-            self.message = "請輸入帳號"
+            self.message = "請輸入帳號/E-mail"
             self.showAlert = true
             return
         }
         
+        if isValidEmail(account) {
+            sendPasswordResetToEmail(account)
+        } else {
+            sendPasswordResetToFirestoreAccount(account)
+        }
+    }
+    
+    private func sendPasswordResetToEmail(_ email: String) {
+        Auth.auth().sendPasswordReset(withEmail: email) { error in
+            handlePasswordResetError(error)
+        }
+    }
+    
+    private func sendPasswordResetToFirestoreAccount(_ account: String) {
         let db = Firestore.firestore()
         db.collection("users").whereField("account", isEqualTo: account).getDocuments { (querySnapshot, error) in
             if let error = error {
@@ -81,20 +95,30 @@ struct ForgotPasswordView: View {
                 return
             }
             
-            if let document = snapshot.documents.first, let email = document.data()["email"] as? String {                Auth.auth().sendPasswordReset(withEmail: email) { error in
-                    if let error = error {
-                        self.message = error.localizedDescription
-                        self.showAlert = true
-                    } else {
-                        self.message = "密碼重置郵件已發送，請檢查您的信箱"
-                        self.showAlert = true
-                    }
+            if let document = snapshot.documents.first, let email = document.data()["email"] as? String {
+                Auth.auth().sendPasswordReset(withEmail: email) { error in
+                    handlePasswordResetError(error)
                 }
             } else {
                 self.message = "無法找到該帳號的資料"
                 self.showAlert = true
             }
         }
+    }
+    
+    private func handlePasswordResetError(_ error: Error?) {
+        if let error = error {
+            self.message = error.localizedDescription
+        } else {
+            self.message = "密碼重置郵件已發送，請檢查您的信箱"
+        }
+        self.showAlert = true
+    }
+    
+    private func isValidEmail(_ email: String) -> Bool {
+        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+        let emailTest = NSPredicate(format: "SELF MATCHES %@", emailRegex)
+        return emailTest.evaluate(with: email)
     }
 }
 
