@@ -36,3 +36,22 @@ struct ColorConstants {
     static let systemSubColor = Color(hex: 0x122D3E)
     static let systemDarkColor = Color(hex: 0x212529)
 }
+
+extension UIImage {
+    func cropToSquare() -> UIImage? {
+        let contextImage = UIImage(cgImage: self.cgImage!)
+        let contextSize = contextImage.size
+        
+        let length = min(contextSize.width, contextSize.height)
+        let posX = (contextSize.width - length) / 2
+        let posY = (contextSize.height - length) / 2
+        
+        let rect = CGRect(x: posX, y: posY, width: length, height: length)
+        
+        guard let imageRef = contextImage.cgImage?.cropping(to: rect) else {
+            return nil
+        }
+        
+        return UIImage(cgImage: imageRef, scale: self.scale, orientation: self.imageOrientation)
+    }
+}
