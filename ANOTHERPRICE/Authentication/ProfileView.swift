@@ -14,42 +14,64 @@ struct ProfileView: View {
     @State private var authUid: String? = nil
     private let keychain = KeychainSwift()
     
-    
-    @State var 用戶頭像: UIImage = UIImage(named: "Test") ?? UIImage()
-    @State private var showPhotoOptions = false
-    @State private var photoSource: PhotoSource?
-    
-    enum PhotoSource: Identifiable {
-        case photoLibrary
-        case camera
-        
-        var id: Int {
-            hashValue
-        }
-    }
+    @State var 用戶頭像: UIImage = UIImage(named: "AppIcon") ?? UIImage()
+    @State var 用戶名稱: String = "這是另外的價錢錢"
+    @State var 登入天數: Int = 0
     
     var body: some View {
         ZStack{
-            VStack{
+            ScrollView{
                 HStack{
                     Image(uiImage: 用戶頭像)
                         .resizable()
                         .scaledToFit()
-                        .frame(height: 80)
-                        .background(Color(.systemGray6))
+                        .frame(height: 70)
+                        .clipShape(Circle())
                         .overlay {
                             Circle()
                                 .stroke(ColorConstants.systemMainColor, lineWidth: 1)
                         }
-                        .clipShape(Circle())
-                        .onTapGesture {
-                            self.showPhotoOptions.toggle()
+                        .padding(.top, 10)
+                        .padding(.leading, 10)
+                    VStack{
+                        HStack{
+                            Text(用戶名稱)
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                            ZStack{
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(ColorConstants.systemMainColor)
+                                    .frame(width: 40, height: 18)
+                                Text("Lv3")
+                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
+                                    .foregroundColor(.white)
+                            }
+                            Spacer()
                         }
+                        HStack{
+                            Text("著陸 \(登入天數) 天")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                                .foregroundColor(.gray)
+                            Spacer()
+                        }
+                        Spacer()
+                    }
+                    .padding(.top, 20)
+                    VStack{
+                        HStack{
+                            Text("個人主頁")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                            Image(systemName: "chevron.right")
+                                .padding(.leading, -8)
+                        }
+                    }
+                    .foregroundColor(.gray)
                     Spacer()
                 }
+                .padding(.top, 10)
+                .frame(height: 90)
                 Spacer()
             }
-            if ((authUid?.isEmpty) == nil) {
+            if ((authUid?.isEmpty) != nil) {
                 Color.white.opacity(0.9)
                 VStack {
                     Text("登入即可體驗完整功能")
@@ -73,7 +95,8 @@ struct ProfileView: View {
                 }
             }
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 10)
+        .background(Color.gray.opacity(0.1))
         .onAppear {
             self.authUid = keychain.get("authUid")
         }

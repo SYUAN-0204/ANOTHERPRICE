@@ -55,3 +55,4 @@ extension UIImage {
         return UIImage(cgImage: imageRef, scale: self.scale, orientation: self.imageOrientation)
     }
 }
+

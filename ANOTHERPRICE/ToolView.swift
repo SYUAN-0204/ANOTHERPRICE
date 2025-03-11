@@ -28,7 +28,7 @@ struct ToolView: View {
                     Label("Add", systemImage: "plus.circle.fill")
                 }
             
-            Text("Settings")
+            ProfileSettingView()
                 .tabItem {
                     Label("Settings", systemImage: "gearshape.fill")
                 }
