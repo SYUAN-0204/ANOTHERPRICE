@@ -14,15 +14,15 @@ struct ProfileView: View {
     @State private var authUid: String? = nil
     private let keychain = KeychainSwift()
     
-    @State var 用戶頭像: UIImage = UIImage(named: "AppIcon") ?? UIImage()
-    @State var 用戶名稱: String = "這是另外的價錢錢"
-    @State var 登入天數: Int = 0
+    @State var userAvatar: UIImage = UIImage(named: "AppIcon") ?? UIImage()
+    @State var userName: String = "這是另外的價錢錢"
+    @State var registrationDays: Int = 0
     
     var body: some View {
         ZStack{
             ScrollView{
                 HStack{
-                    Image(uiImage: 用戶頭像)
+                    Image(uiImage: userAvatar)
                         .resizable()
                         .scaledToFit()
                         .frame(height: 70)
@@ -35,7 +35,7 @@ struct ProfileView: View {
                         .padding(.leading, 10)
                     VStack{
                         HStack{
-                            Text(用戶名稱)
+                            Text(userName)
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                             ZStack{
                                 RoundedRectangle(cornerRadius: 10)
@@ -48,7 +48,7 @@ struct ProfileView: View {
                             Spacer()
                         }
                         HStack{
-                            Text("著陸 \(登入天數) 天")
+                            Text("著陸 \(registrationDays) 天")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                                 .foregroundColor(.gray)
                             Spacer()
