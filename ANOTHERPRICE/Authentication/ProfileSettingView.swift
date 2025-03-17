@@ -10,7 +10,7 @@ import PhotosUI
 
 struct ProfileSettingView: View {
     
-    @State var 用戶頭像: UIImage = UIImage(named: "Test") ?? UIImage()
+    @State var 用戶頭像: UIImage = UIImage(named: "Advertise") ?? UIImage()
     @State private var showPhotoOptions = false
     @State private var photoSource: PhotoSource?
     @State private var selectedItem: PhotosPickerItem? // 用於 iOS 16+ PhotosPicker

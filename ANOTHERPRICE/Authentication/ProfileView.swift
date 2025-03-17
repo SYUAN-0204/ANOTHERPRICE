@@ -14,9 +14,14 @@ struct ProfileView: View {
     @State private var authUid: String? = nil
     private let keychain = KeychainSwift()
     
-    @State var userAvatar: UIImage = UIImage(named: "AppIcon") ?? UIImage()
+    @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
     @State var userName: String = "這是另外的價錢錢"
     @State var registrationDays: Int = 0
+    
+    @State var 獲讚數: Int = 43250
+    @State var 幫助的人: Int = 123
+    @State var 粉絲: Int = 456
+    @State var  關注: Int = 789
     
     var body: some View {
         ZStack{
@@ -32,7 +37,7 @@ struct ProfileView: View {
                                 .stroke(ColorConstants.systemMainColor, lineWidth: 1)
                         }
                         .padding(.top, 10)
-                        .padding(.leading, 10)
+                        .padding(.leading, 5)
                     VStack{
                         HStack{
                             Text(userName)
@@ -70,28 +75,85 @@ struct ProfileView: View {
                 .padding(.top, 10)
                 .frame(height: 90)
                 HStack{
-                    
+                    UITextProfileDetails(detailInput: 獲讚數, detailTitle: "獲讚數")
+                    Spacer()
+                    UITextProfileDetails(detailInput: 幫助的人, detailTitle: "幫助數")
+                    Spacer()
+                    UITextProfileDetails(detailInput: 粉絲, detailTitle: "粉絲")
+                    Spacer()
+                    UITextProfileDetails(detailInput: 關注, detailTitle: "關注")
                 }
                 .frame(height: 60)
-                ScrollView{
-                    ZStack{
-                        Color.brown
+                .padding(.horizontal, 20)
+                NavigationStack{
+                    ScrollView{
+                        HStack{
+                            Color.white
+                        }
+                        .frame(height: 90)
+                        .cornerRadius(10)
+                        HStack{
+                            VStack{
+                                HStack{
+                                    Text("選擇適合自己的粉底液")
+                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                                    Spacer()
+                                }
+                                HStack{
+                                    Text("今晚8點 Tommy老師的變美小課堂")
+                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 10))
+                                        .foregroundColor(.gray)
+                                    Spacer()
+                                }
+                                .padding(.top, -5)
+                            }
+                            .padding(.leading, 10)
+                            ZStack {
+                                Image("Advertise")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 200)
+                                LinearGradient(gradient: Gradient(colors: [ColorConstants.beige, Color.clear]),
+                                               startPoint: .leading,
+                                               endPoint: .trailing)
+                                .frame(width: 200)
+                            }
+                        }
+                        .frame(height: 80)
+                        .background(ColorConstants.beige)
+                        .cornerRadius(10)
+                        ZStack{
+                            Color.brown
+                        }
+                        .frame(height: 140)
+                        .cornerRadius(10)
+                        VStack{
+                            HStack{
+                                Text("其他服務")
+                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                Spacer()
+                            }
+                            .padding(.top, 10)
+                            NavigationLink {
+                                TempView()
+                            } label: {
+                                UIImageExtoolCustom(imageName: "headset", toolTitle: "客服中心")
+                            }
+                            .padding(.top, 10)
+                            NavigationLink {
+                                TempView()
+                            } label: {
+                                UIImageExtoolCustom(imageName: "gearshape", toolTitle: "設定")
+                            }
+                            .padding(.top, 10)
+                            Spacer()
+                        }
+                        .padding(.leading, 10)
                     }
-                    .frame(height: 90)
-                    ZStack{
-                        Color.brown
-                    }
-                    .frame(height: 80)
-                    ZStack{
-                        Color.brown
-                    }
-                    .frame(height: 140)
-                    HStack{
-                        
-                    }
+                    .background(Color.gray.opacity(0.1))
                 }
-                Spacer()
             }
+            .padding(.horizontal, 15)
             if ((authUid?.isEmpty) != nil) {
                 Color.white.opacity(0.9)
                 VStack {
@@ -116,7 +178,6 @@ struct ProfileView: View {
                 }
             }
         }
-        .padding(.horizontal, 10)
         .background(Color.gray.opacity(0.1))
         .onAppear {
             self.authUid = keychain.get("authUid")

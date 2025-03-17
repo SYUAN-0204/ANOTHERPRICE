@@ -11,6 +11,10 @@ import KeychainSwift
 struct ToolView: View {
     @State private var isLoggedIn = false
     private let keychain = KeychainSwift()
+    
+    init() {
+        UITabBar.appearance().backgroundColor = UIColor.white // 设置背景颜色
+        }
     var body: some View {
         TabView {
             Text("Home")

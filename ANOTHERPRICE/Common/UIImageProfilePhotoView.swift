@@ -21,5 +21,5 @@ struct UIImageProfilePhotoView: View {
 }
 
 #Preview {
-    UIImageProfilePhotoView(imageName: "Test", size: 100)
+    UIImageProfilePhotoView(imageName: "Advertise", size: 100)
 }
