@@ -20,7 +20,7 @@ struct ProfileView: View {
     
     var body: some View {
         ZStack{
-            ScrollView{
+            VStack{
                 HStack{
                     Image(uiImage: userAvatar)
                         .resizable()
@@ -69,6 +69,27 @@ struct ProfileView: View {
                 }
                 .padding(.top, 10)
                 .frame(height: 90)
+                HStack{
+                    
+                }
+                .frame(height: 60)
+                ScrollView{
+                    ZStack{
+                        Color.brown
+                    }
+                    .frame(height: 90)
+                    ZStack{
+                        Color.brown
+                    }
+                    .frame(height: 80)
+                    ZStack{
+                        Color.brown
+                    }
+                    .frame(height: 140)
+                    HStack{
+                        
+                    }
+                }
                 Spacer()
             }
             if ((authUid?.isEmpty) != nil) {
