@@ -28,7 +28,7 @@ struct SignupView: View {
                     .stroke(ColorConstants.systemDarkColor, lineWidth: 0.5)
                 VStack{
                     UITextTitle(title: "帳號註冊")
-                    UITextFieldCustom(title: "姓名", input: $username)
+                    UITextFieldCustom(title: "暱稱", input: $username)
                     UITextFieldCustom(title: "帳號", input: $account)
                     UISecureFieldCustom(title: "密碼", input: $password)
                     UISecureFieldCustom(title: "確認密碼", input: $confirmPassword)
@@ -71,7 +71,7 @@ struct SignupView: View {
     private func signupAction() {
         // checkrule
         let checks: [(Bool, String)] = [
-            (username.isEmpty, "請輸入姓名"),
+            (username.isEmpty, "請輸入暱稱"),
             (account.isEmpty, "請輸入帳號"),
             (password.isEmpty, "請輸入密碼"),
             (confirmPassword.isEmpty, "請再次輸入密碼"),
