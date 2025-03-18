@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct UIButtonCustom: View {
+struct UIButtonAccountCustom: View {
     var title: String
     var action: (() -> Void)?
     
@@ -28,6 +28,6 @@ struct UIButtonCustom: View {
 }
 
 #Preview {
-    UIButtonCustom(title: "", action: { })
+    UIButtonAccountCustom(title: "", action: { })
 }
 

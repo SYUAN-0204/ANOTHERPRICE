@@ -85,72 +85,69 @@ struct ProfileView: View {
                 }
                 .frame(height: 60)
                 .padding(.horizontal, 20)
-                NavigationStack{
-                    ScrollView{
-                        HStack{
-                            Color.white
-                        }
-                        .frame(height: 90)
-                        .cornerRadius(10)
-                        HStack{
-                            VStack{
-                                HStack{
-                                    Text("選擇適合自己的粉底液")
-                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
-                                    Spacer()
-                                }
-                                HStack{
-                                    Text("今晚8點 Tommy老師的變美小課堂")
-                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 10))
-                                        .foregroundColor(.gray)
-                                    Spacer()
-                                }
-                                .padding(.top, -5)
-                            }
-                            .padding(.leading, 10)
-                            ZStack {
-                                Image("Advertise")
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 200)
-                                LinearGradient(gradient: Gradient(colors: [ColorConstants.beige, Color.clear]),
-                                               startPoint: .leading,
-                                               endPoint: .trailing)
-                                .frame(width: 200)
-                            }
-                        }
-                        .frame(height: 80)
-                        .background(ColorConstants.beige)
-                        .cornerRadius(10)
-                        ZStack{
-                            Color.brown
-                        }
-                        .frame(height: 140)
-                        .cornerRadius(10)
+                ScrollView{
+                    HStack{
+                        Color.white
+                    }
+                    .frame(height: 90)
+                    .cornerRadius(10)
+                    HStack{
                         VStack{
                             HStack{
-                                Text("其他服務")
-                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                Text("選擇適合自己的粉底液")
+                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                                 Spacer()
                             }
-                            .padding(.top, 10)
-                            NavigationLink {
-                                TempView()
-                            } label: {
-                                UIImageExtoolCustom(imageName: "headset", toolTitle: "客服中心")
+                            HStack{
+                                Text("今晚8點 Tommy老師的變美小課堂")
+                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 10))
+                                    .foregroundColor(.gray)
+                                Spacer()
                             }
-                            .padding(.top, 10)
-                            NavigationLink {
-                                TempView()
-                            } label: {
-                                UIImageExtoolCustom(imageName: "gearshape", toolTitle: "設定")
-                            }
-                            .padding(.top, 10)
-                            Spacer()
+                            .padding(.top, -5)
                         }
                         .padding(.leading, 10)
+                        ZStack {
+                            Image("Advertise")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 200)
+                            LinearGradient(gradient: Gradient(colors: [ColorConstants.beige, Color.clear]),
+                                           startPoint: .leading,
+                                           endPoint: .trailing)
+                            .frame(width: 200)
+                        }
                     }
-                    .background(Color.gray.opacity(0.1))
+                    .frame(height: 80)
+                    .background(ColorConstants.beige)
+                    .cornerRadius(10)
+                    ZStack{
+                        Color.brown
+                    }
+                    .frame(height: 140)
+                    .cornerRadius(10)
+                    VStack{
+                        HStack{
+                            Text("其他服務")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                            Spacer()
+                        }
+                        .padding(.top, 10)
+                        NavigationLink {
+                            TempView()
+                        } label: {
+                            UIImageExtoolCustom(imageName: "headset", toolTitle: "客服中心")
+                        }
+                        .padding(.top, 10)
+                        NavigationLink {
+                            SettingView()
+                        } label: {
+                            UIImageExtoolCustom(imageName: "gearshape", toolTitle: "設定")
+                        }
+                        .padding(.top, 10)
+                        Spacer()
+                    }
+                    .padding(.leading, 10)
                 }
             }
             .padding(.horizontal, 15)
@@ -168,7 +165,7 @@ struct ProfileView: View {
                             self.showLoginView = true
                         }
                     }) {
-                        UIButtonCustom(title: "登入", action: {})
+                        UIButtonAccountCustom(title: "登入", action: {})
                     }
                     .frame(width: 160)
                     .sheet(isPresented: $showLoginView) {

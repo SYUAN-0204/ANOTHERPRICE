@@ -25,7 +25,7 @@ struct ForgotPasswordView: View {
                 VStack{
                     UITextTitle(title: "忘記密碼")
                     UITextFieldCustom(title: "帳號/E-mail", input: $account)
-                    UIButtonCustom(title: "申請", action:{sendPasswordReset()})
+                    UIButtonAccountCustom(title: "申請", action:{sendPasswordReset()})
                         .padding(.top, 26)
                     HStack{
                         Spacer()

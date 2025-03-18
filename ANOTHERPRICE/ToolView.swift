@@ -13,9 +13,10 @@ struct ToolView: View {
     private let keychain = KeychainSwift()
     
     init() {
-        UITabBar.appearance().backgroundColor = UIColor.white // 设置背景颜色
+        UITabBar.appearance().backgroundColor = UIColor.white
         }
     var body: some View {
+        NavigationStack{
         TabView {
             Text("Home")
                 .tabItem {
@@ -43,6 +44,7 @@ struct ToolView: View {
                 }
         }
         .accentColor(ColorConstants.systemMainColor)
+        }
         .onAppear {
             if let token = keychain.get("authUid"), !token.isEmpty {
                 isLoggedIn = true

@@ -33,7 +33,7 @@ struct SignupView: View {
                     UISecureFieldCustom(title: "密碼", input: $password)
                     UISecureFieldCustom(title: "確認密碼", input: $confirmPassword)
                     UITextFieldCustom(title: "Email", input: $email)
-                    UIButtonCustom(title: "註冊", action: signupAction)
+                    UIButtonAccountCustom(title: "註冊", action: signupAction)
                         .padding(.top, 26)
                     HStack{
                         Spacer()

@@ -13,7 +13,7 @@ struct UITextProfileDetails: View {
     
     var body: some View {
         VStack{
-            Text("\(detailInput >= 10000 ? String(format: "%d万", detailInput / 10000) : "\(detailInput)")")
+            Text("\(detailInput >= 1_000_000 ? String(format: "%.1fM", Double(detailInput) / 1_000_000) : detailInput >= 1000 ? String(format: "%.1fk", Double(detailInput) / 1000) : "\(detailInput)")")
                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
             Text(detailTitle)
                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
@@ -23,5 +23,5 @@ struct UITextProfileDetails: View {
 }
 
 #Preview {
-    UITextProfileDetails(detailInput: 0, detailTitle: "Title")
+    UITextProfileDetails(detailInput: 10000, detailTitle: "Title")
 }

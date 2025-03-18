@@ -26,7 +26,9 @@ struct LoginView: View {
     
     var body: some View {
         VStack{
-            UIImageCustom(imageName: "Title")
+            Image("Title")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
                 .padding(.horizontal, 80)
                 .padding(.vertical, 10)
             ZStack{
@@ -53,7 +55,7 @@ struct LoginView: View {
                                 .presentationDetents([.fraction(0.9)])
                         }
                     }
-                    UIButtonCustom(title: "登入", action: loginAction)
+                    UIButtonAccountCustom(title: "登入", action: loginAction)
                         .padding(.top, 10)
                     HStack{
                         Spacer()
