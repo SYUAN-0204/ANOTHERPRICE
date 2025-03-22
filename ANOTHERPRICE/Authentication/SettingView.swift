@@ -6,10 +6,14 @@
 //
 
 import SwiftUI
+import KeychainSwift
 
 struct SettingView: View {
     @Environment(\.dismiss) var dismiss
-    @State var 登出: Bool = false
+    @State var logout: Bool = false
+    @State private var authUid: String? = KeychainSwift().get("authUid")
+    
+    private let keychain = KeychainSwift()
     
     var body: some View {
         VStack{
@@ -69,7 +73,9 @@ struct SettingView: View {
                 .padding(.top, 10)
                 
                 VStack(spacing: 0){
-                    UIButtonSettingTool(title: "帳號登出")
+                    UIButtonSettingTool(title: "帳號登出", action: {
+                        logout = true
+                    })
                 }
                 .background(Color.white)
                 .padding(.top, 10)
@@ -77,13 +83,20 @@ struct SettingView: View {
         }
         .background(Color.gray.opacity(0.1))
         .navigationBarBackButtonHidden(true)
-        .alert("帳號登出", isPresented: $登出) {
+        .alert("帳號登出", isPresented: $logout) {
             Button("取消", role: .cancel) { }
             Button("確定", role: .destructive) {
+                logoutAction()
             }
         }
 
     }
+    
+    private func logoutAction() {
+            keychain.delete("authUid")
+            authUid = nil
+            dismiss()
+        }
 }
 
 #Preview {

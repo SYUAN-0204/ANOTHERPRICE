@@ -18,10 +18,10 @@ struct ProfileView: View {
     @State var userName: String = "這是另外的價錢錢"
     @State var registrationDays: Int = 0
     
-    @State var 獲讚數: Int = 43250
-    @State var 幫助的人: Int = 123
-    @State var 粉絲: Int = 456
-    @State var  關注: Int = 789
+    @State var likesCount: Int = 43250
+    @State var peopleHelped: Int = 123
+    @State var followers: Int = 456
+    @State var following: Int = 789
     
     var body: some View {
         ZStack{
@@ -75,13 +75,13 @@ struct ProfileView: View {
                 .padding(.top, 10)
                 .frame(height: 90)
                 HStack{
-                    UITextProfileDetails(detailInput: 獲讚數, detailTitle: "獲讚數")
+                    UITextProfileDetails(detailInput: likesCount, detailTitle: "獲讚數")
                     Spacer()
-                    UITextProfileDetails(detailInput: 幫助的人, detailTitle: "幫助數")
+                    UITextProfileDetails(detailInput: peopleHelped, detailTitle: "幫助數")
                     Spacer()
-                    UITextProfileDetails(detailInput: 粉絲, detailTitle: "粉絲")
+                    UITextProfileDetails(detailInput: followers, detailTitle: "粉絲")
                     Spacer()
-                    UITextProfileDetails(detailInput: 關注, detailTitle: "關注")
+                    UITextProfileDetails(detailInput: following, detailTitle: "關注")
                 }
                 .frame(height: 60)
                 .padding(.horizontal, 20)
@@ -151,22 +151,13 @@ struct ProfileView: View {
                 }
             }
             .padding(.horizontal, 15)
-            if ((authUid?.isEmpty) != nil) {
+            if (authUid == nil) {
                 Color.white.opacity(0.9)
                 VStack {
                     Text("登入即可體驗完整功能")
                         .font(.custom("NotoSerifTC-Regular", size: 20))
                         .foregroundColor(ColorConstants.systemSubColor)
-                    Button(action: {
-                        if let authUid = authUid, !authUid.isEmpty {
-                            self.keychain.delete("authUid")
-                            self.authUid = nil
-                        } else {
-                            self.showLoginView = true
-                        }
-                    }) {
-                        UIButtonAccountCustom(title: "登入", action: {})
-                    }
+                    UIButtonAccountCustom(title: "登入", action: {showLoginView = true})
                     .frame(width: 160)
                     .sheet(isPresented: $showLoginView) {
                         LoginView()
@@ -178,6 +169,11 @@ struct ProfileView: View {
         .background(Color.gray.opacity(0.1))
         .onAppear {
             self.authUid = keychain.get("authUid")
+            if self.authUid == nil {
+                    print("no user")
+            }else {
+                print(authUid ?? "error")
+            }
         }
     }
 }

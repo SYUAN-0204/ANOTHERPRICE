@@ -9,9 +9,12 @@ import SwiftUI
 
 struct UIButtonSettingTool: View {
     @State var title: String
+    var action: (() -> Void)?
+    
     var body: some View {
-        Button(){
-        } label: {
+        Button(action: {
+            action?()
+        }) {
             HStack{
                 Spacer()
                 Text(title)

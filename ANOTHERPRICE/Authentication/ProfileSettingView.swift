@@ -10,7 +10,7 @@ import PhotosUI
 
 struct ProfileSettingView: View {
     
-    @State var 用戶頭像: UIImage = UIImage(named: "Advertise") ?? UIImage()
+    @State var userAvatar: UIImage = UIImage(named: "Advertise") ?? UIImage()
     @State private var showPhotoOptions = false
     @State private var photoSource: PhotoSource?
     @State private var selectedItem: PhotosPickerItem? // 用於 iOS 16+ PhotosPicker
@@ -26,7 +26,7 @@ struct ProfileSettingView: View {
     
     var body: some View {
         HStack {
-            Image(uiImage: 用戶頭像)
+            Image(uiImage: userAvatar)
                 .resizable()
                 .scaledToFill() // 確保填滿圓形
                 .frame(width: 70, height: 70) // 限制大小
@@ -49,9 +49,9 @@ struct ProfileSettingView: View {
                    let image = UIImage(data: data) {
                     // 裁剪成正方形後再更新頭像
                     if let croppedImage = image.cropToSquare() {
-                        用戶頭像 = croppedImage
+                        userAvatar = croppedImage
                     } else {
-                        用戶頭像 = image
+                        userAvatar = image
                     }
                 }
             }
