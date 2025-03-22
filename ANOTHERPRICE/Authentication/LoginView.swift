@@ -165,14 +165,50 @@ struct LoginView: View {
         let authUid = authResult?.user.uid ?? ""
         self.keychain.set(authUid, forKey: "authUid")
         print("登入成功，使用者 ID: \(authResult?.user.uid ?? "")")
+        fetchUserDetails(uid: authUid)
         self.isLoggedIn = true
         dismiss()
+    }
+    
+    private func fetchUserDetails(uid: String) {
+        let db = Firestore.firestore()
+
+        db.collection("users").document(uid).getDocument { document, error in
+            if let error = error {
+                print("獲取使用者資料失敗: \(error.localizedDescription)")
+                return
+            }
+
+            if let document = document, document.exists {
+                let data = document.data()
+                let userName = data?["userName"] as? String ?? "未知使用者"
+                let registrationTime = data?["registrationTime"] as? Timestamp ?? Timestamp()
+
+                // 轉換 Firestore Timestamp 為日期格式
+                let formattedDate = formatTimestamp(registrationTime)
+                self.keychain.set(userName, forKey: "userName")
+                self.keychain.set(formattedDate, forKey: "registDay")
+
+                print("使用者名稱: \(userName)")
+                print("註冊時間: \(formattedDate)")
+                
+            } else {
+                print("使用者資料不存在")
+            }
+        }
     }
     
     private func isValidEmail(_ email: String) -> Bool {
         let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
         let emailTest = NSPredicate(format: "SELF MATCHES %@", emailRegex)
         return emailTest.evaluate(with: email)
+    }
+    
+    private func formatTimestamp(_ timestamp: Timestamp) -> String {
+        let date = timestamp.dateValue()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
+        return formatter.string(from: date)
     }
     
     private func showAlertWithMessage(_ message: String) {

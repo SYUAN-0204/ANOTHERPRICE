@@ -13,7 +13,7 @@ struct SignupView: View {
     
     @Environment(\.dismiss) var dismiss
     
-    @State private var username = ""
+    @State private var userName = ""
     @State private var account = ""
     @State private var password = ""
     @State private var confirmPassword = ""
@@ -28,7 +28,7 @@ struct SignupView: View {
                     .stroke(ColorConstants.systemDarkColor, lineWidth: 0.5)
                 VStack{
                     UITextTitle(title: "帳號註冊")
-                    UITextFieldCustom(title: "暱稱", input: $username)
+                    UITextFieldCustom(title: "暱稱", input: $userName)
                     UITextFieldCustom(title: "帳號", input: $account)
                     UISecureFieldCustom(title: "密碼", input: $password)
                     UISecureFieldCustom(title: "確認密碼", input: $confirmPassword)
@@ -70,8 +70,14 @@ struct SignupView: View {
     
     private func signupAction() {
         // checkrule
+        if !validateUserNameWidth() {
+            errorMessage = "暱稱過長，最多8個中文或12個英文字"
+            showAlert = true
+            return
+        }
+        
         let checks: [(Bool, String)] = [
-            (username.isEmpty, "請輸入暱稱"),
+            (userName.isEmpty, "請輸入暱稱"),
             (account.isEmpty, "請輸入帳號"),
             (password.isEmpty, "請輸入密碼"),
             (confirmPassword.isEmpty, "請再次輸入密碼"),
@@ -97,7 +103,7 @@ struct SignupView: View {
                 
                 let db = Firestore.firestore()
                 db.collection("users").document(user.uid).setData([
-                    "username": username,
+                    "userName": userName,
                     "email": email,
                     "account": account,
                     "registrationTime": Timestamp(date: Date())
@@ -113,6 +119,21 @@ struct SignupView: View {
             }
         }
     }
+    
+    private func validateUserNameWidth() -> Bool {
+        let totalWidth = userName.reduce(0) { total, character in
+            total + (isChinese(character) ? 2 : 1)
+        }
+        return totalWidth <= 16
+    }
+
+    // 判斷是否為中文字的函式
+    private func isChinese(_ character: Character) -> Bool {
+        return character.unicodeScalars.allSatisfy { scalar in
+            (0x4E00...0x9FFF).contains(scalar.value) // 常見 CJK 中文範圍
+        }
+    }
+
 }
 
 #Preview {

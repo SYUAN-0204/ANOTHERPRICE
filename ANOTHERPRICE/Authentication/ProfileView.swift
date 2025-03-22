@@ -7,6 +7,7 @@
 
 import SwiftUI
 import KeychainSwift
+import Foundation
 
 struct ProfileView: View {
     
@@ -15,9 +16,8 @@ struct ProfileView: View {
     private let keychain = KeychainSwift()
     
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
-    @State var userName: String = "這是另外的價錢錢"
+    @State var userName: String? = "這是另外的價錢錢"
     @State var registrationDays: Int = 0
-    
     @State var likesCount: Int = 43250
     @State var peopleHelped: Int = 123
     @State var followers: Int = 456
@@ -40,7 +40,7 @@ struct ProfileView: View {
                         .padding(.leading, 5)
                     VStack{
                         HStack{
-                            Text(userName)
+                            Text(userName ?? "這是另外的價錢錢")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                             ZStack{
                                 RoundedRectangle(cornerRadius: 10)
@@ -169,12 +169,34 @@ struct ProfileView: View {
         .background(Color.gray.opacity(0.1))
         .onAppear {
             self.authUid = keychain.get("authUid")
+            self.userName = keychain.get("userName")
+            self.registrationDays = daysSinceRegistration()
+            
             if self.authUid == nil {
                     print("no user")
             }else {
                 print(authUid ?? "error")
             }
         }
+    }
+    
+    private func daysSinceRegistration() -> Int {
+        guard let registDayString = keychain.get("registDay") else {
+            return 0
+        }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
+        dateFormatter.locale = Locale(identifier: "zh_TW")
+        
+        guard let registDate = dateFormatter.date(from: registDayString) else {
+            return 0
+        }
+        
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.day], from: registDate, to: Date())
+
+        return components.day ?? 0
     }
 }
 
