@@ -157,7 +157,9 @@ struct ProfileView: View {
                     Text("登入即可體驗完整功能")
                         .font(.custom("NotoSerifTC-Regular", size: 20))
                         .foregroundColor(ColorConstants.systemSubColor)
-                    UIButtonAccountCustom(title: "登入", action: {showLoginView = true})
+                    UIButtonAccountCustom(title: "登入", action: {
+                        showLoginView = true
+                    })
                     .frame(width: 160)
                     .sheet(isPresented: $showLoginView) {
                         LoginView()
@@ -170,13 +172,16 @@ struct ProfileView: View {
         .onAppear {
             self.authUid = keychain.get("authUid")
             self.userName = keychain.get("userName")
-            self.registrationDays = daysSinceRegistration()
+            self.registrationDays = daysSinceRegistration()+1
             
             if self.authUid == nil {
-                    print("no user")
+                print("no user")
             }else {
                 print(authUid ?? "error")
             }
+        }
+        .onChange(of: showLoginView) {
+            self.authUid = keychain.get("authUid")
         }
     }
     
@@ -195,7 +200,7 @@ struct ProfileView: View {
         
         let calendar = Calendar.current
         let components = calendar.dateComponents([.day], from: registDate, to: Date())
-
+        
         return components.day ?? 0
     }
 }
