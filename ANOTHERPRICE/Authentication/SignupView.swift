@@ -22,43 +22,45 @@ struct SignupView: View {
     @State private var showAlert = false
     
     var body: some View {
-        VStack{
-            ZStack{
-                RoundedRectangle(cornerRadius: 7)
-                    .stroke(ColorConstants.systemDarkColor, lineWidth: 0.5)
-                VStack{
-                    UITextTitle(title: "帳號註冊")
-                    UITextFieldCustom(title: "暱稱", input: $userName)
-                    UITextFieldCustom(title: "帳號", input: $account)
-                    UISecureFieldCustom(title: "密碼", input: $password)
-                    UISecureFieldCustom(title: "確認密碼", input: $confirmPassword)
-                    UITextFieldCustom(title: "Email", input: $email)
-                    UIButtonAccountCustom(title: "註冊", action: signupAction)
-                        .padding(.top, 26)
-                    HStack{
-                        Spacer()
-                        Text("已經有帳號嗎？")
-                            .font(.custom("NotoSerifTC-Regular", size: 16))
-                            .foregroundColor(ColorConstants.systemSubColor)
-                            .fontWeight(.light)
-                        Button() {
-                            dismiss()
-                        } label: {
-                            Text("帳號登入")
+        ScrollView{
+            VStack{
+                ZStack{
+                    RoundedRectangle(cornerRadius: 7)
+                        .stroke(ColorConstants.systemDarkColor, lineWidth: 0.5)
+                    VStack{
+                        UITextTitle(title: "帳號註冊")
+                        UITextFieldCustom(title: "暱稱", input: $userName)
+                        UITextFieldCustom(title: "帳號", input: $account)
+                        UISecureFieldCustom(title: "密碼", input: $password)
+                        UISecureFieldCustom(title: "確認密碼", input: $confirmPassword)
+                        UITextFieldCustom(title: "Email", input: $email)
+                        UIButtonAccountCustom(title: "註冊", action: signupAction)
+                            .padding(.top, 26)
+                        HStack{
+                            Spacer()
+                            Text("已經有帳號嗎？")
                                 .font(.custom("NotoSerifTC-Regular", size: 16))
-                                .foregroundColor(ColorConstants.systemMainColor)
+                                .foregroundColor(ColorConstants.systemSubColor)
                                 .fontWeight(.light)
-                                .underline()
+                            Button() {
+                                dismiss()
+                            } label: {
+                                Text("帳號登入")
+                                    .font(.custom("NotoSerifTC-Regular", size: 16))
+                                    .foregroundColor(ColorConstants.systemMainColor)
+                                    .fontWeight(.light)
+                                    .underline()
+                            }
                         }
+                        Spacer()
                     }
-                    Spacer()
+                    .padding(.horizontal, 12)
+                    .padding(.top, 10)
                 }
-                .padding(.horizontal, 12)
-                .padding(.top, 10)
+                .frame(height: 600)
+                .padding(20)
+                Spacer()
             }
-            .frame(height: 600)
-            .padding(20)
-            Spacer()
         }
         .alert("註冊錯誤", isPresented: $showAlert) {
             Button("確定", role: .cancel) { }

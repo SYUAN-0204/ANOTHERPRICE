@@ -172,7 +172,7 @@ struct ProfileView: View {
         .onAppear {
             self.authUid = keychain.get("authUid")
             self.userName = keychain.get("userName")
-            self.registrationDays = daysSinceRegistration()+1
+            self.registrationDays = daysSinceRegistration() + 1
             
             if self.authUid == nil {
                 print("no user")
@@ -182,6 +182,14 @@ struct ProfileView: View {
         }
         .onChange(of: showLoginView) {
             self.authUid = keychain.get("authUid")
+            self.userName = keychain.get("userName")
+            self.registrationDays = daysSinceRegistration() + 1
+            
+            if self.authUid == nil {
+                print("no user")
+            }else {
+                print(authUid ?? "error")
+            }
         }
     }
     

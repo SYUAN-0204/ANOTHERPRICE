@@ -20,27 +20,31 @@ struct ToolView: View {
         TabView {
             Text("Home")
                 .tabItem {
-                    Label("Home", systemImage: "house.fill")
+                    Label("首頁", systemImage: "house")
+                        .environment(\.symbolVariants, .none)
                 }
             
             Text("Search")
                 .tabItem {
-                    Label("Search", systemImage: "magnifyingglass")
+                    Label("搜尋", systemImage: "magnifyingglass")
                 }
             
-            Text("Ask")
+            TempView()
                 .tabItem {
-                    Label("Add", systemImage: "plus.circle.fill")
+                    Label("提問", systemImage: "questionmark.message")
+                        .environment(\.symbolVariants, .none)
                 }
             
-            ProfileSettingView()
+            EditProfileView()
                 .tabItem {
-                    Label("Settings", systemImage: "gearshape.fill")
+                    Label("訊息", systemImage: "envelope")
+                        .environment(\.symbolVariants, .none)
                 }
             
             ProfileView()
                 .tabItem {
-                    Label("Profile", systemImage: "person.circle.fill")
+                    Label("會員", systemImage: "person")
+                        .environment(\.symbolVariants, .none)
                 }
         }
         .accentColor(ColorConstants.systemMainColor)
