@@ -18,10 +18,10 @@ struct ProfileView: View {
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
     @State var userName: String? = "這是另外的價錢錢"
     @State var registrationDays: Int = 0
-    @State var likesCount: Int = 43250
-    @State var peopleHelped: Int = 123
-    @State var followers: Int = 456
-    @State var following: Int = 789
+    @State var likesCount: Int = 0
+    @State var peopleHelped: Int = 0
+    @State var followers: Int = 0
+    @State var following: Int = 0
     
     var body: some View {
         ZStack{
@@ -46,7 +46,7 @@ struct ProfileView: View {
                                 RoundedRectangle(cornerRadius: 10)
                                     .fill(ColorConstants.systemMainColor)
                                     .frame(width: 40, height: 18)
-                                Text("Lv3")
+                                Text("Lv1")
                                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
                                     .foregroundColor(.white)
                             }
@@ -134,7 +134,7 @@ struct ProfileView: View {
                         }
                         .padding(.top, 10)
                         NavigationLink {
-                            TempView()
+                            IssueView()
                         } label: {
                             UIImageExtoolCustom(imageName: "headset", toolTitle: "客服中心")
                         }
@@ -163,6 +163,15 @@ struct ProfileView: View {
                     .frame(width: 160)
                     .sheet(isPresented: $showLoginView) {
                         LoginView()
+                            .onDisappear {
+                                self.authUid = keychain.get("authUid")
+                                self.userName = keychain.get("userName")
+                                self.registrationDays = daysSinceRegistration() + 1
+                                        
+                                print("Auth UID: \(authUid ?? "nil")")
+                                print("User Name: \(userName ?? "nil")")
+                                print("Registration Days: \(registrationDays)")
+                            }
                             .presentationDetents([.fraction(0.9)])
                     }
                 }
@@ -173,23 +182,6 @@ struct ProfileView: View {
             self.authUid = keychain.get("authUid")
             self.userName = keychain.get("userName")
             self.registrationDays = daysSinceRegistration() + 1
-            
-            if self.authUid == nil {
-                print("no user")
-            }else {
-                print(authUid ?? "error")
-            }
-        }
-        .onChange(of: showLoginView) {
-            self.authUid = keychain.get("authUid")
-            self.userName = keychain.get("userName")
-            self.registrationDays = daysSinceRegistration() + 1
-            
-            if self.authUid == nil {
-                print("no user")
-            }else {
-                print(authUid ?? "error")
-            }
         }
     }
     

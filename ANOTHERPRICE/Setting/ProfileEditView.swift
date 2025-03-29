@@ -8,7 +8,7 @@
 import SwiftUI
 import PhotosUI
 
-struct EditProfileView: View {
+struct ProfileEditView: View {
     
     @State var userAvatar: UIImage = UIImage(named: "Advertise") ?? UIImage()
     @State private var showPhotoOptions = false
@@ -61,5 +61,5 @@ struct EditProfileView: View {
 }
 
 #Preview {
-    EditProfileView()
+    ProfileEditView()
 }

@@ -7,24 +7,24 @@
 
 import SwiftUI
 
-struct TempView2: View {
+struct IssueEditView: View {
     @Environment(\.dismiss) var dismiss
     
-    @State var 是不是草稿:Bool
-    @State var 顯示提示:Bool = false
-    @State var 標題:String = ""
-    @State var 內容:String = ""
+    @State var isDraft:Bool
+    @State var showTip:Bool = false
+    @State var title:String = ""
+    @State var content:String = ""
     
     var body: some View {
         VStack{
             HStack {
                 HStack{
                     Button {
-                        if 標題.isEmpty && 內容.isEmpty {
+                        if title.isEmpty && content.isEmpty {
                             dismiss()
                         }
                         else{
-                            顯示提示 = true
+                            showTip = true
                         }
                     } label: {
                         Image(systemName: "arrow.left")
@@ -50,25 +50,25 @@ struct TempView2: View {
                             .foregroundColor(.white)
                             .frame(width: 60, height: 30)
                     }
-                    .background(ColorConstants.systemMainColor.opacity(標題.isEmpty ? 0.7 : 1.0))
+                    .background(ColorConstants.systemMainColor.opacity(title.isEmpty ? 0.7 : 1.0))
                     .cornerRadius(5)
-                    .disabled(標題.isEmpty)
+                    .disabled(title.isEmpty)
                 }
                 .padding(.trailing, 10)
                 .frame(width: 80)
             }
             .frame(height: 36)
             ScrollView{
-                TextEditor(text: $標題)
+                TextEditor(text: $title)
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
-                    .onChange(of: 標題) {
-                        if 標題.count > 50 {
-                            標題 = String(標題.prefix(50))
+                    .onChange(of: title) {
+                        if title.count > 50 {
+                            title = String(title.prefix(50))
                         }
                     }
                     .overlay(
                         Group {
-                            if 標題.isEmpty {
+                            if title.isEmpty {
                                 HStack{
                                     Text("標題")
                                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
@@ -82,7 +82,7 @@ struct TempView2: View {
                     .padding(10)
                 HStack{
                     Spacer()
-                    Text("\(標題.count)/50")
+                    Text("\(title.count)/50")
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
                         .foregroundColor(.gray)
                         .padding(.trailing, 16)
@@ -91,11 +91,11 @@ struct TempView2: View {
                     .fill(.gray)
                     .frame(height: 1)
                     .padding(.horizontal, 10)
-                TextEditor(text: $內容)
+                TextEditor(text: $content)
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                     .overlay(
                         Group {
-                            if 內容.isEmpty {
+                            if content.isEmpty {
                                 HStack{
                                     Text("問題描述")
                                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
@@ -116,8 +116,8 @@ struct TempView2: View {
                 Text("工具列，還沒做")
             }
         }
-        .alert("草稿", isPresented: $顯示提示) {
-            if 是不是草稿 {
+        .alert("草稿", isPresented: $showTip) {
+            if isDraft {
                 Button("刪除草稿", role: .destructive) {
                     print("刪除草稿")
                     dismiss()
@@ -138,12 +138,12 @@ struct TempView2: View {
             }
             Button("取消", role: .cancel) { }
         } message: {
-            Text(是不是草稿 ? "你要如何處理這篇草稿？" : "你要如何處理新建的問題？")
+            Text(isDraft ? "你要如何處理這篇草稿？" : "你要如何處理新建的問題？")
         }
         .navigationBarBackButtonHidden(true)
     }
 }
 
 #Preview {
-    TempView2(是不是草稿: false)
+    IssueEditView(isDraft: false)
 }

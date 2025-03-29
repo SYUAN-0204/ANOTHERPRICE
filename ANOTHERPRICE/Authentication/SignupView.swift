@@ -71,54 +71,99 @@ struct SignupView: View {
     }
     
     private func signupAction() {
-        // checkrule
-        if !validateUserNameWidth() {
-            errorMessage = "暱稱過長，最多8個中文或12個英文字"
-            showAlert = true
-            return
-        }
-        
-        let checks: [(Bool, String)] = [
-            (userName.isEmpty, "請輸入暱稱"),
-            (account.isEmpty, "請輸入帳號"),
-            (password.isEmpty, "請輸入密碼"),
-            (confirmPassword.isEmpty, "請再次輸入密碼"),
-            (password != confirmPassword, "密碼與確認密碼不一致"),
-            (email.isEmpty || !email.contains("@"), "請提供有效的 Email")
-        ]
-        
-        for check in checks {
-            if check.0 {
-                errorMessage = check.1
-                showAlert = true
-                return
+        checkAccount { isDuplicate in
+                if isDuplicate {
+                    errorMessage = "該帳號名稱已經被註冊"
+                    showAlert = true
+                    return
+                }
             }
-        }
-        
-        Auth.auth().createUser(withEmail: email, password: password) { (authResult, error) in
-            if let error = error {
-                errorMessage = error.localizedDescription
-                showAlert = true
-            } else {
-                // save relative data to Firestore
-                guard let user = authResult?.user else { return }
+            
+            checkEmail { isDuplicate in
+                if isDuplicate {
+                    errorMessage = "該 Email 已經被註冊"
+                    showAlert = true
+                    return
+                }
+            }
                 
-                let db = Firestore.firestore()
-                db.collection("users").document(user.uid).setData([
-                    "userName": userName,
-                    "email": email,
-                    "account": account,
-                    "registrationTime": Timestamp(date: Date())
-                ]) { error in
+                // checkrule
+                if !validateUserNameWidth() {
+                    errorMessage = "暱稱過長，最多8個中文或12個英文字"
+                    showAlert = true
+                    return
+                }
+                
+                let checks: [(Bool, String)] = [
+                    (userName.isEmpty, "請輸入暱稱"),
+                    (account.isEmpty, "請輸入帳號"),
+                    (password.isEmpty, "請輸入密碼"),
+                    (confirmPassword.isEmpty, "請再次輸入密碼"),
+                    (password != confirmPassword, "密碼與確認密碼不一致"),
+                    (email.isEmpty || !email.contains("@"), "請提供有效的 Email")
+                ]
+                
+                for check in checks {
+                    if check.0 {
+                        errorMessage = check.1
+                        showAlert = true
+                        return
+                    }
+                }
+                
+                Auth.auth().createUser(withEmail: email, password: password) { (authResult, error) in
                     if let error = error {
-                        errorMessage = "儲存資料到 Firestore 時發生錯誤: \(error.localizedDescription)"
+                        errorMessage = error.localizedDescription
                         showAlert = true
                     } else {
-                        print("帳號建立無誤")
-                        dismiss()
+                        // save relative data to Firestore
+                        guard let user = authResult?.user else { return }
+                        
+                        let db = Firestore.firestore()
+                        db.collection("users").document(user.uid).setData([
+                            "userName": userName,
+                            "email": email,
+                            "account": account,
+                            "registrationTime": Timestamp(date: Date())
+                        ]) { error in
+                            if let error = error {
+                                errorMessage = "儲存資料到 Firestore 時發生錯誤: \(error.localizedDescription)"
+                                showAlert = true
+                            } else {
+                                print("帳號建立無誤")
+                                dismiss()
+                            }
+                        }
                     }
                 }
             }
+    private func checkAccount(completion: @escaping (Bool) -> Void) {
+        let db = Firestore.firestore()
+        let accountQuery = db.collection("users").whereField("account", isEqualTo: account)
+        
+        accountQuery.getDocuments { (querySnapshot, error) in
+            if let error = error {
+                print("帳號查詢錯誤: \(error.localizedDescription)")
+                completion(false)
+                return
+            }
+            
+            completion(querySnapshot?.documents.isEmpty == false) // 如果帳號已經存在，回傳 true
+        }
+    }
+
+    private func checkEmail(completion: @escaping (Bool) -> Void) {
+        let db = Firestore.firestore()
+        let emailQuery = db.collection("users").whereField("email", isEqualTo: email)
+        
+        emailQuery.getDocuments { (querySnapshot, error) in
+            if let error = error {
+                print("Email 查詢錯誤: \(error.localizedDescription)")
+                completion(false)
+                return
+            }
+            
+            completion(querySnapshot?.documents.isEmpty == false) // 如果 Email 已經存在，回傳 true
         }
     }
     

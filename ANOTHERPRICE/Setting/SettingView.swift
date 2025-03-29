@@ -94,7 +94,8 @@ struct SettingView: View {
     
     private func logoutAction() {
             keychain.delete("authUid")
-            authUid = nil
+            keychain.delete("userName")
+            keychain.delete("registDay")
             dismiss()
         }
 }

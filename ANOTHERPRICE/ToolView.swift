@@ -29,13 +29,13 @@ struct ToolView: View {
                     Label("搜尋", systemImage: "magnifyingglass")
                 }
             
-            TempView()
+            IssueView()
                 .tabItem {
                     Label("提問", systemImage: "questionmark.message")
                         .environment(\.symbolVariants, .none)
                 }
             
-            EditProfileView()
+            ProfileEditView()
                 .tabItem {
                     Label("訊息", systemImage: "envelope")
                         .environment(\.symbolVariants, .none)

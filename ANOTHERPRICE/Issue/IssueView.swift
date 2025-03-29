@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct TempView: View {
+struct IssueView: View {
     var body: some View {
         VStack{
             NavigationLink{
-                TempView2(是不是草稿: false)
+                IssueEditView(isDraft: false)
             } label: {
                 ZStack{
                     RoundedRectangle(cornerRadius: 10)
@@ -41,7 +41,7 @@ struct TempView: View {
             ScrollView{
                 ForEach(0..<10){_ in
                     NavigationLink{
-                        TempView2(是不是草稿: true)
+                        IssueEditView(isDraft: true)
                     } label: {
                         ZStack{
                             RoundedRectangle(cornerRadius: 10)
@@ -73,5 +73,5 @@ struct TempView: View {
 }
 
 #Preview {
-    TempView()
+    IssueView()
 }
