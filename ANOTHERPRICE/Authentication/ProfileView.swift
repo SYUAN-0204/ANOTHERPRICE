@@ -16,12 +16,13 @@ struct ProfileView: View {
     private let keychain = KeychainSwift()
     
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
-    @State var userName: String? = "這是另外的價錢錢"
+    @State var userName: String? = "這是另外的價錢"
     @State var registrationDays: Int = 0
     @State var likesCount: Int = 0
     @State var peopleHelped: Int = 0
     @State var followers: Int = 0
     @State var following: Int = 0
+    @State var 等級: Int = 1
     
     var body: some View {
         ZStack{
@@ -40,13 +41,13 @@ struct ProfileView: View {
                         .padding(.leading, 5)
                     VStack{
                         HStack{
-                            Text(userName ?? "這是另外的價錢錢")
+                            Text(userName ?? "這是另外的價錢")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                             ZStack{
                                 RoundedRectangle(cornerRadius: 10)
                                     .fill(ColorConstants.systemMainColor)
                                     .frame(width: 40, height: 18)
-                                Text("Lv1")
+                                Text("Lv \(等級)")
                                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
                                     .foregroundColor(.white)
                             }
