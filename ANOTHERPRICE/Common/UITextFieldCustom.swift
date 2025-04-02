@@ -21,6 +21,7 @@ struct UITextFieldCustom: View {
             }
             .padding(.bottom, -5)
             TextField("" ,text: $input)
+                .autocapitalization(.none)
                 .font(.custom("NotoSerifTC-Regular", size: 18))
                 .foregroundColor(ColorConstants.systemSubColor)
                 .tracking(1)
