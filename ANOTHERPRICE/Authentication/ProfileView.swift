@@ -198,9 +198,10 @@ struct ProfileView: View {
         guard let registDate = dateFormatter.date(from: registDayString) else {
             return 0
         }
-        
         let calendar = Calendar.current
-        let components = calendar.dateComponents([.day], from: registDate, to: Date())
+        let startOfDay = calendar.startOfDay(for: registDate)
+        
+        let components = calendar.dateComponents([.day], from: startOfDay, to: Date())
         
         return components.day ?? 0
     }
