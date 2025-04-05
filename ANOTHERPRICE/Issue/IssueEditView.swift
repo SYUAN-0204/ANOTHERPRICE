@@ -14,6 +14,7 @@ struct IssueEditView: View {
     @Environment(\.dismiss) var dismiss
     
     @State var isDraft:Bool
+    @State var draftId:String?
     @State var showTip:Bool = false
     @State var title:String = ""
     @State var description:String = ""
@@ -22,6 +23,7 @@ struct IssueEditView: View {
 
     
     var body: some View {
+        
         VStack{
             HStack {
                 HStack{
@@ -129,12 +131,12 @@ struct IssueEditView: View {
         .alert("草稿", isPresented: $showTip) {
             if isDraft {
                 Button("刪除草稿", role: .destructive) {
-                    print("刪除草稿")
+                    deleteDraft()
                     dismiss()
                 }
                 Button("儲存變更") {
-                    print("儲存變更")
-                    //處理草稿儲存
+                    updateDraft()
+                    dismiss()
                 }
             } else {
                 Button("刪除草稿", role: .destructive) {
@@ -142,7 +144,6 @@ struct IssueEditView: View {
                     dismiss()
                 }
                 Button("儲存草稿") {
-                    print("儲存草稿")
                     saveDraft()
                     dismiss()
                 }
@@ -156,17 +157,17 @@ struct IssueEditView: View {
         .navigationBarBackButtonHidden(true)
     }
     
-    func deleteDraft(draftId: String) {
+    func deleteDraft() {
         let userUid = keychain.get("authUid") ?? nil
         if(userUid == nil) {
             return
         }
         
-        db.collection("users").document(userUid!).collection("drafts").document(draftId).delete() { error in
+        db.collection("users").document(userUid!).collection("drafts").document(draftId!).delete() { error in
             if let error = error {
                 print("刪除草稿失敗: \(error.localizedDescription)")
             } else {
-                print("草稿刪除成功")
+                print("刪除\(draftId!)草稿成功")
             }
         }
     }
@@ -193,7 +194,7 @@ struct IssueEditView: View {
         }
     }
     
-    func updateDraft(draftId: String) {
+    func updateDraft() {
         let userUid = keychain.get("authUid") ?? nil
         if(userUid == nil) {
             return
@@ -206,16 +207,16 @@ struct IssueEditView: View {
             "updatedAt": Timestamp()
         ]
         
-        db.collection("users").document(userUid!).collection("drafts").document(draftId).updateData(updatedData) { error in
+        db.collection("users").document(userUid!).collection("drafts").document(draftId!).updateData(updatedData) { error in
             if let error = error {
                 print("更新草稿失敗: \(error.localizedDescription)")
             } else {
-                print("草稿更新成功")
+                print("草稿\(draftId!)更新成功")
             }
         }
     }
 }
 
 #Preview {
-    IssueEditView(isDraft: false)
+    IssueEditView(isDraft: false, draftId: nil)
 }

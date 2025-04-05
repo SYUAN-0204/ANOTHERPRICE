@@ -26,7 +26,7 @@ struct IssueView: View {
     var body: some View {
         VStack{
             NavigationLink{
-                IssueEditView(isDraft: false)
+                IssueEditView(isDraft: false, draftId: nil)
             } label: {
                 ZStack{
                     RoundedRectangle(cornerRadius: 10)
@@ -68,34 +68,28 @@ struct IssueView: View {
                 else{
                     ScrollView {
                         ForEach(drafts) { draft in
-                            Button {
-                                keychain.set(draft.id, forKey: "draftTitle")
-                                print("已儲存草稿 ID: \(draft.id) 到 Keychain")
-                            }label: {
-                                NavigationLink {
-                                    IssueEditView(isDraft: true)
-                                } label: {
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .fill(Color.white)
-                                            .frame(height: 80)
-                                            .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
-                                        VStack(alignment: .leading) {
-                                            Text(draft.title)
-                                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                                                .foregroundColor(ColorConstants.systemDarkColor)
-                                                .lineLimit(1)
-                                            Text(draft.description)
-                                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                                                .foregroundColor(.gray)
-                                                .padding(.top, -10)
-                                                .lineLimit(2)
-                                                .multilineTextAlignment(.leading)
-                                        }
-                                        .padding(.horizontal, 10)
+                            NavigationLink { IssueEditView(isDraft: true, draftId: draft.id)
+                            } label: {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color.white)
+                                        .frame(height: 80)
+                                        .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
+                                    VStack(alignment: .leading) {
+                                        Text(draft.title)
+                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                            .foregroundColor(ColorConstants.systemDarkColor)
+                                            .lineLimit(1)
+                                        Text(draft.description)
+                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                            .foregroundColor(.gray)
+                                            .padding(.top, -10)
+                                            .lineLimit(2)
+                                            .multilineTextAlignment(.leading)
                                     }
                                     .padding(.horizontal, 10)
                                 }
+                                .padding(.horizontal, 10)
                             }
                         }
                     }
