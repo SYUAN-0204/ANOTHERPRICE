@@ -86,6 +86,9 @@ struct IssueView: View {
                                             .padding(.top, -10)
                                             .lineLimit(2)
                                             .multilineTextAlignment(.leading)
+                                        HStack{
+                                            Spacer()
+                                        }
                                     }
                                     .padding(.horizontal, 10)
                                 }
@@ -96,6 +99,7 @@ struct IssueView: View {
                     .padding(.top, 5)
                 }
             }
+            Spacer()
         }
         .padding(.horizontal, 10)
         .onAppear {

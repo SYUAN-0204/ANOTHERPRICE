@@ -20,7 +20,7 @@ struct IssueEditView: View {
     @State var description:String = ""
     @State var keychain = KeychainSwift()
     @State var db = Firestore.firestore()
-
+    
     
     var body: some View {
         
@@ -69,8 +69,7 @@ struct IssueEditView: View {
             ScrollView{
                 TextEditor(text: $title)
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
-                    //這邊加了基本高度
-                    .frame(height: 50)
+                    .frame(minHeight: 40)
                     .onChange(of: title) {
                         if title.count > 50 {
                             title = String(title.prefix(50))
@@ -79,17 +78,21 @@ struct IssueEditView: View {
                     .overlay(
                         Group {
                             if title.isEmpty {
-                                HStack{
-                                    Text("標題")
-                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
-                                        .foregroundColor(.gray)
+                                VStack{
+                                    HStack{
+                                        Text("標題")
+                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
+                                            .foregroundColor(.gray)
+                                        Spacer()
+                                    }
+                                    .padding(.leading, 5)
+                                    .padding(.top, 8)
                                     Spacer()
                                 }
-                                .padding(.leading, 5)
                             }
                         }
                     )
-                    .padding(10)
+                    .padding(.horizontal, 10)
                 HStack{
                     Spacer()
                     Text("\(title.count)/50")
@@ -97,28 +100,33 @@ struct IssueEditView: View {
                         .foregroundColor(.gray)
                         .padding(.trailing, 16)
                 }
+                .padding(.top, -15)
                 Rectangle()
                     .fill(.gray)
                     .frame(height: 1)
                     .padding(.horizontal, 10)
+                    .padding(.top, -5)
                 TextEditor(text: $description)
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                    //這邊加了基本高度
-                    .frame(height: 50)
+                    .frame(minHeight: 200)
                     .overlay(
                         Group {
                             if description.isEmpty {
-                                HStack{
-                                    Text("問題描述")
-                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                                        .foregroundColor(.gray)
+                                VStack{
+                                    HStack{
+                                        Text("問題描述")
+                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                            .foregroundColor(.gray)
+                                        Spacer()
+                                    }
+                                    .padding(.leading, 5)
+                                    .padding(.top, 8)
                                     Spacer()
                                 }
-                                .padding(.leading, 5)
                             }
                         }
                     )
-                    .padding(10)
+                    .padding(.horizontal, 10)
                 Spacer()
             }
             ZStack{
@@ -139,8 +147,8 @@ struct IssueEditView: View {
                     dismiss()
                 }
             } else {
-                Button("刪除草稿", role: .destructive) {
-                    print("刪除草稿")
+                Button("直接退出", role: .destructive) {
+                    print("直接退出")
                     dismiss()
                 }
                 Button("儲存草稿") {
@@ -149,10 +157,10 @@ struct IssueEditView: View {
                 }
             }
             Button("取消", role: .cancel) {
-                dismiss()
+                showTip = false
             }
         } message: {
-            Text(isDraft ? "你要如何處理這篇草稿？" : "你要如何處理新建的問題？")
+            Text(isDraft ? "您要如何處理編輯的草稿？" : "您要如何處理新建的問題？")
         }
         .navigationBarBackButtonHidden(true)
     }
