@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
+import FirebaseAuth
+import KeychainSwift
 
 struct IssueEditView: View {
     @Environment(\.dismiss) var dismiss
@@ -13,14 +16,17 @@ struct IssueEditView: View {
     @State var isDraft:Bool
     @State var showTip:Bool = false
     @State var title:String = ""
-    @State var content:String = ""
+    @State var description:String = ""
+    @State var keychain = KeychainSwift()
+    @State var db = Firestore.firestore()
+
     
     var body: some View {
         VStack{
             HStack {
                 HStack{
                     Button {
-                        if title.isEmpty && content.isEmpty {
+                        if title.isEmpty && description.isEmpty {
                             dismiss()
                         }
                         else{
@@ -61,6 +67,8 @@ struct IssueEditView: View {
             ScrollView{
                 TextEditor(text: $title)
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
+                    //這邊加了基本高度
+                    .frame(height: 50)
                     .onChange(of: title) {
                         if title.count > 50 {
                             title = String(title.prefix(50))
@@ -91,11 +99,13 @@ struct IssueEditView: View {
                     .fill(.gray)
                     .frame(height: 1)
                     .padding(.horizontal, 10)
-                TextEditor(text: $content)
+                TextEditor(text: $description)
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                    //這邊加了基本高度
+                    .frame(height: 50)
                     .overlay(
                         Group {
-                            if content.isEmpty {
+                            if description.isEmpty {
                                 HStack{
                                     Text("問題描述")
                                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
@@ -133,14 +143,76 @@ struct IssueEditView: View {
                 }
                 Button("儲存草稿") {
                     print("儲存草稿")
-                    //處理草稿儲存
+                    saveDraft()
+                    dismiss()
                 }
             }
-            Button("取消", role: .cancel) { }
+            Button("取消", role: .cancel) {
+                dismiss()
+            }
         } message: {
             Text(isDraft ? "你要如何處理這篇草稿？" : "你要如何處理新建的問題？")
         }
         .navigationBarBackButtonHidden(true)
+    }
+    
+    func deleteDraft(draftId: String) {
+        let userUid = keychain.get("authUid") ?? nil
+        if(userUid == nil) {
+            return
+        }
+        
+        db.collection("users").document(userUid!).collection("drafts").document(draftId).delete() { error in
+            if let error = error {
+                print("刪除草稿失敗: \(error.localizedDescription)")
+            } else {
+                print("草稿刪除成功")
+            }
+        }
+    }
+    
+    func saveDraft() {
+        let userUid = keychain.get("authUid") ?? nil
+        if(userUid == nil) {
+            return
+        }
+        
+        let draftData: [String: Any] = [
+            "title": title,
+            "description": description,
+            "createdAt": Timestamp(),
+            "updatedAt": Timestamp()
+        ]
+        
+        db.collection("users").document(userUid!).collection("drafts").addDocument(data: draftData) { error in
+            if let error = error {
+                print("儲存草稿失敗: \(error.localizedDescription)")
+            } else {
+                print("草稿儲存成功")
+            }
+        }
+    }
+    
+    func updateDraft(draftId: String) {
+        let userUid = keychain.get("authUid") ?? nil
+        if(userUid == nil) {
+            return
+        }
+        
+        let db = Firestore.firestore()
+        let updatedData: [String: Any] = [
+            "title": title,
+            "description": description,
+            "updatedAt": Timestamp()
+        ]
+        
+        db.collection("users").document(userUid!).collection("drafts").document(draftId).updateData(updatedData) { error in
+            if let error = error {
+                print("更新草稿失敗: \(error.localizedDescription)")
+            } else {
+                print("草稿更新成功")
+            }
+        }
     }
 }
 

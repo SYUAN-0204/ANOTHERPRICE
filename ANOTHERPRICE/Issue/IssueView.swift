@@ -6,8 +6,23 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
+import FirebaseAuth
+import KeychainSwift
 
 struct IssueView: View {
+    @State private var drafts: [Draft] = []
+    @State private var isLoading: Bool = true
+    @State private var noDraftsMessage: String? = nil
+    @State var keychain = KeychainSwift()
+    
+    // 定義草稿資料結構
+    struct Draft: Identifiable {
+        var id: String
+        var title: String
+        var description: String
+    }
+    
     var body: some View {
         VStack{
             NavigationLink{
@@ -30,7 +45,7 @@ struct IssueView: View {
             }
             .padding(.top, 20)
             .padding(.horizontal, 8)
-            HStack{
+            HStack {
                 Text("草稿記錄")
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
                     .foregroundColor(.gray)
@@ -38,38 +53,92 @@ struct IssueView: View {
             }
             .padding(.horizontal, 10)
             .padding(.top, 12)
-            ScrollView{
-                ForEach(0..<10){_ in
-                    NavigationLink{
-                        IssueEditView(isDraft: true)
-                    } label: {
-                        ZStack{
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.white)//gray.opacity(0.1))
-                                .frame(height: 80)
-                                .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
-                            VStack(alignment: .leading){
-                                Text("組裝6000元的電腦，要多少預算？")
-                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                                    .foregroundColor(ColorConstants.systemDarkColor)
-                                    .lineLimit(1)
-                                Text("如題，我是一名即將升大一的高中生，我想購買一台桌機")
-                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                                    .foregroundColor(.gray)
-                                    .padding(.top, -10)
-                                    .lineLimit(2)
-                                    .multilineTextAlignment(.leading)
-                            }
-                            .padding(.horizontal, 10)
-                        }
-                        .padding(.horizontal, 10)
-                    }
+            
+            if isLoading {
+                ProgressView("加載中...")
+                    .padding()
+            } else {
+                if let noDraftsMessage = noDraftsMessage {
+                    Text(noDraftsMessage)
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                        .foregroundColor(.gray)
+                        .padding(.top, 20)
+                        .multilineTextAlignment(.center)
                 }
-                .padding(.top, 5)
+                else{
+                    ScrollView {
+                        ForEach(drafts) { draft in
+                            Button {
+                                keychain.set(draft.id, forKey: "draftTitle")
+                                print("已儲存草稿 ID: \(draft.id) 到 Keychain")
+                            }label: {
+                                NavigationLink {
+                                    IssueEditView(isDraft: true)
+                                } label: {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(Color.white)
+                                            .frame(height: 80)
+                                            .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
+                                        VStack(alignment: .leading) {
+                                            Text(draft.title)
+                                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                                .foregroundColor(ColorConstants.systemDarkColor)
+                                                .lineLimit(1)
+                                            Text(draft.description)
+                                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                                .foregroundColor(.gray)
+                                                .padding(.top, -10)
+                                                .lineLimit(2)
+                                                .multilineTextAlignment(.leading)
+                                        }
+                                        .padding(.horizontal, 10)
+                                    }
+                                    .padding(.horizontal, 10)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.top, 5)
+                }
             }
         }
         .padding(.horizontal, 10)
+        .onAppear {
+            fetchDrafts()
+        }
+        .padding(.horizontal, 10)
     }
+    
+    func fetchDrafts() {
+        let userUid = keychain.get("authUid") ?? nil
+        if(userUid == nil) {
+            return
+        }
+        let db = Firestore.firestore()
+        db.collection("users").document(userUid!).collection("drafts")
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error getting documents: \(error.localizedDescription)")
+                    self.isLoading = false
+                    return
+                }
+                if let documents = snapshot?.documents, !documents.isEmpty {
+                    self.drafts = documents.compactMap { document in
+                        let data = document.data()
+                        return Draft(id: document.documentID,
+                                     title: data["title"] as? String ?? "無標題",
+                                     description: data["description"] as? String ?? "無描述")
+                    }
+                    self.noDraftsMessage = nil
+                } else {
+                    self.drafts = []
+                    self.noDraftsMessage = "暫無草稿"
+                }
+            }
+        self.isLoading = false
+    }
+    
 }
 
 #Preview {

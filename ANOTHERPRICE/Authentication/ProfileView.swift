@@ -22,7 +22,7 @@ struct ProfileView: View {
     @State var peopleHelped: Int = 0
     @State var followers: Int = 0
     @State var following: Int = 0
-    @State var 等級: Int = 1
+    @State var level: Int = 1
     
     var body: some View {
         ZStack{
@@ -47,7 +47,7 @@ struct ProfileView: View {
                                 RoundedRectangle(cornerRadius: 10)
                                     .fill(ColorConstants.systemMainColor)
                                     .frame(width: 40, height: 18)
-                                Text("Lv \(等級)")
+                                Text("Lv \(level)")
                                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
                                     .foregroundColor(.white)
                             }
