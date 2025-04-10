@@ -16,10 +16,12 @@ struct IssueEditView: View {
     @State var isDraft:Bool
     @State var draftId:String?
     @State var showTip:Bool = false
-    @State var title:String = ""
-    @State var description:String = ""
-    @State var keychain = KeychainSwift()
-    @State var db = Firestore.firestore()
+    @State var title:String
+    @State var description:String
+    @State private var keychain = KeychainSwift()
+    @State private var db = Firestore.firestore()
+    @State private var originalTitle: String = ""
+    @State private var originalDescription: String = ""
     
     
     var body: some View {
@@ -28,10 +30,9 @@ struct IssueEditView: View {
             HStack {
                 HStack{
                     Button {
-                        if title.isEmpty && description.isEmpty {
+                        if title == originalTitle && description == originalDescription {
                             dismiss()
-                        }
-                        else{
+                        } else {
                             showTip = true
                         }
                     } label: {
@@ -138,8 +139,7 @@ struct IssueEditView: View {
         }
         .alert("草稿", isPresented: $showTip) {
             if isDraft {
-                Button("刪除草稿", role: .destructive) {
-                    deleteDraft()
+                Button("直接退出", role: .destructive) {
                     dismiss()
                 }
                 Button("儲存變更") {
@@ -163,22 +163,26 @@ struct IssueEditView: View {
             Text(isDraft ? "您要如何處理編輯的草稿？" : "您要如何處理新建的問題？")
         }
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            originalTitle = title
+            originalDescription = description
+        }
     }
     
-    func deleteDraft() {
-        let userUid = keychain.get("authUid") ?? nil
-        if(userUid == nil) {
-            return
-        }
-        
-        db.collection("users").document(userUid!).collection("drafts").document(draftId!).delete() { error in
-            if let error = error {
-                print("刪除草稿失敗: \(error.localizedDescription)")
-            } else {
-                print("刪除\(draftId!)草稿成功")
-            }
-        }
-    }
+//    func deleteDraft() {
+//        let userUid = keychain.get("authUid") ?? nil
+//        if(userUid == nil) {
+//            return
+//        }
+//        
+//        db.collection("users").document(userUid!).collection("drafts").document(draftId!).delete() { error in
+//            if let error = error {
+//                print("刪除草稿失敗: \(error.localizedDescription)")
+//            } else {
+//                print("刪除\(draftId!)草稿成功")
+//            }
+//        }
+//    }
     
     func saveDraft() {
         let userUid = keychain.get("authUid") ?? nil
@@ -226,5 +230,5 @@ struct IssueEditView: View {
 }
 
 #Preview {
-    IssueEditView(isDraft: false, draftId: nil)
+    IssueEditView(isDraft: false, draftId: nil, title: "", description: "")
 }

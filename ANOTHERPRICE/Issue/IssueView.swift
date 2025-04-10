@@ -14,7 +14,7 @@ struct IssueView: View {
     @State private var drafts: [Draft] = []
     @State private var isLoading: Bool = true
     @State private var noDraftsMessage: String? = nil
-    @State var keychain = KeychainSwift()
+    @State private var keychain = KeychainSwift()
     
     // 定義草稿資料結構
     struct Draft: Identifiable {
@@ -26,7 +26,7 @@ struct IssueView: View {
     var body: some View {
         VStack{
             NavigationLink{
-                IssueEditView(isDraft: false, draftId: nil)
+                IssueEditView(isDraft: false, draftId: nil, title: "", description: "")
             } label: {
                 ZStack{
                     RoundedRectangle(cornerRadius: 10)
@@ -68,7 +68,7 @@ struct IssueView: View {
                 else{
                     ScrollView {
                         ForEach(drafts) { draft in
-                            NavigationLink { IssueEditView(isDraft: true, draftId: draft.id)
+                            NavigationLink { IssueEditView(isDraft: true, draftId: draft.id, title: draft.title, description: draft.description)
                             } label: {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 10)
@@ -115,6 +115,8 @@ struct IssueView: View {
         }
         let db = Firestore.firestore()
         db.collection("users").document(userUid!).collection("drafts")
+            .order(by: "updatedAt", descending: true)
+            .limit(to: 10)
             .getDocuments { snapshot, error in
                 if let error = error {
                     print("Error getting documents: \(error.localizedDescription)")
