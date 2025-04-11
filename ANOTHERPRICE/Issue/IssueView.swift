@@ -12,12 +12,14 @@ import KeychainSwift
 
 struct IssueView: View {
     @State private var drafts: [Draft] = []
-    @State private var isLoading: Bool = true
-    @State private var noDraftsMessage: String? = nil
+    @State private var isLoading = true
+    @State private var isFetchingMore = false
+    @State private var hasMoreData = true
+    @State private var lastDocument: DocumentSnapshot? = nil
     @State private var keychain = KeychainSwift()
+    @State private var noDraftsMessage: String? = nil
     
-    // 定義草稿資料結構
-    struct Draft: Identifiable {
+    struct Draft: Identifiable, Equatable {
         var id: String
         var title: String
         var description: String
@@ -55,9 +57,15 @@ struct IssueView: View {
             .padding(.top, 12)
             
             if isLoading {
-                ProgressView("加載中...")
-                    .padding()
-            } else {
+                VStack {
+                    Text("加載中...")
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                        .foregroundColor(.gray)
+                        .padding(.top, 20)
+                        .multilineTextAlignment(.center)
+                    Spacer()
+                }
+            }else {
                 if let noDraftsMessage = noDraftsMessage {
                     Text(noDraftsMessage)
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
@@ -67,79 +75,134 @@ struct IssueView: View {
                 }
                 else{
                     ScrollView {
-                        ForEach(drafts) { draft in
-                            NavigationLink { IssueEditView(isDraft: true, draftId: draft.id, title: draft.title, description: draft.description)
-                            } label: {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(Color.white)
-                                        .frame(height: 80)
-                                        .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
-                                    VStack(alignment: .leading) {
-                                        Text(draft.title)
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                                            .foregroundColor(ColorConstants.systemDarkColor)
-                                            .lineLimit(1)
-                                        Text(draft.description)
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                                            .foregroundColor(.gray)
-                                            .padding(.top, -10)
-                                            .lineLimit(2)
-                                            .multilineTextAlignment(.leading)
-                                        HStack{
-                                            Spacer()
+                        LazyVStack {
+                            ForEach(drafts.indices, id: \.self) { index in
+                                let draft = drafts[index]
+                                NavigationLink {
+                                    IssueEditView(isDraft: true, draftId: draft.id, title: draft.title, description: draft.description)
+                                } label: {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(Color.white)
+                                            .frame(height: 80)
+                                            .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
+                                        VStack(alignment: .leading) {
+                                            Text(draft.title)
+                                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                                .foregroundColor(ColorConstants.systemDarkColor)
+                                                .lineLimit(1)
+                                            Text(draft.description)
+                                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                                .foregroundColor(.gray)
+                                                .padding(.top, -10)
+                                                .lineLimit(2)
+                                                .multilineTextAlignment(.leading)
+                                            HStack{
+                                                Spacer()
+                                            }
                                         }
+                                        .padding(.horizontal, 10)
                                     }
                                     .padding(.horizontal, 10)
                                 }
-                                .padding(.horizontal, 10)
+                                // 🔽 觸發載入更多
+                                .onAppear {
+                                    if index == drafts.count - 1 && hasMoreData && !isFetchingMore {
+                                        fetchDrafts(initial: false)
+                                    }
+                                }
+                            }
+                            
+                            if isFetchingMore {
+                                ProgressView("載入更多中...")
+                                    .padding(.vertical, 10)
+                            }
+                            
+                            if !hasMoreData && !drafts.isEmpty {
+                                Text("沒有更多草稿了")
+                                    .foregroundColor(.gray)
+                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                                    .padding(.vertical, 10)
                             }
                         }
                     }
-                    .padding(.top, 5)
                 }
+                
+                Spacer()
             }
-            Spacer()
+            
         }
         .padding(.horizontal, 10)
         .onAppear {
-            fetchDrafts()
+            drafts.removeAll()
+            lastDocument = nil
+            hasMoreData = true
+            fetchDrafts(initial: true)
         }
-        .padding(.horizontal, 10)
     }
     
-    func fetchDrafts() {
-        let userUid = keychain.get("authUid") ?? nil
-        if(userUid == nil) {
-            return
-        }
+    func fetchDrafts(initial: Bool) {
+        guard let userUid = keychain.get("authUid") else { return }
+        guard !isFetchingMore else { return } // 避免重複請求
+        
         let db = Firestore.firestore()
-        db.collection("users").document(userUid!).collection("drafts")
+        var query: Query = db.collection("users").document(userUid).collection("drafts")
             .order(by: "updatedAt", descending: true)
-            .limit(to: 10)
-            .getDocuments { snapshot, error in
-                if let error = error {
-                    print("Error getting documents: \(error.localizedDescription)")
-                    self.isLoading = false
-                    return
-                }
-                if let documents = snapshot?.documents, !documents.isEmpty {
-                    self.drafts = documents.compactMap { document in
-                        let data = document.data()
-                        return Draft(id: document.documentID,
-                                     title: data["title"] as? String ?? "無標題",
-                                     description: data["description"] as? String ?? "無描述")
-                    }
-                    self.noDraftsMessage = nil
-                } else {
-                    self.drafts = []
-                    self.noDraftsMessage = "暫無草稿"
-                }
+        
+        // 一開始至少要有8筆，不然就會視為已滑到底
+        if initial {
+            isLoading = true
+            query = query.limit(to: 8)
+        } else {
+            query = query.limit(to: 5)
+            isFetchingMore = true
+            if let last = lastDocument {
+                query = query.start(afterDocument: last)
             }
-        self.isLoading = false
+        }
+        
+        query.getDocuments { snapshot, error in
+            if initial {
+                isLoading = false
+            } else {
+                isFetchingMore = false
+            }
+            
+            guard error == nil, let snapshot = snapshot else {
+                print("獲取草稿錯誤: \(error?.localizedDescription ?? "未知錯誤")")
+                return
+            }
+            
+            let newDrafts = snapshot.documents.map { doc in
+                Draft(
+                    id: doc.documentID,
+                    title: doc.data()["title"] as? String ?? "無標題",
+                    description: doc.data()["description"] as? String ?? "無描述"
+                )
+            }
+            
+            if initial {
+                drafts = newDrafts
+            } else {
+                drafts.append(contentsOf: newDrafts)
+            }
+            
+            lastDocument = snapshot.documents.last
+            
+            // 根據載入的資料決定是否有更多資料
+            hasMoreData = newDrafts.count >= (initial ? 8 : 5)
+            
+            if drafts.isEmpty {
+                noDraftsMessage = "暫無草稿"
+            } else {
+                noDraftsMessage = nil
+            }
+        }
     }
-    
+
+
 }
+
 
 #Preview {
     IssueView()
