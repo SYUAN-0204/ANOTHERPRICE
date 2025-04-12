@@ -36,6 +36,8 @@ struct ColorConstants {
     static let systemSubColor = Color(hex: 0x122D3E)
     static let systemDarkColor = Color(hex: 0x212529)
     static let beige = Color(hex: 0xFFFFF0)
+    static let emeraldGreen = Color(hex: 0x2E8B57)
+    static let tomatoRed = Color(hex: 0xD94A38)
 }
 
 extension UIImage {

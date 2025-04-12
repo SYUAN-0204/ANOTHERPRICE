@@ -41,12 +41,15 @@ struct SignupView: View {
                                }
                         if let isDuplicate = isAccountDuplicate {
                             HStack {
+                                Image(systemName: isDuplicate ? "exclamationmark.triangle.fill" :"checkmark")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(isDuplicate ? ColorConstants.tomatoRed : ColorConstants.emeraldGreen)
                                 Text(isDuplicate ? "帳號已被註冊" : "帳號可以使用")
                                     .font(.custom("NotoSerifTC-Regular", size: 14))
-                                    .foregroundColor(isDuplicate ? .red : .green)
+                                    .foregroundColor(isDuplicate ? ColorConstants.tomatoRed : ColorConstants.emeraldGreen)
                                 Spacer()
                             }
-                            .padding(.leading, 6)
+                            .padding(.leading, 5)
                         }
                         UISecureFieldCustom(title: "密碼", input: $password)
                         UISecureFieldCustom(title: "確認密碼", input: $confirmPassword)

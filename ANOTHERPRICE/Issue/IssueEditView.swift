@@ -9,6 +9,7 @@ import SwiftUI
 import FirebaseFirestore
 import FirebaseAuth
 import KeychainSwift
+import PhotosUI
 
 struct IssueEditView: View {
     @Environment(\.dismiss) var dismiss
@@ -23,6 +24,8 @@ struct IssueEditView: View {
     @State private var originalTitle: String = ""
     @State private var originalDescription: String = ""
     
+    @State private var selectedItems: [PhotosPickerItem] = []
+    @State private var selectedImages: [UIImage] = []
     
     var body: some View {
         
@@ -54,7 +57,7 @@ struct IssueEditView: View {
                     Button {
                         
                     } label: {
-                        Text("發布")
+                        Text("繼續")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                             .foregroundColor(.white)
                             .frame(width: 60, height: 30)
@@ -109,7 +112,7 @@ struct IssueEditView: View {
                     .padding(.top, -5)
                 TextEditor(text: $description)
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                    .frame(minHeight: 200)
+                    .frame(minHeight: 500)
                     .overlay(
                         Group {
                             if description.isEmpty {
@@ -129,13 +132,67 @@ struct IssueEditView: View {
                     )
                     .padding(.horizontal, 10)
                 Spacer()
+                Spacer()
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack{
+                        ForEach(selectedImages.indices, id: \.self) { index in
+                            ZStack(alignment: .topTrailing) {
+                                Image(uiImage: selectedImages[index])
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 120, height: 120)
+                                    .clipped()
+                                Button(action: {
+                                    selectedImages.remove(at: index)
+                                    selectedItems.remove(at: index)
+                                }) {
+                                    Image(systemName: "xmark")
+                                        .foregroundColor(.white)
+                                        .font(.system(size: 20))
+                                }
+                                .offset(x: -5, y: 5)
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
             }
-            ZStack{
-                Rectangle()
-                    .fill(Color.gray)
-                    .frame(height: 36)
-                Text("工具列，還沒做")
+            HStack{
+                Spacer()
+                PhotosPicker(selection: $selectedItems,
+                             maxSelectionCount: 10,
+                             selectionBehavior: .ordered,
+                             matching: .images,
+                             photoLibrary: .shared())
+                {
+                    Image(systemName: "photo")
+                        .font(.system(size: 20))
+                        .foregroundColor(.gray)
+                }
+                .padding(.horizontal, 10)
+                .onChange(of: selectedItems) {
+                    print("show")
+                    print(selectedItems)
+                    selectedImages = []
+                    Task {
+                        for item in selectedItems {
+                            if let data = try? await item.loadTransferable(type: Data.self),
+                               let image = UIImage(data: data) {
+                                selectedImages.append(image)
+                            }
+                        }
+                    }
+                }
+                Button() {
+                    
+                } label: {
+                    Image(systemName: "paperclip")
+                        .font(.system(size: 20))
+                        .foregroundColor(.gray)
+                }
+                .padding(.horizontal, 10)
             }
+            .padding(.horizontal, 20)
         }
         .alert("草稿", isPresented: $showTip) {
             if isDraft {
@@ -169,20 +226,20 @@ struct IssueEditView: View {
         }
     }
     
-//    func deleteDraft() {
-//        let userUid = keychain.get("authUid") ?? nil
-//        if(userUid == nil) {
-//            return
-//        }
-//        
-//        db.collection("users").document(userUid!).collection("drafts").document(draftId!).delete() { error in
-//            if let error = error {
-//                print("刪除草稿失敗: \(error.localizedDescription)")
-//            } else {
-//                print("刪除\(draftId!)草稿成功")
-//            }
-//        }
-//    }
+    //    func deleteDraft() {
+    //        let userUid = keychain.get("authUid") ?? nil
+    //        if(userUid == nil) {
+    //            return
+    //        }
+    //
+    //        db.collection("users").document(userUid!).collection("drafts").document(draftId!).delete() { error in
+    //            if let error = error {
+    //                print("刪除草稿失敗: \(error.localizedDescription)")
+    //            } else {
+    //                print("刪除\(draftId!)草稿成功")
+    //            }
+    //        }
+    //    }
     
     func saveDraft() {
         let userUid = keychain.get("authUid") ?? nil

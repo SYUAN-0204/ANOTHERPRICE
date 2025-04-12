@@ -18,6 +18,8 @@ struct IssueView: View {
     @State private var lastDocument: DocumentSnapshot? = nil
     @State private var keychain = KeychainSwift()
     @State private var noDraftsMessage: String? = nil
+    @State var 是否登入: Bool = true
+    @State private var showLoginView = false
     
     struct Draft: Identifiable, Equatable {
         var id: String
@@ -26,126 +28,143 @@ struct IssueView: View {
     }
     
     var body: some View {
-        VStack{
-            NavigationLink{
-                IssueEditView(isDraft: false, draftId: nil, title: "", description: "")
-            } label: {
-                ZStack{
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.white)
-                        .stroke(ColorConstants.systemMainColor, style: StrokeStyle(lineWidth: 1))
-                    HStack{
-                        Image(systemName: "pencil.line")
-                            .font(.system(size: 20))
-                            .foregroundColor(ColorConstants.systemMainColor)
-                        Text("新建問題")
-                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
-                            .foregroundColor(.gray)
+        ZStack{
+            VStack{
+                NavigationLink{
+                    IssueEditView(isDraft: false, draftId: nil, title: "", description: "")
+                } label: {
+                    ZStack{
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.white)
+                            .stroke(ColorConstants.systemMainColor, style: StrokeStyle(lineWidth: 1))
+                        HStack{
+                            Image(systemName: "pencil.line")
+                                .font(.system(size: 20))
+                                .foregroundColor(ColorConstants.systemMainColor)
+                            Text("新建問題")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
+                                .foregroundColor(.gray)
+                        }
                     }
+                    .frame(height: 80)
                 }
-                .frame(height: 80)
-            }
-            .padding(.top, 20)
-            .padding(.horizontal, 8)
-            HStack {
-                Text("草稿記錄")
-                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
-                    .foregroundColor(.gray)
-                Spacer()
-            }
-            .padding(.horizontal, 10)
-            .padding(.top, 12)
-            
-            if isLoading {
-                VStack {
-                    Text("加載中...")
-                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                .padding(.top, 20)
+                .padding(.horizontal, 8)
+                HStack {
+                    Text("草稿記錄")
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
                         .foregroundColor(.gray)
-                        .padding(.top, 20)
-                        .multilineTextAlignment(.center)
                     Spacer()
                 }
-            }else {
-                if let noDraftsMessage = noDraftsMessage {
-                    Text(noDraftsMessage)
-                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                        .foregroundColor(.gray)
-                        .padding(.top, 20)
-                        .multilineTextAlignment(.center)
-                }
-                else{
-                    ScrollView {
-                        LazyVStack {
-                            ForEach(drafts.indices, id: \.self) { index in
-                                let draft = drafts[index]
-                                NavigationLink {
-                                    IssueEditView(isDraft: true, draftId: draft.id, title: draft.title, description: draft.description)
-                                } label: {
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .fill(Color.white)
-                                            .frame(height: 80)
-                                            .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
-                                        VStack(alignment: .leading) {
-                                            if(draft.title.isEmpty){
-                                                Text("無標題")
-                                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                                                    .foregroundColor(ColorConstants.systemDarkColor)
-                                                    .lineLimit(1)
-                                            }else{
-                                                Text(draft.title)
-                                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                                                    .foregroundColor(ColorConstants.systemDarkColor)
-                                                    .lineLimit(1)
+                .padding(.horizontal, 10)
+                .padding(.top, 12)
+                
+                if isLoading {
+                    VStack {
+                        Text("加載中...")
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                            .foregroundColor(.gray)
+                            .padding(.top, 20)
+                            .multilineTextAlignment(.center)
+                        Spacer()
+                    }
+                }else {
+                    if let noDraftsMessage = noDraftsMessage {
+                        Text(noDraftsMessage)
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                            .foregroundColor(.gray)
+                            .padding(.top, 20)
+                            .multilineTextAlignment(.center)
+                    }
+                    else{
+                        ScrollView {
+                            LazyVStack {
+                                ForEach(drafts.indices, id: \.self) { index in
+                                    let draft = drafts[index]
+                                    NavigationLink {
+                                        IssueEditView(isDraft: true, draftId: draft.id, title: draft.title, description: draft.description)
+                                    } label: {
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .fill(Color.white)
+                                                .frame(height: 80)
+                                                .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
+                                            VStack(alignment: .leading) {
+                                                if(draft.title.isEmpty){
+                                                    Text("無標題")
+                                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                                        .foregroundColor(ColorConstants.systemDarkColor)
+                                                        .lineLimit(1)
+                                                }else{
+                                                    Text(draft.title)
+                                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                                        .foregroundColor(ColorConstants.systemDarkColor)
+                                                        .lineLimit(1)
+                                                }
+                                                if(draft.description.isEmpty){
+                                                    Text("無描述\n")
+                                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                                        .foregroundColor(.gray)
+                                                        .padding(.top, -10)
+                                                        .lineLimit(2)
+                                                        .multilineTextAlignment(.leading)
+                                                }else{
+                                                    Text(draft.description + "\n")
+                                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                                        .foregroundColor(.gray)
+                                                        .padding(.top, -10)
+                                                        .lineLimit(2)
+                                                        .multilineTextAlignment(.leading)
+                                                }
+                                                HStack{
+                                                    Spacer()
+                                                }
                                             }
-                                            if(draft.description.isEmpty){
-                                                Text("無描述\n")
-                                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                                                    .foregroundColor(.gray)
-                                                    .padding(.top, -10)
-                                                    .lineLimit(2)
-                                                    .multilineTextAlignment(.leading)
-                                            }else{
-                                                Text(draft.description + "\n")
-                                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                                                    .foregroundColor(.gray)
-                                                    .padding(.top, -10)
-                                                    .lineLimit(2)
-                                                    .multilineTextAlignment(.leading)
-                                            }
-                                            HStack{
-                                                Spacer()
-                                            }
+                                            .padding(.horizontal, 10)
                                         }
                                         .padding(.horizontal, 10)
                                     }
-                                    .padding(.horizontal, 10)
-                                }
-                                .onAppear {
-                                    if index == drafts.count - 1 && hasMoreData && !isFetchingMore {
-                                        fetchDrafts(initial: false)
+                                    .onAppear {
+                                        if index == drafts.count - 1 && hasMoreData && !isFetchingMore {
+                                            fetchDrafts(initial: false)
+                                        }
                                     }
                                 }
-                            }
-                            
-                            if isFetchingMore {
-                                ProgressView("載入更多中...")
-                                    .padding(.vertical, 10)
-                            }
-                            
-                            if !hasMoreData && !drafts.isEmpty {
-                                Text("沒有更多草稿了")
-                                    .foregroundColor(.gray)
-                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
-                                    .padding(.vertical, 10)
+                                
+                                if isFetchingMore {
+                                    ProgressView("載入更多中...")
+                                        .padding(.vertical, 10)
+                                }
+                                
+                                if !hasMoreData && !drafts.isEmpty {
+                                    Text("沒有更多草稿了")
+                                        .foregroundColor(.gray)
+                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                                        .padding(.vertical, 10)
+                                }
                             }
                         }
                     }
+                    
+                    Spacer()
                 }
-                
-                Spacer()
             }
-            
+            if (是否登入 == false) {
+                Color.white.opacity(0.9)
+                VStack {
+                    Text("登入即可體驗完整功能")
+                        .font(.custom("NotoSerifTC-Regular", size: 20))
+                        .foregroundColor(ColorConstants.systemSubColor)
+                    UIButtonAccountCustom(title: "登入", action: {
+                        showLoginView = true
+                    })
+                    .frame(width: 160)
+                    .sheet(isPresented: $showLoginView) {
+                        LoginView()
+                            .presentationDetents([.fraction(0.9)])
+                    }
+                }
+            }
         }
         .padding(.horizontal, 10)
         .onAppear {
