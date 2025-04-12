@@ -87,16 +87,32 @@ struct IssueView: View {
                                             .frame(height: 80)
                                             .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
                                         VStack(alignment: .leading) {
-                                            Text(draft.title)
-                                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                                                .foregroundColor(ColorConstants.systemDarkColor)
-                                                .lineLimit(1)
-                                            Text(draft.description)
-                                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                                                .foregroundColor(.gray)
-                                                .padding(.top, -10)
-                                                .lineLimit(2)
-                                                .multilineTextAlignment(.leading)
+                                            if(draft.title.isEmpty){
+                                                Text("無標題")
+                                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                                    .foregroundColor(ColorConstants.systemDarkColor)
+                                                    .lineLimit(1)
+                                            }else{
+                                                Text(draft.title)
+                                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                                    .foregroundColor(ColorConstants.systemDarkColor)
+                                                    .lineLimit(1)
+                                            }
+                                            if(draft.description.isEmpty){
+                                                Text("無描述\n")
+                                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                                    .foregroundColor(.gray)
+                                                    .padding(.top, -10)
+                                                    .lineLimit(2)
+                                                    .multilineTextAlignment(.leading)
+                                            }else{
+                                                Text(draft.description + "\n")
+                                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                                    .foregroundColor(.gray)
+                                                    .padding(.top, -10)
+                                                    .lineLimit(2)
+                                                    .multilineTextAlignment(.leading)
+                                            }
                                             HStack{
                                                 Spacer()
                                             }
@@ -105,7 +121,6 @@ struct IssueView: View {
                                     }
                                     .padding(.horizontal, 10)
                                 }
-                                // 🔽 觸發載入更多
                                 .onAppear {
                                     if index == drafts.count - 1 && hasMoreData && !isFetchingMore {
                                         fetchDrafts(initial: false)
@@ -199,8 +214,8 @@ struct IssueView: View {
             }
         }
     }
-
-
+    
+    
 }
 
 

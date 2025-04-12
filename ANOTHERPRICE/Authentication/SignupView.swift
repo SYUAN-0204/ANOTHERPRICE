@@ -20,6 +20,7 @@ struct SignupView: View {
     @State private var email = ""
     @State private var errorMessage = ""
     @State private var showAlert = false
+    @State private var isAccountDuplicate: Bool? = nil
     
     var body: some View {
         ScrollView{
@@ -31,6 +32,22 @@ struct SignupView: View {
                         UITextTitle(title: "帳號註冊")
                         UITextFieldCustom(title: "暱稱", input: $userName)
                         UITextFieldCustom(title: "帳號", input: $account)
+                            .onChange(of: account) {
+                                   checkAccount { isDuplicate in
+                                       DispatchQueue.main.async {
+                                           isAccountDuplicate = isDuplicate
+                                       }
+                                   }
+                               }
+                        if let isDuplicate = isAccountDuplicate {
+                            HStack {
+                                Text(isDuplicate ? "帳號已被註冊" : "帳號可以使用")
+                                    .font(.custom("NotoSerifTC-Regular", size: 14))
+                                    .foregroundColor(isDuplicate ? .red : .green)
+                                Spacer()
+                            }
+                            .padding(.leading, 6)
+                        }
                         UISecureFieldCustom(title: "密碼", input: $password)
                         UISecureFieldCustom(title: "確認密碼", input: $confirmPassword)
                         UITextFieldCustom(title: "Email", input: $email)
