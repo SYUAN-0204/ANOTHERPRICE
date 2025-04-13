@@ -87,8 +87,18 @@ struct ProfileView: View {
                 .frame(height: 60)
                 .padding(.horizontal, 20)
                 ScrollView{
-                    HStack{
+                    ZStack{
                         Color.white
+                        HStack{
+                            UINavigationLinkProfileTool(destination: AnyView(tempView()), icon: "tray.full", title: "我的提問")
+                            Spacer()
+                            UINavigationLinkProfileTool(destination: AnyView(tempView()), icon: "pencil.line", title: "我的草稿")
+                            Spacer()
+                            UINavigationLinkProfileTool(destination: AnyView(tempView()), icon: "book.pages", title: "我的收藏")
+                            Spacer()
+                            UINavigationLinkProfileTool(destination: AnyView(tempView()), icon: "bag", title: "點數商城")
+                        }
+                        .padding(.horizontal, 30)
                     }
                     .frame(height: 90)
                     .cornerRadius(10)
@@ -122,11 +132,13 @@ struct ProfileView: View {
                     .frame(height: 80)
                     .background(ColorConstants.beige)
                     .cornerRadius(10)
+                    .padding(.top, 2)
                     ZStack{
                         Color.brown
                     }
                     .frame(height: 140)
                     .cornerRadius(10)
+                    .padding(.top, 2)
                     VStack{
                         HStack{
                             Text("其他服務")

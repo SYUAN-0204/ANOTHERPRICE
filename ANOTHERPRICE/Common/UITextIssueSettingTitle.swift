@@ -11,9 +11,9 @@ struct UITextIssueSettingTitle: View {
     @State var title: String
     var body: some View {
         Text(title)
-            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
+            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
             .foregroundColor(ColorConstants.systemDarkColor)
-            .padding(.trailing, 10)
+            .padding(.trailing, 5)
     }
 }
 
