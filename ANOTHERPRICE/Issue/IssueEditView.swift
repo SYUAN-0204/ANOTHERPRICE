@@ -24,205 +24,226 @@ struct IssueEditView: View {
     @State private var originalTitle: String = ""
     @State private var originalDescription: String = ""
     
-    @State private var selectedItems: [PhotosPickerItem] = []
-    @State private var selectedImages: [UIImage] = []
+    @State private var selectedItems: [PhotosPickerItem] = [] //Picker元件自用變數
+    @State private var selectedImages: [UIImage] = [] //圖片陣列
+    @State private var 控制圖片放大: Bool = false
+    @State private var 控制圖片放大索引: Int? = nil
     
     var body: some View {
-        
-        VStack{
-            HStack {
-                HStack{
-                    Button {
-                        if title == originalTitle && description == originalDescription {
-                            dismiss()
-                        } else {
-                            showTip = true
+        ZStack{
+            VStack{
+                HStack {
+                    HStack{
+                        Button {
+                            if title == originalTitle && description == originalDescription {
+                                dismiss()
+                            } else {
+                                showTip = true
+                            }
+                        } label: {
+                            Image(systemName: "arrow.left")
+                                .font(.system(size: 18))
+                                .foregroundColor(.black)
                         }
-                    } label: {
-                        Image(systemName: "arrow.left")
-                            .font(.system(size: 18))
-                            .foregroundColor(.black)
+                        Spacer()
                     }
+                    .padding(.leading, 10)
+                    .frame(width: 80)
                     Spacer()
+                    Text("提問")
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
+                        .fontWeight(.semibold)
+                    Spacer()
+                    HStack{
+                        Spacer()
+                        NavigationLink {
+                            LazyView(IssueSettingView())
+                        } label: {
+                            Text("繼續")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                .foregroundColor(.white)
+                                .frame(width: 60, height: 30)
+                        }
+                        .background(ColorConstants.systemMainColor.opacity(title.isEmpty ? 0.7 : 1.0))
+                        .cornerRadius(5)
+                        .disabled(title.isEmpty)
+                    }
+                    .padding(.trailing, 10)
+                    .frame(width: 80)
                 }
-                .padding(.leading, 10)
-                .frame(width: 80)
-                Spacer()
-                Text("提問")
-                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
-                    .fontWeight(.semibold)
-                Spacer()
+                .frame(height: 36)
+                ScrollView{
+                    TextEditor(text: $title)
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
+                        .frame(minHeight: 40)
+                        .onChange(of: title) {
+                            if title.count > 50 {
+                                title = String(title.prefix(50))
+                            }
+                        }
+                        .overlay(
+                            Group {
+                                if title.isEmpty {
+                                    VStack{
+                                        HStack{
+                                            Text("標題")
+                                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
+                                                .foregroundColor(.gray)
+                                            Spacer()
+                                        }
+                                        .padding(.leading, 5)
+                                        .padding(.top, 8)
+                                        Spacer()
+                                    }
+                                }
+                            }
+                        )
+                        .padding(.horizontal, 10)
+                    HStack{
+                        Spacer()
+                        Text("\(title.count)/50")
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
+                            .foregroundColor(.gray)
+                            .padding(.trailing, 16)
+                    }
+                    .padding(.top, -15)
+                    Rectangle()
+                        .fill(.gray)
+                        .frame(height: 1)
+                        .padding(.horizontal, 10)
+                        .padding(.top, -5)
+                    TextEditor(text: $description)
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                        .frame(minHeight: 500)
+                        .overlay(
+                            Group {
+                                if description.isEmpty {
+                                    VStack{
+                                        HStack{
+                                            Text("問題描述")
+                                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                                .foregroundColor(.gray)
+                                            Spacer()
+                                        }
+                                        .padding(.leading, 5)
+                                        .padding(.top, 8)
+                                        Spacer()
+                                    }
+                                }
+                            }
+                        )
+                        .padding(.horizontal, 10)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack{
+                            ForEach(selectedImages.indices, id: \.self) { index in
+                                Button {
+                                    控制圖片放大 = true
+                                    控制圖片放大索引 = index
+                                } label: {
+                                    ZStack(alignment: .topTrailing) {
+                                        Image(uiImage: selectedImages[index])
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 120, height: 120)
+                                            .clipped()
+                                        Button(action: {
+                                            selectedImages.remove(at: index)
+                                            selectedItems.remove(at: index)
+                                        }) {
+                                            Image(systemName: "xmark")
+                                                .foregroundColor(.white)
+                                                .font(.system(size: 20))
+                                        }
+                                        .frame(width: 30, height: 30)
+                                        .offset(x: -5, y: 5)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                }
                 HStack{
                     Spacer()
-                    Button {
+                    PhotosPicker(selection: $selectedItems,
+                                 maxSelectionCount: 10,
+                                 selectionBehavior: .ordered,
+                                 matching: .images,
+                                 photoLibrary: .shared())
+                    {
+                        Image(systemName: "photo")
+                            .font(.system(size: 20))
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.horizontal, 10)
+                    .onChange(of: selectedItems) {
+                        print("show")
+                        print(selectedItems)
+                        selectedImages = []
+                        Task {
+                            for item in selectedItems {
+                                if let data = try? await item.loadTransferable(type: Data.self),
+                                   let image = UIImage(data: data) {
+                                    selectedImages.append(image)
+                                }
+                            }
+                        }
+                    }
+                    Button() {
                         
                     } label: {
-                        Text("繼續")
-                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                            .foregroundColor(.white)
-                            .frame(width: 60, height: 30)
+                        Image(systemName: "paperclip")
+                            .font(.system(size: 20))
+                            .foregroundColor(.gray)
                     }
-                    .background(ColorConstants.systemMainColor.opacity(title.isEmpty ? 0.7 : 1.0))
-                    .cornerRadius(5)
-                    .disabled(title.isEmpty)
-                }
-                .padding(.trailing, 10)
-                .frame(width: 80)
-            }
-            .frame(height: 36)
-            ScrollView{
-                TextEditor(text: $title)
-                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
-                    .frame(minHeight: 40)
-                    .onChange(of: title) {
-                        if title.count > 50 {
-                            title = String(title.prefix(50))
-                        }
-                    }
-                    .overlay(
-                        Group {
-                            if title.isEmpty {
-                                VStack{
-                                    HStack{
-                                        Text("標題")
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
-                                            .foregroundColor(.gray)
-                                        Spacer()
-                                    }
-                                    .padding(.leading, 5)
-                                    .padding(.top, 8)
-                                    Spacer()
-                                }
-                            }
-                        }
-                    )
                     .padding(.horizontal, 10)
-                HStack{
-                    Spacer()
-                    Text("\(title.count)/50")
-                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
-                        .foregroundColor(.gray)
-                        .padding(.trailing, 16)
-                }
-                .padding(.top, -15)
-                Rectangle()
-                    .fill(.gray)
-                    .frame(height: 1)
-                    .padding(.horizontal, 10)
-                    .padding(.top, -5)
-                TextEditor(text: $description)
-                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                    .frame(minHeight: 500)
-                    .overlay(
-                        Group {
-                            if description.isEmpty {
-                                VStack{
-                                    HStack{
-                                        Text("問題描述")
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                                            .foregroundColor(.gray)
-                                        Spacer()
-                                    }
-                                    .padding(.leading, 5)
-                                    .padding(.top, 8)
-                                    Spacer()
-                                }
-                            }
-                        }
-                    )
-                    .padding(.horizontal, 10)
-                Spacer()
-                Spacer()
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack{
-                        ForEach(selectedImages.indices, id: \.self) { index in
-                            ZStack(alignment: .topTrailing) {
-                                Image(uiImage: selectedImages[index])
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 120, height: 120)
-                                    .clipped()
-                                Button(action: {
-                                    selectedImages.remove(at: index)
-                                    selectedItems.remove(at: index)
-                                }) {
-                                    Image(systemName: "xmark")
-                                        .foregroundColor(.white)
-                                        .font(.system(size: 20))
-                                }
-                                .offset(x: -5, y: 5)
-                            }
-                        }
-                    }
                 }
                 .padding(.horizontal, 20)
             }
-            HStack{
-                Spacer()
-                PhotosPicker(selection: $selectedItems,
-                             maxSelectionCount: 10,
-                             selectionBehavior: .ordered,
-                             matching: .images,
-                             photoLibrary: .shared())
-                {
-                    Image(systemName: "photo")
-                        .font(.system(size: 20))
-                        .foregroundColor(.gray)
-                }
-                .padding(.horizontal, 10)
-                .onChange(of: selectedItems) {
-                    print("show")
-                    print(selectedItems)
-                    selectedImages = []
-                    Task {
-                        for item in selectedItems {
-                            if let data = try? await item.loadTransferable(type: Data.self),
-                               let image = UIImage(data: data) {
-                                selectedImages.append(image)
-                            }
-                        }
+            .alert("草稿", isPresented: $showTip) {
+                if isDraft {
+                    Button("直接退出", role: .destructive) {
+                        dismiss()
+                    }
+                    Button("儲存變更") {
+                        updateDraft()
+                        dismiss()
+                    }
+                } else {
+                    Button("直接退出", role: .destructive) {
+                        print("直接退出")
+                        dismiss()
+                    }
+                    Button("儲存草稿") {
+                        saveDraft()
+                        dismiss()
                     }
                 }
-                Button() {
-                    
-                } label: {
-                    Image(systemName: "paperclip")
-                        .font(.system(size: 20))
-                        .foregroundColor(.gray)
+                Button("取消", role: .cancel) {
+                    showTip = false
                 }
-                .padding(.horizontal, 10)
+            } message: {
+                Text(isDraft ? "您要如何處理編輯的草稿？" : "您要如何處理新建的問題？")
             }
-            .padding(.horizontal, 20)
-        }
-        .alert("草稿", isPresented: $showTip) {
-            if isDraft {
-                Button("直接退出", role: .destructive) {
-                    dismiss()
-                }
-                Button("儲存變更") {
-                    updateDraft()
-                    dismiss()
-                }
-            } else {
-                Button("直接退出", role: .destructive) {
-                    print("直接退出")
-                    dismiss()
-                }
-                Button("儲存草稿") {
-                    saveDraft()
-                    dismiss()
-                }
+            .navigationBarBackButtonHidden(true)
+            .onAppear {
+                originalTitle = title
+                originalDescription = description
             }
-            Button("取消", role: .cancel) {
-                showTip = false
+            if 控制圖片放大 {
+                Color.white.opacity(0.9)
+                    .ignoresSafeArea(edges: .all)
+                    .onTapGesture {
+                        控制圖片放大 = false
+                    }
+                Image(uiImage: selectedImages[控制圖片放大索引 ?? 0])
+                    .resizable()
+                    .scaledToFit()
+                    .padding(.horizontal, 20)
+                    .onTapGesture {
+                        控制圖片放大 = true
+                    }
             }
-        } message: {
-            Text(isDraft ? "您要如何處理編輯的草稿？" : "您要如何處理新建的問題？")
-        }
-        .navigationBarBackButtonHidden(true)
-        .onAppear {
-            originalTitle = title
-            originalDescription = description
         }
     }
     
@@ -283,6 +304,16 @@ struct IssueEditView: View {
                 print("草稿\(draftId!)更新成功")
             }
         }
+    }
+}
+
+struct LazyView<Content: View>: View {
+    let build: () -> Content
+    init(_ build: @autoclosure @escaping () -> Content) {
+        self.build = build
+    }
+    var body: Content {
+        build()
     }
 }
 
