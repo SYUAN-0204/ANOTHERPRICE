@@ -28,6 +28,7 @@ struct IssueEditView: View {
     @State private var selectedImages: [UIImage] = [] //圖片陣列
     @State private var 控制圖片放大: Bool = false
     @State private var 控制圖片放大索引: Int? = nil
+    @State private var 選擇檔案: Bool = false
     
     var body: some View {
         ZStack{
@@ -114,7 +115,7 @@ struct IssueEditView: View {
                         .padding(.top, -5)
                     TextEditor(text: $description)
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                        .frame(minHeight: 500)
+                        .frame(minHeight: 440)
                         .overlay(
                             Group {
                                 if description.isEmpty {
@@ -162,11 +163,40 @@ struct IssueEditView: View {
                         }
                     }
                     .padding(.horizontal, 20)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack{
+                            ForEach(selectedImages.indices, id: \.self) { index in
+                                ZStack(alignment: .topTrailing) {
+                                    HStack{
+                                        Text("檔案名稱.txt")
+                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                            .foregroundColor(.gray)
+                                        Spacer()
+                                        Button(action: {
+                                            //刪除夾檔
+                                        }) {
+                                            Image(systemName: "xmark")
+                                                .foregroundColor(.gray)
+                                                .font(.system(size: 14))
+                                        }
+                                        .frame(width: 20, height: 20)
+                                    }
+                                    .padding(.horizontal, 10)
+                                }
+                                .frame(width: 180, height: 36)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 7)
+                                        .stroke(Color.gray, lineWidth: 1)
+                                )
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
                 }
                 HStack{
                     Spacer()
                     PhotosPicker(selection: $selectedItems,
-                                 maxSelectionCount: 10,
+                                 maxSelectionCount: 0,
                                  selectionBehavior: .ordered,
                                  matching: .images,
                                  photoLibrary: .shared())
@@ -190,13 +220,26 @@ struct IssueEditView: View {
                         }
                     }
                     Button() {
-                        
+                        選擇檔案 = true
                     } label: {
                         Image(systemName: "paperclip")
                             .font(.system(size: 20))
                             .foregroundColor(.gray)
                     }
                     .padding(.horizontal, 10)
+                    .fileImporter(
+                        isPresented: $選擇檔案,
+                        allowedContentTypes: [.item], // 支援所有檔案類型
+                        allowsMultipleSelection: true
+                    ) { result in
+                        switch result {
+                        case .success(let url):
+                            print("選擇檔案成功")
+                            //uploadFileToFirebase(fileURL: url)
+                        case .failure(let error):
+                            print("選擇檔案失敗：\(error)")
+                        }
+                    }
                 }
                 .padding(.horizontal, 20)
             }
@@ -304,16 +347,6 @@ struct IssueEditView: View {
                 print("草稿\(draftId!)更新成功")
             }
         }
-    }
-}
-
-struct LazyView<Content: View>: View {
-    let build: () -> Content
-    init(_ build: @autoclosure @escaping () -> Content) {
-        self.build = build
-    }
-    var body: Content {
-        build()
     }
 }
 

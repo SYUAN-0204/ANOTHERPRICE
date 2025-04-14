@@ -9,7 +9,7 @@ import SwiftUI
 
 struct tempView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Text("只要還沒做，就在此撞牆")
     }
 }
 

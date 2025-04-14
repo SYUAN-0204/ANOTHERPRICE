@@ -42,24 +42,34 @@ struct SettingView: View {
             .background(Color.white)
             ScrollView(){
                 VStack(spacing: 0){
-                    HStack{
-                        Text("帳號資料")
-                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.gray)
+                    NavigationLink{
+                        tempView()
+                    } label: {
+                        HStack{
+                            Text("帳號資料")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                .foregroundColor(.black)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
+                        }
                     }
                     .frame(height: 50)
                     .padding(.horizontal, 10)
                     Rectangle()
                         .fill(Color.gray.opacity(0.1))
                         .frame(height: 1)
-                    HStack{
-                        Text("訊息設定")
-                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.gray)
+                    NavigationLink{
+                        tempView()
+                    } label: {
+                        HStack{
+                            Text("訊息設定")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                .foregroundColor(.black)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
+                        }
                     }
                     .frame(height: 50)
                     .padding(.horizontal, 10)
@@ -67,15 +77,33 @@ struct SettingView: View {
                 .background(Color.white)
                 
                 VStack(spacing: 0){
-                    UIButtonSettingTool(title: "帳號切換")
+                    UIButtonSettingTool(title: "切換帳號")
                 }
                 .background(Color.white)
                 .padding(.top, 10)
                 
                 VStack(spacing: 0){
-                    UIButtonSettingTool(title: "帳號登出", action: {
+                    UIButtonSettingTool(title: "登出帳號", action: {
                         logout = true
                     })
+                }
+                .background(Color.white)
+                .padding(.top, 10)
+                
+                VStack(spacing: 0){
+                    Button(action: {
+                        
+                    }) {
+                        HStack{
+                            Spacer()
+                            Text("刪除帳號")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                .foregroundColor(ColorConstants.tomatoRed)
+                            Spacer()
+                        }
+                        .frame(height: 50)
+                        .padding(.horizontal, 10)
+                    }
                 }
                 .background(Color.white)
                 .padding(.top, 10)

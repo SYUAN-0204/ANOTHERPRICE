@@ -69,8 +69,8 @@ struct ProfileView: View {
                             Image(systemName: "chevron.right")
                                 .padding(.leading, -8)
                         }
+                        .foregroundColor(.gray)
                     }
-                    .foregroundColor(.gray)
                     Spacer()
                 }
                 .padding(.top, 10)
@@ -90,17 +90,17 @@ struct ProfileView: View {
                     ZStack{
                         Color.white
                         HStack{
-                            UINavigationLinkProfileTool(destination: AnyView(tempView()), icon: "tray.full", title: "我的提問")
+                            UINavigationLinkProfileTool(destination: AnyView(temp3()), icon: "tray.full", title: "我的提問")
                             Spacer()
                             UINavigationLinkProfileTool(destination: AnyView(temp()), icon: "pencil.line", title: "我的草稿")
                             Spacer()
-                            UINavigationLinkProfileTool(destination: AnyView(tempView()), icon: "book.pages", title: "我的收藏")
+                            UINavigationLinkProfileTool(destination: AnyView(temp2()), icon: "book.pages", title: "我的收藏")
                             Spacer()
                             UINavigationLinkProfileTool(destination: AnyView(tempView()), icon: "bag", title: "點數商城")
                         }
                         .padding(.horizontal, 30)
                     }
-                    .frame(height: 90)
+                    .frame(height: 80)
                     .cornerRadius(10)
                     HStack{
                         VStack{
@@ -129,12 +129,33 @@ struct ProfileView: View {
                             .frame(width: 200)
                         }
                     }
-                    .frame(height: 80)
+                    .frame(height: 70)
                     .background(ColorConstants.beige)
                     .cornerRadius(10)
                     .padding(.top, 2)
                     ZStack{
-                        Color.brown
+                        Color.white
+                        VStack{
+                            HStack{
+                                Text("每日任務")
+                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                    .foregroundColor(ColorConstants.systemDarkColor)
+                                Spacer()
+                                NavigationLink{
+                                    tempView()
+                                } label: {
+                                    Text("任務中心")
+                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
+                                        .foregroundColor(.gray)
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(.gray)
+                                        .padding(.leading, -8)
+                                }
+                            }
+                            Spacer()
+                        }
+                        .padding(15)
                     }
                     .frame(height: 140)
                     .cornerRadius(10)
@@ -147,7 +168,7 @@ struct ProfileView: View {
                         }
                         .padding(.top, 10)
                         NavigationLink {
-                            IssueView()
+                            tempView()
                         } label: {
                             UIImageExtoolCustom(imageName: "headset", toolTitle: "客服中心")
                         }

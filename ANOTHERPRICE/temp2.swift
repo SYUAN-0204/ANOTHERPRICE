@@ -1,5 +1,5 @@
 //
-//  temp.swift
+//  temp2.swift
 //  ANOTHERPRICE
 //
 //  Created by 遠上寒山 on 2025/4/14.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct temp: View {
+struct temp2: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var 多選: Bool = false
@@ -42,7 +42,7 @@ struct temp: View {
                 .padding(.leading, 10)
                 .frame(width: 80)
                 Spacer()
-                Text("我的草稿")
+                Text("我的收藏")
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
                     .fontWeight(.semibold)
                 Spacer()
@@ -75,12 +75,10 @@ struct temp: View {
             .frame(height: 36)
             ScrollView{
                 ForEach(0..<10){ i in
-                    NavigationLink{
-                        //tempView()
-                        LazyView(IssueEditView(isDraft: true, draftId: "draft.id", title: "draft.title", description: "draft.description"))
-                        /*IssueEditView(isDraft: true, draftId: "draft.id", title: "draft.title", description: "draft.description")*/
+                    NavigationLink {
+                        tempView()
                     } label: {
-                        UIComplexMyArticle(selecte: $多選, trashcanState: $垃圾桶選中, title: "標題", date: "Last Edit : 2025-04-03", content: "總之是內容")
+                        UIComplexUploadArticle(selecte: $多選, trashcanState: $垃圾桶選中, title: "標題", date: "Last Upload : 2025-04-03 ; Last Comment : 2025-04-03", content: "總之是內容\n總之是內容\n總之是內容\n", heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW")
                     }
                     .buttonStyle(PlainButtonStyle())
                     Rectangle()
@@ -114,5 +112,5 @@ struct temp: View {
 }
 
 #Preview {
-    temp()
+    temp2()
 }

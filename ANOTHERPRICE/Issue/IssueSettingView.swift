@@ -98,7 +98,7 @@ struct IssueSettingView: View {
                         .foregroundColor(ColorConstants.systemDarkColor.opacity(0.9))
                         .keyboardType(.numberPad)
                         .frame(height: 36)
-                    Text("餘額：\(餘額)")
+                    Text("點數：\(餘額)")
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                         .foregroundColor(ColorConstants.systemDarkColor.opacity(0.7))
                         .frame(height: 36)
@@ -124,7 +124,7 @@ struct IssueSettingView: View {
             }
             .padding(.horizontal, 10)
             ScrollView{
-                //預覽還沒做，準備真實輸出用同一套介面
+                Text("還沒想好預覽顯示排版")
             }
             .padding(.horizontal, 15)
             .padding(.top, 7)
