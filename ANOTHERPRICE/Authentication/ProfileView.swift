@@ -92,7 +92,7 @@ struct ProfileView: View {
                         HStack{
                             UINavigationLinkProfileTool(destination: AnyView(tempView()), icon: "tray.full", title: "我的提問")
                             Spacer()
-                            UINavigationLinkProfileTool(destination: AnyView(tempView()), icon: "pencil.line", title: "我的草稿")
+                            UINavigationLinkProfileTool(destination: AnyView(temp()), icon: "pencil.line", title: "我的草稿")
                             Spacer()
                             UINavigationLinkProfileTool(destination: AnyView(tempView()), icon: "book.pages", title: "我的收藏")
                             Spacer()
