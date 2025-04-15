@@ -48,7 +48,7 @@ struct ProfileView: View {
                                     .fill(ColorConstants.systemMainColor)
                                     .frame(width: 40, height: 18)
                                 Text("Lv \(level)")
-                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
+                                    .font(.custom("BubblegumSans-Regular", size: 14))
                                     .foregroundColor(.white)
                             }
                             Spacer()
@@ -90,13 +90,13 @@ struct ProfileView: View {
                     ZStack{
                         Color.white
                         HStack{
-                            UINavigationLinkProfileTool(destination: AnyView(temp3()), icon: "tray.full", title: "我的提問")
+                            UINavigationLinkProfileTool(destination: temp3(), icon: "tray.full", title: "我的提問")
                             Spacer()
-                            UINavigationLinkProfileTool(destination: AnyView(temp()), icon: "pencil.line", title: "我的草稿")
+                            UINavigationLinkProfileTool(destination: temp(), icon: "pencil.line", title: "我的草稿")
                             Spacer()
-                            UINavigationLinkProfileTool(destination: AnyView(temp2()), icon: "book.pages", title: "我的收藏")
+                            UINavigationLinkProfileTool(destination: temp2(), icon: "book.pages", title: "我的收藏")
                             Spacer()
-                            UINavigationLinkProfileTool(destination: AnyView(tempView()), icon: "bag", title: "點數商城")
+                            UINavigationLinkProfileTool(destination: tempView(), icon: "bag", title: "點數商城")
                         }
                         .padding(.horizontal, 30)
                     }
@@ -135,14 +135,14 @@ struct ProfileView: View {
                     .padding(.top, 2)
                     ZStack{
                         Color.white
-                        VStack{
+                        VStack(alignment: .leading){
                             HStack{
                                 Text("每日任務")
                                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                                     .foregroundColor(ColorConstants.systemDarkColor)
                                 Spacer()
                                 NavigationLink{
-                                    tempView()
+                                    temp4()
                                 } label: {
                                     Text("任務中心")
                                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
@@ -150,14 +150,44 @@ struct ProfileView: View {
                                     Image(systemName: "chevron.right")
                                         .font(.system(size: 10))
                                         .foregroundColor(.gray)
-                                        .padding(.leading, -8)
+                                        .padding(.leading, -4)
                                 }
                             }
-                            Spacer()
+                            Text("問題標題五十個字測試問題標題五十個字測試問題標題五十個字測試問題標題五十個字測試問題標題五十個字測試")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                .foregroundColor(ColorConstants.systemDarkColor)
+                                .lineLimit(1)
+                                .padding(.top, -3)
+                            Text("問題標題五\n十個字測試問題標題五十個字測試問題\n標題五十個字測試問題標題五十個字測試問題標題五十個字測試")//控製版面無條件三行（幫我加上換行）
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                                .foregroundColor(.gray)
+                            HStack{
+                                NavigationLink{
+                                    tempView()
+                                } label: {
+                                    ZStack{
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .frame(width: 80, height: 20)
+                                        HStack{
+                                            Text("前往答題")
+                                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
+                                                .foregroundColor(.white)
+                                            Image(systemName: "chevron.right")
+                                                .font(.system(size: 10))
+                                                .foregroundColor(.white)
+                                                .padding(.leading, -4)
+                                        }
+                                    }
+                                }
+                                Spacer()
+                            }
                         }
-                        .padding(15)
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, 15)
+                        .padding(.top, 5)
+                        .padding(.bottom, 5)
                     }
-                    .frame(height: 140)
+                    .frame(height: 150)
                     .cornerRadius(10)
                     .padding(.top, 2)
                     VStack{

@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct UINavigationLinkProfileTool: View {
-    let destination: AnyView
+struct UINavigationLinkProfileTool<Destination: View>: View {
+    let destination: Destination
     let icon: String
     let title: String
     
@@ -29,5 +29,5 @@ struct UINavigationLinkProfileTool: View {
 }
 
 #Preview {
-    UINavigationLinkProfileTool(destination: AnyView(Text("預覽畫面")), icon: "", title: "")
+    UINavigationLinkProfileTool(destination: Text("預覽畫面"), icon: "", title: "")
 }
