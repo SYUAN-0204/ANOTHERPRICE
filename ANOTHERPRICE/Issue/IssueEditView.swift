@@ -233,7 +233,7 @@ struct IssueEditView: View {
                         allowsMultipleSelection: true
                     ) { result in
                         switch result {
-                        case .success(let url):
+                        case .success(_):
                             print("選擇檔案成功")
                             //uploadFileToFirebase(fileURL: url)
                         case .failure(let error):

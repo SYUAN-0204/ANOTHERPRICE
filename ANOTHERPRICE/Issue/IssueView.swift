@@ -17,8 +17,8 @@ struct IssueView: View {
     @State private var hasMoreData = true
     @State private var lastDocument: DocumentSnapshot? = nil
     @State private var keychain = KeychainSwift()
+    @State private var authUid: String? = nil
     @State private var noDraftsMessage: String? = nil
-    @State var 是否登入: Bool = true
     @State private var showLoginView = false
     
     struct Draft: Identifiable, Equatable {
@@ -149,7 +149,7 @@ struct IssueView: View {
                     Spacer()
                 }
             }
-            if (是否登入 == false) {
+            if (authUid == nil){
                 Color.white.opacity(0.9)
                 VStack {
                     Text("登入即可體驗完整功能")
@@ -161,6 +161,11 @@ struct IssueView: View {
                     .frame(width: 160)
                     .sheet(isPresented: $showLoginView) {
                         LoginView()
+                            .onDisappear {
+                                self.authUid = keychain.get("authUid")
+                                
+                                print("(IssueView)Auth UID: \(authUid ?? "nil")")
+                            }
                             .presentationDetents([.fraction(0.9)])
                     }
                 }
@@ -168,6 +173,7 @@ struct IssueView: View {
         }
         .padding(.horizontal, 10)
         .onAppear {
+            self.authUid = keychain.get("authUid")
             drafts.removeAll()
             lastDocument = nil
             hasMoreData = true
@@ -233,10 +239,7 @@ struct IssueView: View {
             }
         }
     }
-    
-    
 }
-
 
 #Preview {
     IssueView()

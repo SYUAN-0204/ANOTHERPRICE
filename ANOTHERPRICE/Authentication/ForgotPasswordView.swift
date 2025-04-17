@@ -83,7 +83,7 @@ struct ForgotPasswordView: View {
     private func sendPasswordResetToFirestoreAccount(_ account: String) {
         let db = Firestore.firestore()
         db.collection("users").whereField("account", isEqualTo: account).getDocuments { (querySnapshot, error) in
-            if let error = error {
+            if error != nil {
                 self.message = "網路錯誤，請稍後再試"
                 self.showAlert = true
                 return

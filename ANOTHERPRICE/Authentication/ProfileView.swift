@@ -13,8 +13,7 @@ struct ProfileView: View {
     
     @State private var showLoginView = false
     @State private var authUid: String? = nil
-    private let keychain = KeychainSwift()
-    
+    @State private var keychain = KeychainSwift()
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
     @State var userName: String? = "這是另外的價錢"
     @State var registrationDays: Int = 0
@@ -232,9 +231,9 @@ struct ProfileView: View {
                                 self.userName = keychain.get("userName")
                                 self.registrationDays = daysSinceRegistration() + 1
                                         
-                                print("Auth UID: \(authUid ?? "nil")")
-                                print("User Name: \(userName ?? "nil")")
-                                print("Registration Days: \(registrationDays)")
+                                print("(ProfileView)Auth UID: \(authUid ?? "nil")")
+                                print("(ProfileView)User Name: \(userName ?? "nil")")
+                                print("(ProfileView)Registration Days: \(registrationDays)")
                             }
                             .presentationDetents([.fraction(0.9)])
                     }

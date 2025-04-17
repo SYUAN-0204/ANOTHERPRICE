@@ -164,10 +164,8 @@ struct LoginView: View {
     private func handleSuccessfulLogin(_ authResult: AuthDataResult?) {
         let authUid = authResult?.user.uid ?? ""
         self.keychain.set(authUid, forKey: "authUid")
-        print("登入成功，使用者 ID: \(authResult?.user.uid ?? "")")
+        print("(LoginView)登入成功，使用者 ID: \(authResult?.user.uid ?? "")")
         fetchUserDetails(uid: authUid)
-        self.isLoggedIn = true
-        dismiss()
     }
     
     private func fetchUserDetails(uid: String) {
@@ -189,12 +187,15 @@ struct LoginView: View {
                 self.keychain.set(userName, forKey: "userName")
                 self.keychain.set(formattedDate, forKey: "registDay")
 
-                print("使用者名稱: \(userName)")
-                print("註冊時間: \(formattedDate)")
+                print("(LoginView)使用者名稱: \(userName)")
+                print("(LoginView)註冊時間: \(formattedDate)")
                 
             } else {
-                print("使用者資料不存在")
+                print("(LoginView)使用者資料不存在")
             }
+            
+            self.isLoggedIn = true
+            dismiss()
         }
     }
     
