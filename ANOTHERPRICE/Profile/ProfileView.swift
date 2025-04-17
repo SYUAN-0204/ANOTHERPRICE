@@ -89,11 +89,11 @@ struct ProfileView: View {
                     ZStack{
                         Color.white
                         HStack{
-                            UINavigationLinkProfileTool(destination: temp3(), icon: "tray.full", title: "我的提問")
+                            UINavigationLinkProfileTool(destination: QuestionsView(), icon: "tray.full", title: "我的提問")
                             Spacer()
-                            UINavigationLinkProfileTool(destination: temp(), icon: "pencil.line", title: "我的草稿")
+                            UINavigationLinkProfileTool(destination: DraftsView(), icon: "pencil.line", title: "我的草稿")
                             Spacer()
-                            UINavigationLinkProfileTool(destination: temp2(), icon: "book.pages", title: "我的收藏")
+                            UINavigationLinkProfileTool(destination: FavoritesView(), icon: "book.pages", title: "我的收藏")
                             Spacer()
                             UINavigationLinkProfileTool(destination: tempView(), icon: "bag", title: "點數商城")
                         }
@@ -141,7 +141,7 @@ struct ProfileView: View {
                                     .foregroundColor(ColorConstants.systemDarkColor)
                                 Spacer()
                                 NavigationLink{
-                                    temp4()
+                                    TasksView()
                                 } label: {
                                     Text("任務中心")
                                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))

@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct temp4: View {
+struct TasksView: View {
     @Environment(\.dismiss) var dismiss
     
-    @State private var 總經驗值: Int = 24341
-    @State private var 是否完成: Bool = true
+    @State private var totalExperience: Int = 24341
+    @State private var isCompleted: Bool = true
     
     var body: some View {
         VStack{
@@ -41,7 +41,7 @@ struct temp4: View {
             .frame(height: 36)
             .background(Color.white)
             HStack{
-                UIComplexLevelBar(totalExp: 總經驗值)
+                UIComplexLevelBar(totalExp: totalExperience)
                     .padding(.leading, 15)
                     .padding(.top, 5)
                 Spacer()
@@ -75,22 +75,22 @@ struct temp4: View {
                         .fill(.gray.opacity(0.3))
                         .frame(height: 1)
                         .padding(.horizontal, 3)
-                    UIComplexTask(title: "任意答題", description: "回答任意題目，獲得任務獎勵 10 點", complish: 是否完成, destination: tempView())
+                    UIComplexTask(title: "任意答題", description: "回答任意題目，獲得任務獎勵 10 點", complish: isCompleted, destination: tempView())
                     Rectangle()
                         .fill(.gray.opacity(0.3))
                         .frame(height: 1)
                         .padding(.horizontal, 3)
-                    UIComplexTask(title: "發布問答", description: "發布任意問答，獲得任務獎勵 15 點", complish: 是否完成, destination: tempView())
+                    UIComplexTask(title: "發布問答", description: "發布任意問答，獲得任務獎勵 15 點", complish: isCompleted, destination: tempView())
                     Rectangle()
                         .fill(.gray.opacity(0.3))
                         .frame(height: 1)
                         .padding(.horizontal, 3)
-                    UIComplexTask(title: "分享問答", description: "分享任意問答，獲得任務獎勵 5 點", complish: 是否完成, destination: tempView())
+                    UIComplexTask(title: "分享問答", description: "分享任意問答，獲得任務獎勵 5 點", complish: isCompleted, destination: tempView())
                     Rectangle()
                         .fill(.gray.opacity(0.3))
                         .frame(height: 1)
                         .padding(.horizontal, 3)
-                    UIComplexTask(title: "消耗 30 點", description: "消耗點數 30 點，獲得任務獎勵 10 點", complish: 是否完成, destination: tempView())
+                    UIComplexTask(title: "消耗 30 點", description: "消耗點數 30 點，獲得任務獎勵 10 點", complish: isCompleted, destination: tempView())
                     Spacer()
                 }
                 .frame(height: 285)
@@ -106,5 +106,5 @@ struct temp4: View {
 }
 
 #Preview {
-    temp4()
+    TasksView()
 }
