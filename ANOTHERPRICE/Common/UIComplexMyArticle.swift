@@ -68,7 +68,7 @@ struct UIComplexMyArticle: View {
                         }
                     )
                     .offset(x: offsetX + dragOffset)
-                    .highPriorityGesture(
+                    .simultaneousGesture(
                         DragGesture()
                             .updating($dragOffset) { value, state, _ in
                                 if value.translation.width < 0 {
@@ -88,8 +88,9 @@ struct UIComplexMyArticle: View {
                                         trashcanState = false
                                     }
                                 }
+                                print(trashcanState)
                             }
-                        )
+                    )
                     .padding(.horizontal)
             }
         }

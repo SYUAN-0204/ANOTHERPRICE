@@ -16,7 +16,6 @@ struct DraftsView: View {
     @State private var isMultiSelect: Bool = false
     @State private var isSelected: Bool = false
     @State private var isTrashSelected: Bool = false
-    @State private var hasSelection: Bool = false
     @State private var keychain = KeychainSwift()
     @State private var isFetchingMore = false
     @State private var authUid: String? = nil
@@ -25,7 +24,9 @@ struct DraftsView: View {
     @State private var hasMoreData = true
     @State private var lastDocument: DocumentSnapshot? = nil
     @State private var noDraftsMessage: String? = nil
-    
+    private var hasSelection: Bool {
+        drafts.contains(where: { $0.isSelected })
+    }
     
     struct Draft: Identifiable, Equatable {
         var id: String
@@ -43,7 +44,6 @@ struct DraftsView: View {
                             for i in drafts.indices {
                                 drafts[i].isSelected = false
                             }
-                            hasSelection = false
                             isMultiSelect = false
                         } label: {
                             Text("取消")
@@ -77,15 +77,13 @@ struct DraftsView: View {
                                 for i in drafts.indices {
                                     drafts[i].isSelected = false
                                 }
-                                hasSelection = false
                             }else{
                                 for i in drafts.indices {
                                     drafts[i].isSelected = true
                                 }
-                                hasSelection = true
                             }
                         } label: {
-                            Text("全選")
+                            Text(hasSelection ? "清除" : "全選")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                                 .foregroundColor(ColorConstants.systemMainColor)
                         }
@@ -202,13 +200,13 @@ struct DraftsView: View {
     
     func fetchDrafts(initial: Bool) {
         guard let userUid = keychain.get("authUid") else { return }
-        guard !isFetchingMore else { return } // 避免重複請求
+        guard !isFetchingMore else { return }
         
         let db = Firestore.firestore()
         var query: Query = db.collection("users").document(userUid).collection("drafts")
             .order(by: "updatedAt", descending: true)
         
-        // 一開始至少要有8筆，不然就會視為已滑到底
+        // 最初
         if initial {
             isLoading = true
             query = query.limit(to: 8)
@@ -248,7 +246,6 @@ struct DraftsView: View {
             
             lastDocument = snapshot.documents.last
             
-            // 根據載入的資料決定是否有更多資料
             hasMoreData = newDrafts.count >= (initial ? 8 : 5)
             
             if drafts.isEmpty {
