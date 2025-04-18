@@ -14,6 +14,7 @@ struct UIComplexMyArticle: View {
     let title: String
     let date: String
     let content: String
+    let onDelete: () -> Void
     
     @State private var selected: Bool = false
     
@@ -27,7 +28,7 @@ struct UIComplexMyArticle: View {
                 HStack {
                     Spacer()
                     Button(){
-                        //垃圾桶功能
+                        onDelete()
                     } label: {
                         Image(systemName: "trash")
                             .foregroundColor(.white)
@@ -98,5 +99,15 @@ struct UIComplexMyArticle: View {
 }
 
 #Preview {
-    UIComplexMyArticle( isSelected: .constant(false),selecte: .constant(true), trashcanState: .constant(true), title: "標題", date: "2025-04-04", content: "內容")
+    UIComplexMyArticle(
+        isSelected: .constant(false),
+        selecte: .constant(true),
+        trashcanState: .constant(false),
+        title: "標題",
+        date: "2025-04-04",
+        content: "內容",
+        onDelete: {
+            print("刪除動作觸發")
+        }
+    )
 }

@@ -26,9 +26,9 @@ struct IssueEditView: View {
     
     @State private var selectedItems: [PhotosPickerItem] = [] //Picker元件自用變數
     @State private var selectedImages: [UIImage] = [] //圖片陣列
-    @State private var 控制圖片放大: Bool = false
-    @State private var 控制圖片放大索引: Int? = nil
-    @State private var 選擇檔案: Bool = false
+    @State private var isImageZoomed: Bool = false
+    @State private var zoomedImageIndex: Int? = nil
+    @State private var isFileSelected: Bool = false
     
     var body: some View {
         ZStack{
@@ -138,8 +138,8 @@ struct IssueEditView: View {
                         HStack{
                             ForEach(selectedImages.indices, id: \.self) { index in
                                 Button {
-                                    控制圖片放大 = true
-                                    控制圖片放大索引 = index
+                                    isImageZoomed = true
+                                    zoomedImageIndex = index
                                 } label: {
                                     ZStack(alignment: .topTrailing) {
                                         Image(uiImage: selectedImages[index])
@@ -220,7 +220,7 @@ struct IssueEditView: View {
                         }
                     }
                     Button() {
-                        選擇檔案 = true
+                        isFileSelected = true
                     } label: {
                         Image(systemName: "paperclip")
                             .font(.system(size: 20))
@@ -228,7 +228,7 @@ struct IssueEditView: View {
                     }
                     .padding(.horizontal, 10)
                     .fileImporter(
-                        isPresented: $選擇檔案,
+                        isPresented: $isFileSelected,
                         allowedContentTypes: [.item], // 支援所有檔案類型
                         allowsMultipleSelection: true
                     ) { result in
@@ -273,37 +273,22 @@ struct IssueEditView: View {
                 originalTitle = title
                 originalDescription = description
             }
-            if 控制圖片放大 {
+            if isImageZoomed {
                 Color.white.opacity(0.9)
                     .ignoresSafeArea(edges: .all)
                     .onTapGesture {
-                        控制圖片放大 = false
+                        isImageZoomed = false
                     }
-                Image(uiImage: selectedImages[控制圖片放大索引 ?? 0])
+                Image(uiImage: selectedImages[zoomedImageIndex ?? 0])
                     .resizable()
                     .scaledToFit()
                     .padding(.horizontal, 20)
                     .onTapGesture {
-                        控制圖片放大 = true
+                        isImageZoomed = true
                     }
             }
         }
     }
-    
-    //    func deleteDraft() {
-    //        let userUid = keychain.get("authUid") ?? nil
-    //        if(userUid == nil) {
-    //            return
-    //        }
-    //
-    //        db.collection("users").document(userUid!).collection("drafts").document(draftId!).delete() { error in
-    //            if let error = error {
-    //                print("刪除草稿失敗: \(error.localizedDescription)")
-    //            } else {
-    //                print("刪除\(draftId!)草稿成功")
-    //            }
-    //        }
-    //    }
     
     func saveDraft() {
         let userUid = keychain.get("authUid") ?? nil

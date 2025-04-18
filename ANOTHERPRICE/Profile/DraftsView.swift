@@ -24,6 +24,7 @@ struct DraftsView: View {
     @State private var hasMoreData = true
     @State private var lastDocument: DocumentSnapshot? = nil
     @State private var noDraftsMessage: String? = nil
+    @State private var db = Firestore.firestore()
     private var hasSelection: Bool {
         drafts.contains(where: { $0.isSelected })
     }
@@ -107,17 +108,18 @@ struct DraftsView: View {
             ScrollView{
                 ForEach(drafts.indices, id: \.self) { index in
                     let draft = drafts[index]
-
                     Group {
                         if isMultiSelect {
-                            // 多選狀態，不要包 NavigationLink
                             UIComplexMyArticle(
                                 isSelected: $drafts[index].isSelected,
                                 selecte: $isMultiSelect,
                                 trashcanState: $isTrashSelected,
                                 title: draft.title.isEmpty ? "無標題" : draft.title,
                                 date: "Last Edit : 2025-04-03",
-                                content: draft.description.isEmpty ? "無敘述" : draft.description
+                                content: draft.description.isEmpty ? "無敘述" : draft.description,
+                                onDelete: {
+                                    deleteDraft(draftId: draft.id)
+                                }
                             )
                         } else {
                             NavigationLink(
@@ -134,7 +136,10 @@ struct DraftsView: View {
                                     trashcanState: .constant(false),
                                     title: draft.title.isEmpty ? "無標題" : draft.title,
                                     date: "Last Edit : 2025-04-03",
-                                    content: draft.description.isEmpty ? "無敘述" : draft.description
+                                    content: draft.description.isEmpty ? "無敘述" : draft.description,
+                                    onDelete: {
+                                                            deleteDraft(draftId: draft.id)
+                                                        }
                                 )
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -145,12 +150,12 @@ struct DraftsView: View {
                             fetchDrafts(initial: false)
                         }
                     }
-
+                    
                     Rectangle()
                         .fill(.gray.opacity(0.4))
                         .frame(height: 1)
                 }
-
+                
                 if isFetchingMore {
                     ProgressView("載入更多中...")
                         .padding(.vertical, 10)
@@ -170,10 +175,11 @@ struct DraftsView: View {
                     .frame(height: 1)
                 Button() {
                     let selectedDrafts = drafts.filter { $0.isSelected }
-                        print("(DraftsView)被勾選的草稿有：")
-                        for draft in selectedDrafts {
-                            print("- \(draft.title) (\(draft.id))")
-                        }
+                    //print("(DraftsView)被勾選的草稿有：")
+                    for draft in selectedDrafts {
+                        deleteDraft(draftId: draft.id)
+                        //print("- \(draft.title) (\(draft.id))")
+                    }
                 } label: {
                     HStack{
                         Image(systemName: "trash")
@@ -206,7 +212,6 @@ struct DraftsView: View {
         var query: Query = db.collection("users").document(userUid).collection("drafts")
             .order(by: "updatedAt", descending: true)
         
-        // 最初
         if initial {
             isLoading = true
             query = query.limit(to: 8)
@@ -245,13 +250,27 @@ struct DraftsView: View {
             }
             
             lastDocument = snapshot.documents.last
-            
             hasMoreData = newDrafts.count >= (initial ? 8 : 5)
             
             if drafts.isEmpty {
                 noDraftsMessage = "暫無草稿"
             } else {
                 noDraftsMessage = nil
+            }
+            
+            //print("(DraftsView)檢查分頁載入：拿到 \(snapshot.documents.count) 筆草稿")
+        }
+    }
+    
+    func deleteDraft(draftId: String) {
+        guard let userUid = keychain.get("authUid") else { return }
+        
+        db.collection("users").document(userUid).collection("drafts").document(draftId).delete() { error in
+            if let error = error {
+                print("刪除草稿失敗: \(error.localizedDescription)")
+            } else {
+                print("(DraftsView)刪除草稿 \(draftId) 成功")
+                drafts.removeAll { $0.id == draftId }
             }
         }
     }
