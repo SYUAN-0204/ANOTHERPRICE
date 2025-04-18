@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct UIComplexMyArticle: View {
+    @Binding var isSelected: Bool
     @Binding var selecte: Bool
     @Binding var trashcanState: Bool
     let title: String
@@ -55,10 +56,10 @@ struct UIComplexMyArticle: View {
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             if selecte {
-                                Button() {
-                                    selected.toggle()
+                                Button {
+                                    isSelected.toggle()
                                 } label: {
-                                    Image(systemName: selected ? "checkmark.square" : "square")
+                                    Image(systemName: isSelected ? "checkmark.square" : "square")
                                         .font(.system(size: 20))
                                         .foregroundColor(ColorConstants.systemDarkColor)
                                 }
@@ -67,7 +68,7 @@ struct UIComplexMyArticle: View {
                         }
                     )
                     .offset(x: offsetX + dragOffset)
-                    .simultaneousGesture(
+                    .highPriorityGesture(
                         DragGesture()
                             .updating($dragOffset) { value, state, _ in
                                 if value.translation.width < 0 {
@@ -87,9 +88,8 @@ struct UIComplexMyArticle: View {
                                         trashcanState = false
                                     }
                                 }
-                                print(trashcanState)
                             }
-                    )
+                        )
                     .padding(.horizontal)
             }
         }
@@ -97,5 +97,5 @@ struct UIComplexMyArticle: View {
 }
 
 #Preview {
-    UIComplexMyArticle(selecte: .constant(true), trashcanState: .constant(true), title: "標題", date: "2025-04-04", content: "內容")
+    UIComplexMyArticle( isSelected: .constant(false),selecte: .constant(true), trashcanState: .constant(true), title: "標題", date: "2025-04-04", content: "內容")
 }

@@ -31,6 +31,7 @@ struct DraftsView: View {
         var id: String
         var title: String
         var description: String
+        var isSelected: Bool = false
     }
     
     var body: some View {
@@ -39,6 +40,10 @@ struct DraftsView: View {
                 HStack{
                     if isMultiSelect {
                         Button() {
+                            for i in drafts.indices {
+                                drafts[i].isSelected = false
+                            }
+                            hasSelection = false
                             isMultiSelect = false
                         } label: {
                             Text("取消")
@@ -68,7 +73,17 @@ struct DraftsView: View {
                     Spacer()
                     if isMultiSelect {
                         Button() {
-                            
+                            if(hasSelection){
+                                for i in drafts.indices {
+                                    drafts[i].isSelected = false
+                                }
+                                hasSelection = false
+                            }else{
+                                for i in drafts.indices {
+                                    drafts[i].isSelected = true
+                                }
+                                hasSelection = true
+                            }
                         } label: {
                             Text("全選")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
@@ -94,21 +109,50 @@ struct DraftsView: View {
             ScrollView{
                 ForEach(drafts.indices, id: \.self) { index in
                     let draft = drafts[index]
-                    NavigationLink {
-                        LazyView(IssueEditView(isDraft: true, draftId: draft.id, title: draft.title, description: draft.description))
-                    } label: {
-                        UIComplexMyArticle(selecte: $isMultiSelect, trashcanState: $isTrashSelected, title: draft.title.isEmpty ? "無標題" : draft.title, date: "Last Edit : 2025-04-03", content: draft.description.isEmpty ? "無敘述" : draft.description)
+
+                    Group {
+                        if isMultiSelect {
+                            // 多選狀態，不要包 NavigationLink
+                            UIComplexMyArticle(
+                                isSelected: $drafts[index].isSelected,
+                                selecte: $isMultiSelect,
+                                trashcanState: $isTrashSelected,
+                                title: draft.title.isEmpty ? "無標題" : draft.title,
+                                date: "Last Edit : 2025-04-03",
+                                content: draft.description.isEmpty ? "無敘述" : draft.description
+                            )
+                        } else {
+                            NavigationLink(
+                                destination: LazyView(IssueEditView(
+                                    isDraft: true,
+                                    draftId: draft.id,
+                                    title: draft.title,
+                                    description: draft.description
+                                ))
+                            ) {
+                                UIComplexMyArticle(
+                                    isSelected: .constant(false),
+                                    selecte: .constant(false),
+                                    trashcanState: .constant(false),
+                                    title: draft.title.isEmpty ? "無標題" : draft.title,
+                                    date: "Last Edit : 2025-04-03",
+                                    content: draft.description.isEmpty ? "無敘述" : draft.description
+                                )
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
                     }
                     .onAppear {
                         if index == drafts.count - 1 && hasMoreData && !isFetchingMore {
                             fetchDrafts(initial: false)
                         }
                     }
-                    .buttonStyle(PlainButtonStyle())
+
                     Rectangle()
-                        .fill(.gray)
+                        .fill(.gray.opacity(0.4))
                         .frame(height: 1)
                 }
+
                 if isFetchingMore {
                     ProgressView("載入更多中...")
                         .padding(.vertical, 10)
@@ -127,7 +171,11 @@ struct DraftsView: View {
                     .fill(.gray)
                     .frame(height: 1)
                 Button() {
-                    
+                    let selectedDrafts = drafts.filter { $0.isSelected }
+                        print("(DraftsView)被勾選的草稿有：")
+                        for draft in selectedDrafts {
+                            print("- \(draft.title) (\(draft.id))")
+                        }
                 } label: {
                     HStack{
                         Image(systemName: "trash")
