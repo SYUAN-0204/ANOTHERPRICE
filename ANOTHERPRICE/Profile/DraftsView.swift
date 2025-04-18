@@ -97,12 +97,28 @@ struct DraftsView: View {
                     NavigationLink {
                         LazyView(IssueEditView(isDraft: true, draftId: draft.id, title: draft.title, description: draft.description))
                     } label: {
-                        UIComplexMyArticle(selecte: $isMultiSelect, trashcanState: $isTrashSelected, title: draft.title, date: "Last Edit : 2025-04-03", content: draft.description)
+                        UIComplexMyArticle(selecte: $isMultiSelect, trashcanState: $isTrashSelected, title: draft.title.isEmpty ? "無標題" : draft.title, date: "Last Edit : 2025-04-03", content: draft.description.isEmpty ? "無敘述" : draft.description)
+                    }
+                    .onAppear {
+                        if index == drafts.count - 1 && hasMoreData && !isFetchingMore {
+                            fetchDrafts(initial: false)
+                        }
                     }
                     .buttonStyle(PlainButtonStyle())
                     Rectangle()
                         .fill(.gray)
                         .frame(height: 1)
+                }
+                if isFetchingMore {
+                    ProgressView("載入更多中...")
+                        .padding(.vertical, 10)
+                }
+                
+                if !hasMoreData && !drafts.isEmpty {
+                    Text("沒有更多草稿了")
+                        .foregroundColor(.gray)
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                        .padding(.vertical, 10)
                 }
             }
             Spacer()
