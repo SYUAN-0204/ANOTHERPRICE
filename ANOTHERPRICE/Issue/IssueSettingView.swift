@@ -18,7 +18,6 @@ struct IssueSettingView: View {
     @State private var draftId:String = ""
     @State private var title:String = ""
     @State private var description:String = ""
-    @State private var isPublish: Bool = false
     @State private var inputText:String = ""
     @State private var selectedCategory:String = ""
     @State private var categoryList = ["生活", "學術", "科技", "健康", "理財", "情感", "娛樂", "其他"] //可以考慮從firebase抓資料，方便類別擴充
@@ -57,9 +56,9 @@ struct IssueSettingView: View {
                             .foregroundColor(.white)
                             .frame(width: 60, height: 30)
                     }
-                    .background(ColorConstants.systemMainColor.opacity(isPublish ? 0.7 : 1.0))
+                    .background(ColorConstants.systemMainColor.opacity(selectedCategory.isEmpty ? 0.7 : 1.0))
                     .cornerRadius(5)
-                    .disabled(isPublish)
+                    .disabled(selectedCategory.isEmpty)
                 }
                 .padding(.trailing, 10)
                 .frame(width: 80)
@@ -106,6 +105,23 @@ struct IssueSettingView: View {
                         .foregroundColor(ColorConstants.systemDarkColor.opacity(0.9))
                         .keyboardType(.numberPad)
                         .frame(height: 36)
+                        .onChange(of: reward) {
+                            let filtered = reward.filter { $0.isNumber }
+                            if filtered != reward {
+                                reward = filtered
+                            }
+                            if filtered.isEmpty {
+                                reward = ""
+                            }
+                            if let number = Int(filtered) {
+                                if number < 0 {
+                                    reward = String(0)
+                                }
+                                else if number > balance {
+                                    reward = String(balance)
+                                }
+                            }
+                        }
                     Text("點數：\(balance)")
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                         .foregroundColor(ColorConstants.systemDarkColor.opacity(0.7))

@@ -80,32 +80,37 @@ struct IssueEditView: View {
                 }
                 .frame(height: 36)
                 ScrollView{
-                    TextEditor(text: $title)
-                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
-                        .frame(minHeight: 40)
-                        .onChange(of: title) {
-                            if title.count > 50 {
-                                title = String(title.prefix(50))
-                            }
-                        }
-                        .overlay(
-                            Group {
-                                if title.isEmpty {
-                                    VStack{
-                                        HStack{
-                                            Text("標題")
-                                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
-                                                .foregroundColor(.gray)
-                                            Spacer()
-                                        }
-                                        .padding(.leading, 5)
-                                        .padding(.top, 8)
-                                        Spacer()
-                                    }
+                    ZStack{
+                        Text(title)
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
+                            .padding(.vertical, 3)
+                        TextEditor(text: $title)
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
+                            .frame(minHeight: 40)
+                            .onChange(of: title) {
+                                if title.count > 50 {
+                                    title = String(title.prefix(50))
                                 }
                             }
-                        )
-                        .padding(.horizontal, 10)
+                            .overlay(
+                                Group {
+                                    if title.isEmpty {
+                                        VStack{
+                                            HStack{
+                                                Text("標題")
+                                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
+                                                    .foregroundColor(.gray)
+                                                Spacer()
+                                            }
+                                            .padding(.leading, 5)
+                                            .padding(.top, 8)
+                                            Spacer()
+                                        }
+                                    }
+                                }
+                            )
+                            .padding(.horizontal, 10)
+                    }
                     HStack{
                         Spacer()
                         Text("\(title.count)/50")
