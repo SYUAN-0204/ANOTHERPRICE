@@ -120,22 +120,15 @@ struct PublishView: View {
                     let draft = drafts[index]
                     Group {
                         if isMultiSelect {
-                            UIComplexMyArticle(
+                            UIComplexUploadArticle(
                                 isSelected: $drafts[index].isSelected,
-                                selecte: $isMultiSelect,
-                                trashcanState: $isTrashSelected,
-                                title: draft.title.isEmpty ? "無標題" : draft.title,
-                                date: "Last Edit : \(draft.formattedDate)",
-                                content: draft.description.isEmpty ? "無敘述" : draft.description,
-                                onDelete: {
-                                    deleteDraft(draftId: draft.id)
-                                }
+                                selecte: $isMultiSelect, trashcanState: $isTrashSelected, title: draft.title, date: "Last Upload : \(draft.formattedDate) ; Last Comment : 2025-04-03", content: draft.description, heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW"
                             )
                         } else {
                             NavigationLink(
                                 destination:             tempView()
                             ) {
-                                UIComplexUploadArticle(selecte: $isMultiSelect, trashcanState: $isTrashSelected, title: draft.title, date: "Last Upload : \(draft.formattedDate) ; Last Comment : 2025-04-03", content: draft.description, heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW")
+                                UIComplexUploadArticle(isSelected: .constant(false),selecte: .constant(false), trashcanState: .constant(false), title: draft.title, date: "Last Upload : \(draft.formattedDate) ; Last Comment : 2025-04-03", content: draft.description, heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW")
                             }
                             .buttonStyle(PlainButtonStyle())
                         }

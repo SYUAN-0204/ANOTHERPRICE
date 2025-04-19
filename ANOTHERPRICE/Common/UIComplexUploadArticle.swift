@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct UIComplexUploadArticle: View {
-    //@Binding var isSelected: Bool
+    @Binding var isSelected: Bool
     @Binding var selecte: Bool
     @Binding var trashcanState: Bool
     let title: String
@@ -83,9 +83,9 @@ struct UIComplexUploadArticle: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             if selecte {
                                 Button() {
-                                    selected.toggle()
+                                    isSelected.toggle()
                                 } label: {
-                                    Image(systemName: selected ? "checkmark.square" : "square")
+                                    Image(systemName: isSelected ? "checkmark.square" : "square")
                                         .font(.system(size: 20))
                                         .foregroundColor(ColorConstants.systemDarkColor)
                                 }
@@ -125,5 +125,6 @@ struct UIComplexUploadArticle: View {
 
 #Preview {
     UIComplexUploadArticle(
-        selecte: .constant(true), trashcanState: .constant(true), title: "標題", date: "2025-04-04", content: "內容", heart: 35, message: 53, author: "作者", code: "DHSOD35SD", http: "Link")
+        isSelected: .constant(false),
+selecte: .constant(true), trashcanState: .constant(true), title: "標題", date: "2025-04-04", content: "內容", heart: 35, message: 53, author: "作者", code: "DHSOD35SD", http: "Link")
 }
