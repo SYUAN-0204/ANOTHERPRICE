@@ -6,10 +6,18 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
+import FirebaseAuth
+import KeychainSwift
 
 struct IssueSettingView: View {
     @Environment(\.dismiss) var dismiss
     
+    @State private var keychain = KeychainSwift()
+    @State private var db = Firestore.firestore()
+    @State private var draftId:String = ""
+    @State private var title:String = ""
+    @State private var description:String = ""
     @State private var isPublish: Bool = false
     @State private var inputText:String = ""
     @State private var selectedCategory:String = ""
@@ -42,7 +50,7 @@ struct IssueSettingView: View {
                 HStack{
                     Spacer()
                     Button() {
-                        
+                        publicDraft()
                     } label: {
                         Text("發布")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
@@ -124,14 +132,76 @@ struct IssueSettingView: View {
             }
             .padding(.horizontal, 10)
             ScrollView{
-                Text("還沒想好預覽顯示排版")
+                Text("還沒想好預覽顯示排版\n\(title)\n\(description)")
             }
             .padding(.horizontal, 15)
             .padding(.top, 7)
             Spacer()
         }
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            self.draftId = keychain.get("draftId") ?? ""
+            self.description = keychain.get("description") ?? ""
+            self.title = keychain.get("title") ?? ""
+        }
     }
+    
+    func publicDraft() {
+        // 確保 userUid 存在
+        guard let userUid = keychain.get("authUid") else {
+            print("用戶未登入")
+            return
+        }
+
+        // 草稿資料
+        let draftData: [String: Any] = [
+            "author": userUid,
+            "title": title,
+            "description": description,
+            "createdAt": Timestamp(),
+            "updatedAt": Timestamp()
+        ]
+        
+        // 上傳草稿資料到 'public' 集合
+        db.collection("public").addDocument(data: draftData) { error in
+            // 如果有錯誤，打印錯誤訊息並返回
+            if let error = error {
+                print("(IssueSettingView) 上傳草稿失敗: \(error.localizedDescription)")
+                return
+            }
+
+            // 成功後，從 'public' collection 獲取文檔 ID
+            let documentId = db.collection("public").document().documentID
+            print("成功創建文檔，documentID 是: \(documentId)")
+
+            // 儲存 documentID 到 'users/{userUid}/publish' 集合
+            self.db.collection("users").document(userUid).collection("publish").document(documentId).setData([
+                "documentId": documentId  // 只儲存 documentID
+            ]) { error in
+                if let error = error {
+                    print("(IssueSettingView) 上傳 documentId 失敗: \(error.localizedDescription)")
+                } else {
+                    print("(IssueSettingView) 成功上傳 documentId: \(documentId)")
+                }
+            }
+        }
+        
+        // 刪除舊草稿（如果有 draftId）
+        if !draftId.isEmpty {
+            db.collection("users")
+                .document(userUid)
+                .collection("drafts")
+                .document(draftId)
+                .delete { error in
+                    if let error = error {
+                        print("(IssueSettingView) 刪除舊草稿失敗: \(error.localizedDescription)")
+                    } else {
+                        print("(IssueSettingView) 成功刪除舊草稿 \(draftId)")
+                    }
+                }
+        }
+    }
+
 }
 
 #Preview {

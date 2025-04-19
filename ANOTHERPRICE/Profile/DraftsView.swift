@@ -28,12 +28,15 @@ struct DraftsView: View {
     private var hasSelection: Bool {
         drafts.contains(where: { $0.isSelected })
     }
+    @State private var selectedDraft: Draft? = nil
+    @State private var isNavigating = false
     
     struct Draft: Identifiable, Equatable {
         var id: String
         var title: String
         var description: String
         var isSelected: Bool = false
+        var formattedDate: String // 格式化後的日期
     }
     
     var body: some View {
@@ -105,6 +108,14 @@ struct DraftsView: View {
                 .frame(width: 80)
             }
             .frame(height: 36)
+            
+            if drafts.isEmpty {
+                Text(noDraftsMessage ?? "暫無草稿")
+                    .foregroundColor(.gray)
+                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                    .padding(.vertical, 10)
+            }
+            
             ScrollView{
                 ForEach(drafts.indices, id: \.self) { index in
                     let draft = drafts[index]
@@ -115,7 +126,7 @@ struct DraftsView: View {
                                 selecte: $isMultiSelect,
                                 trashcanState: $isTrashSelected,
                                 title: draft.title.isEmpty ? "無標題" : draft.title,
-                                date: "Last Edit : 2025-04-03",
+                                date: "Last Edit : \(draft.formattedDate)",
                                 content: draft.description.isEmpty ? "無敘述" : draft.description,
                                 onDelete: {
                                     deleteDraft(draftId: draft.id)
@@ -138,12 +149,13 @@ struct DraftsView: View {
                                     date: "Last Edit : 2025-04-03",
                                     content: draft.description.isEmpty ? "無敘述" : draft.description,
                                     onDelete: {
-                                                            deleteDraft(draftId: draft.id)
-                                                        }
+                                        deleteDraft(draftId: draft.id)
+                                    }
                                 )
                             }
                             .buttonStyle(PlainButtonStyle())
                         }
+                        
                     }
                     .onAppear {
                         if index == drafts.count - 1 && hasMoreData && !isFetchingMore {
@@ -236,10 +248,18 @@ struct DraftsView: View {
             }
             
             let newDrafts = snapshot.documents.map { doc in
-                Draft(
+                let updatedAtTimestamp = doc.data()["updatedAt"] as? Timestamp
+                let updatedAt = updatedAtTimestamp?.dateValue() ?? Date()
+                
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+                let formattedDate = dateFormatter.string(from: updatedAt)
+                
+                return Draft(
                     id: doc.documentID,
                     title: doc.data()["title"] as? String ?? "無標題",
-                    description: doc.data()["description"] as? String ?? "無描述"
+                    description: doc.data()["description"] as? String ?? "無描述",
+                    formattedDate: formattedDate
                 )
             }
             

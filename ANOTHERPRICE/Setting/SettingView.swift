@@ -7,6 +7,8 @@
 
 import SwiftUI
 import KeychainSwift
+import FirebaseAuth
+import FirebaseFirestore
 
 struct SettingView: View {
     @Environment(\.dismiss) var dismiss
@@ -92,7 +94,7 @@ struct SettingView: View {
                 
                 VStack(spacing: 0){
                     Button(action: {
-                        
+                        deleteAccountAction()
                     }) {
                         HStack{
                             Spacer()
@@ -117,15 +119,55 @@ struct SettingView: View {
                 logoutAction()
             }
         }
-
+        
     }
     
     private func logoutAction() {
-            keychain.delete("authUid")
-            keychain.delete("userName")
-            keychain.delete("registDay")
-            dismiss()
+        keychain.delete("authUid")
+        keychain.delete("userName")
+        keychain.delete("registDay")
+        dismiss()
+    }
+    
+    private func deleteAccountAction() {
+        guard let userUid = KeychainSwift().get("authUid") else {
+            return
         }
+        
+        let alertController = UIAlertController(title: "確定要刪除帳號嗎?", message: "此操作無法撤銷", preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: "取消", style: .cancel, handler: nil))
+        
+        alertController.addAction(UIAlertAction(title: "確定", style: .destructive, handler: { _ in
+            deleteAccountFromFirebase(userUid: userUid)
+        }))
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                windowScene.windows.first?.rootViewController?.present(alertController, animated: true, completion: nil)
+            }
+    }
+    
+    private func deleteAccountFromFirebase(userUid: String) {
+        let db = Firestore.firestore()
+        
+        Auth.auth().currentUser?.delete { error in
+            if let error = error {
+                print("刪除帳戶失敗: \(error.localizedDescription)")
+                return
+            }
+            print("(SettingView)帳號已成功刪除")
+            
+            db.collection("users").document(userUid).delete { error in
+                if let error = error {
+                    print("刪除用戶資料失敗: \(error.localizedDescription)")
+                    return
+                }
+                print("(SettingView)用戶資料已成功刪除")
+                
+                logoutAction()
+            }
+        }
+    }
 }
 
 #Preview {

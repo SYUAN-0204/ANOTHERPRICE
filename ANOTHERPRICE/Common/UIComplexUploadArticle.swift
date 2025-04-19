@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct UIComplexUploadArticle: View {
+    //@Binding var isSelected: Bool
     @Binding var selecte: Bool
     @Binding var trashcanState: Bool
     let title: String
@@ -123,5 +124,6 @@ struct UIComplexUploadArticle: View {
 }
 
 #Preview {
-    UIComplexUploadArticle(selecte: .constant(true), trashcanState: .constant(true), title: "標題", date: "2025-04-04", content: "內容", heart: 35, message: 53, author: "作者", code: "DHSOD35SD", http: "Link")
+    UIComplexUploadArticle(
+        selecte: .constant(true), trashcanState: .constant(true), title: "標題", date: "2025-04-04", content: "內容", heart: 35, message: 53, author: "作者", code: "DHSOD35SD", http: "Link")
 }

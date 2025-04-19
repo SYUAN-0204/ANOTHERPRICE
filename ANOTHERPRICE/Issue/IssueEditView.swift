@@ -29,6 +29,7 @@ struct IssueEditView: View {
     @State private var isImageZoomed: Bool = false
     @State private var zoomedImageIndex: Int? = nil
     @State private var isFileSelected: Bool = false
+    @State private var shouldNavigate = false
     
     var body: some View {
         ZStack{
@@ -55,19 +56,24 @@ struct IssueEditView: View {
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
                         .fontWeight(.semibold)
                     Spacer()
-                    HStack{
+                    HStack {
                         Spacer()
-                        NavigationLink {
-                            LazyView(IssueSettingView())
+                        Button {
+                            saveToKeychain() // 儲存 Keychain 的邏輯
+                            shouldNavigate = true
                         } label: {
                             Text("繼續")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                                 .foregroundColor(.white)
                                 .frame(width: 60, height: 30)
+                                .background(ColorConstants.systemMainColor.opacity(title.isEmpty ? 0.7 : 1.0))
+                                .cornerRadius(5)
                         }
-                        .background(ColorConstants.systemMainColor.opacity(title.isEmpty ? 0.7 : 1.0))
-                        .cornerRadius(5)
                         .disabled(title.isEmpty)
+                    }
+
+                    .navigationDestination(isPresented: $shouldNavigate) {
+                        LazyView(IssueSettingView())
                     }
                     .padding(.trailing, 10)
                     .frame(width: 80)
@@ -290,6 +296,12 @@ struct IssueEditView: View {
         }
     }
     
+    func saveToKeychain() {
+        keychain.set(title, forKey: "title")
+        keychain.set(description, forKey: "description")
+        keychain.set(draftId ?? "", forKey: "draftId")
+    }
+
     func saveDraft() {
         let userUid = keychain.get("authUid") ?? nil
         if(userUid == nil) {
