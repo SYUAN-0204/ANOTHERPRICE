@@ -10,7 +10,7 @@ import FirebaseFirestore
 import FirebaseAuth
 import KeychainSwift
 
-struct Publish: View {
+struct PublishView: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var keychain = KeychainSwift()
@@ -304,5 +304,5 @@ struct Publish: View {
 }
 
 #Preview {
-    Publish()
+    PublishView()
 }

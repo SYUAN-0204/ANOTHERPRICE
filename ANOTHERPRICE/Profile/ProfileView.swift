@@ -89,7 +89,7 @@ struct ProfileView: View {
                     ZStack{
                         Color.white
                         HStack{
-                            UINavigationLinkProfileTool(destination: Publish(), icon: "tray.full", title: "我的提問")
+                            UINavigationLinkProfileTool(destination: PublishView(), icon: "tray.full", title: "我的提問")
                             Spacer()
                             UINavigationLinkProfileTool(destination: DraftsView(), icon: "pencil.line", title: "我的草稿")
                             Spacer()
