@@ -1,5 +1,5 @@
 //
-//  temp.swift
+//  temp3.swift
 //  ANOTHERPRICE
 //
 //  Created by 遠上寒山 on 2025/4/14.
@@ -10,33 +10,31 @@ import FirebaseFirestore
 import FirebaseAuth
 import KeychainSwift
 
-struct DraftsView: View {
+struct Publish: View {
     @Environment(\.dismiss) var dismiss
     
+    @State private var keychain = KeychainSwift()
+    @State private var isLoading = true
+    @State private var authUid: String? = nil
     @State private var isMultiSelect: Bool = false
     @State private var isSelected: Bool = false
     @State private var isTrashSelected: Bool = false
-    @State private var keychain = KeychainSwift()
-    @State private var isFetchingMore = false
-    @State private var authUid: String? = nil
+    private var hasSelection: Bool {
+        drafts.contains(where: { $0.isSelected })
+    }
     @State private var drafts: [Draft] = []
-    @State private var isLoading = true
+    @State private var isFetchingMore = false
     @State private var hasMoreData = true
     @State private var lastDocument: DocumentSnapshot? = nil
     @State private var noDraftsMessage: String? = nil
     @State private var db = Firestore.firestore()
-    private var hasSelection: Bool {
-        drafts.contains(where: { $0.isSelected })
-    }
-    @State private var selectedDraft: Draft? = nil
-    @State private var isNavigating = false
     
     struct Draft: Identifiable, Equatable {
         var id: String
         var title: String
         var description: String
         var isSelected: Bool = false
-        var formattedDate: String 
+        var formattedDate: String
     }
     
     var body: some View {
@@ -69,7 +67,7 @@ struct DraftsView: View {
                 .padding(.leading, 10)
                 .frame(width: 80)
                 Spacer()
-                Text("我的草稿")
+                Text("我的提問")
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
                     .fontWeight(.semibold)
                 Spacer()
@@ -109,8 +107,9 @@ struct DraftsView: View {
             }
             .frame(height: 36)
             
+            
             if drafts.isEmpty {
-                Text(noDraftsMessage ?? "暫無草稿")
+                Text(noDraftsMessage ?? "暫無提問")
                     .foregroundColor(.gray)
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                     .padding(.vertical, 10)
@@ -134,24 +133,9 @@ struct DraftsView: View {
                             )
                         } else {
                             NavigationLink(
-                                destination: LazyView(IssueEditView(
-                                    isDraft: true,
-                                    draftId: draft.id,
-                                    title: draft.title,
-                                    description: draft.description
-                                ))
+                                destination:             tempView()
                             ) {
-                                UIComplexMyArticle(
-                                    isSelected: .constant(false),
-                                    selecte: .constant(false),
-                                    trashcanState: .constant(false),
-                                    title: draft.title.isEmpty ? "無標題" : draft.title,
-                                    date: "Last Edit : 2025-04-03",
-                                    content: draft.description.isEmpty ? "無敘述" : draft.description,
-                                    onDelete: {
-                                        deleteDraft(draftId: draft.id)
-                                    }
-                                )
+                                UIComplexUploadArticle(selecte: $isMultiSelect, trashcanState: $isTrashSelected, title: draft.title, date: "Last Upload : \(draft.formattedDate) ; Last Comment : 2025-04-03", content: draft.description, heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW")
                             }
                             .buttonStyle(PlainButtonStyle())
                         }
@@ -174,7 +158,7 @@ struct DraftsView: View {
                 }
                 
                 if !hasMoreData && !drafts.isEmpty {
-                    Text("沒有更多草稿了")
+                    Text("沒有更多提問了")
                         .foregroundColor(.gray)
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                         .padding(.vertical, 10)
@@ -219,11 +203,11 @@ struct DraftsView: View {
     func fetchDrafts(initial: Bool) {
         guard let userUid = keychain.get("authUid") else { return }
         guard !isFetchingMore else { return }
-        
+
         let db = Firestore.firestore()
-        var query: Query = db.collection("users").document(userUid).collection("drafts")
+        var query: Query = db.collection("users").document(userUid).collection("publish")
             .order(by: "updatedAt", descending: true)
-        
+
         if initial {
             isLoading = true
             query = query.limit(to: 8)
@@ -234,68 +218,91 @@ struct DraftsView: View {
                 query = query.start(afterDocument: last)
             }
         }
-        
+
         query.getDocuments { snapshot, error in
             if initial {
                 isLoading = false
             } else {
                 isFetchingMore = false
             }
-            
+
             guard error == nil, let snapshot = snapshot else {
-                print("獲取草稿錯誤: \(error?.localizedDescription ?? "未知錯誤")")
+                print("獲取 publish 錯誤: \(error?.localizedDescription ?? "未知錯誤")")
                 return
             }
-            
-            let newDrafts = snapshot.documents.map { doc in
-                let updatedAtTimestamp = doc.data()["updatedAt"] as? Timestamp
-                let updatedAt = updatedAtTimestamp?.dateValue() ?? Date()
-                
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-                let formattedDate = dateFormatter.string(from: updatedAt)
-                
-                return Draft(
-                    id: doc.documentID,
-                    title: doc.data()["title"] as? String ?? "無標題",
-                    description: doc.data()["description"] as? String ?? "無描述",
-                    formattedDate: formattedDate
-                )
+
+            let group = DispatchGroup()
+            var newDrafts: [Draft] = []
+
+            for doc in snapshot.documents {
+                let documentId = doc.documentID
+
+                group.enter()
+                db.collection("public").document(documentId).getDocument { publicDoc, error in
+                    defer { group.leave() }
+
+                    if let error = error {
+                        print("讀取 public/\(documentId) 失敗: \(error.localizedDescription)")
+                        return
+                    }
+
+                    guard let data = publicDoc?.data() else {
+                        print("public/\(documentId) 不存在或無資料")
+                        return
+                    }
+
+                    let updatedAt = (data["updatedAt"] as? Timestamp)?.dateValue() ?? Date()
+                    let dateFormatter = DateFormatter()
+                    dateFormatter.dateFormat = "yyyy-MM-dd"
+                    let formattedDate = dateFormatter.string(from: updatedAt)
+
+                    let draft = Draft(
+                        id: documentId,
+                        title: data["title"] as? String ?? "無標題",
+                        description: data["description"] as? String ?? "無描述",
+                        formattedDate: formattedDate
+                    )
+
+                    newDrafts.append(draft)
+                }
             }
-            
-            if initial {
-                drafts = newDrafts
-            } else {
-                drafts.append(contentsOf: newDrafts)
+
+            group.notify(queue: .main) {
+                if initial {
+                    drafts = newDrafts
+                } else {
+                    drafts.append(contentsOf: newDrafts)
+                }
+
+                lastDocument = snapshot.documents.last
+                hasMoreData = newDrafts.count >= (initial ? 8 : 5)
+
+                noDraftsMessage = drafts.isEmpty ? "暫無草稿" : nil
             }
-            
-            lastDocument = snapshot.documents.last
-            hasMoreData = newDrafts.count >= (initial ? 8 : 5)
-            
-            if drafts.isEmpty {
-                noDraftsMessage = "暫無草稿"
-            } else {
-                noDraftsMessage = nil
-            }
-            
-            //print("(DraftsView)檢查分頁載入：拿到 \(snapshot.documents.count) 筆草稿")
         }
     }
     
     func deleteDraft(draftId: String) {
         guard let userUid = keychain.get("authUid") else { return }
         
-        db.collection("users").document(userUid).collection("drafts").document(draftId).delete() { error in
+        db.collection("public").document(draftId).delete() { error in
             if let error = error {
-                print("刪除草稿失敗: \(error.localizedDescription)")
+                print("刪除 public/{\(draftId)} 資料失敗: \(error.localizedDescription)")
             } else {
-                print("(DraftsView)刪除草稿 \(draftId) 成功")
-                drafts.removeAll { $0.id == draftId }
+                print("(DraftsView) 刪除 public/{\(draftId)} 資料成功")
+                
+                db.collection("users").document(userUid).collection("drafts").document(draftId).delete() { error in
+                    if let error = error {
+                        print("刪除 users/{\(userUid)}/drafts 中的草稿失敗: \(error.localizedDescription)")
+                    } else {
+                        print("(DraftsView) 刪除 users/{\(userUid)}/drafts 中的草稿成功")
+                    }
+                }
             }
         }
     }
 }
 
 #Preview {
-    DraftsView()
+    Publish()
 }

@@ -147,13 +147,14 @@ struct IssueSettingView: View {
     }
     
     func publicDraft() {
-        // 確保 userUid 存在
         guard let userUid = keychain.get("authUid") else {
-            print("用戶未登入")
+            print("(IssueSettingView) 用戶未登入")
             return
         }
-
-        // 草稿資料
+        
+        let publicRef = db.collection("public").document()
+        let documentId = publicRef.documentID
+        
         let draftData: [String: Any] = [
             "author": userUid,
             "title": title,
@@ -162,46 +163,42 @@ struct IssueSettingView: View {
             "updatedAt": Timestamp()
         ]
         
-        // 上傳草稿資料到 'public' 集合
-        db.collection("public").addDocument(data: draftData) { error in
-            // 如果有錯誤，打印錯誤訊息並返回
+        publicRef.setData(draftData) { error in
             if let error = error {
                 print("(IssueSettingView) 上傳草稿失敗: \(error.localizedDescription)")
                 return
             }
-
-            // 成功後，從 'public' collection 獲取文檔 ID
-            let documentId = db.collection("public").document().documentID
-            print("成功創建文檔，documentID 是: \(documentId)")
-
-            // 儲存 documentID 到 'users/{userUid}/publish' 集合
-            self.db.collection("users").document(userUid).collection("publish").document(documentId).setData([
-                "documentId": documentId  // 只儲存 documentID
-            ]) { error in
-                if let error = error {
-                    print("(IssueSettingView) 上傳 documentId 失敗: \(error.localizedDescription)")
-                } else {
-                    print("(IssueSettingView) 成功上傳 documentId: \(documentId)")
-                }
-            }
-        }
-        
-        // 刪除舊草稿（如果有 draftId）
-        if !draftId.isEmpty {
-            db.collection("users")
+            
+            print("(IssueSettingView) 成功上傳 public 文件 documentID 是: \(documentId)")
+            
+            self.db.collection("users")
                 .document(userUid)
-                .collection("drafts")
-                .document(draftId)
-                .delete { error in
+                .collection("publish")
+                .document(documentId)
+                .setData(["documentId": documentId,"updatedAt":  Timestamp()]) { error in
                     if let error = error {
-                        print("(IssueSettingView) 刪除舊草稿失敗: \(error.localizedDescription)")
+                        print("(IssueSettingView) 儲存 documentId 失敗: \(error.localizedDescription)")
                     } else {
-                        print("(IssueSettingView) 成功刪除舊草稿 \(draftId)")
+                        print("(IssueSettingView) 成功儲存 documentId 到 publish")
                     }
                 }
+            
+            if !draftId.isEmpty {
+                self.db.collection("users")
+                    .document(userUid)
+                    .collection("drafts")
+                    .document(draftId)
+                    .delete { error in
+                        if let error = error {
+                            print("(IssueSettingView) 刪除舊草稿失敗: \(error.localizedDescription)")
+                        } else {
+                            print("(IssueSettingView) 成功刪除舊草稿 \(draftId)")
+                        }
+                    }
+            }
         }
     }
-
+    
 }
 
 #Preview {
