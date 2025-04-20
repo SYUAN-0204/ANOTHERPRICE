@@ -148,7 +148,7 @@ struct PublishView: View {
                             if isMultiSelect {
                                 UIComplexUploadArticle(
                                     isSelected: $drafts[index].isSelected,
-                                    selecte: $isMultiSelect, trashcanState: $isTrashSelected, board: "科技", title: draft.title, date: "Last Upload : \(draft.formattedDate) ; Last Comment : 2025-04-03", content: draft.description, heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW"
+                                    selecte: $isMultiSelect, trashcanState: $isTrashSelected, board: "科技", title: draft.title, date: "Upload At : \(draft.formattedDate) - Last Comment : 2025-04-03", content: draft.description, heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW"
                                 )
                             } else {
                                 NavigationLink(destination: tempView()) {

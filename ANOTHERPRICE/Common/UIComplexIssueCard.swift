@@ -11,6 +11,7 @@ struct UIComplexIssueCard<Destination: View>: View {
     let destination: Destination
     let title: String
     let date: String
+    let common: String
     let coin: Int
     let content: String
     let like: Bool
@@ -36,7 +37,7 @@ struct UIComplexIssueCard<Destination: View>: View {
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                                 .foregroundColor(ColorConstants.systemDarkColor)
                                 .lineLimit(1)
-                            Text("Deadline : \(date)")
+                            Text("Deadline : \(date) - Last Common : \(common)")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
                                 .foregroundColor(.gray)
                         }
@@ -92,5 +93,5 @@ struct UIComplexIssueCard<Destination: View>: View {
 }
 
 #Preview {
-    UIComplexIssueCard(destination: Text("預覽畫面"), title: "標題", date: "2025-04-05", coin: 23, content: "內容", like: true, heart: 34, message: 45, author: "作者", code: "/*fer*/", http: "https://www.anotherprice.com")
+    UIComplexIssueCard(destination: Text("預覽畫面"), title: "標題", date: "2025-04-05", common: "2025-04-04", coin: 23, content: "內容", like: true, heart: 34, message: 45, author: "作者", code: "/*fer*/", http: "https://www.anotherprice.com")
 }

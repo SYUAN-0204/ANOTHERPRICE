@@ -141,7 +141,7 @@ struct temp3: View {
                             .padding(.horizontal, 3)
                             .background(ColorConstants.systemMainColor.opacity(0.2))
                             .cornerRadius(3)
-                        Text("Deadline : 2025-05-23")
+                        Text("Deadline : 2025-05-23 - Last Common : 2025-05-22")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                             .foregroundColor(.gray)
                         Text("-")
