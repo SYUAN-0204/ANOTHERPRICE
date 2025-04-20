@@ -8,10 +8,16 @@
 import SwiftUI
 
 struct UIComplexTask<Destination: View>: View {
+    @Environment(\.dismiss) var dismiss
+    
     let title: String
     let description: String
     let complish: Bool
     let destination: Destination
+    let tabIdentifier: TabIdentifier
+    let isQuestion: Bool
+    
+    @Binding var selectedTab: TabIdentifier
     
     var body: some View {
         HStack{
@@ -30,8 +36,19 @@ struct UIComplexTask<Destination: View>: View {
                     .foregroundColor(ColorConstants.emeraldGreen)
                     .padding(.trailing, 5)
             }
+            else if !isQuestion {
+                Button {
+                    selectedTab = tabIdentifier
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                }
+                .padding(.trailing, 5)
+            }
             else {
-                NavigationLink{
+                NavigationLink {
                     destination
                 } label: {
                     Image(systemName: "chevron.right")
@@ -46,5 +63,5 @@ struct UIComplexTask<Destination: View>: View {
 }
 
 #Preview {
-    UIComplexTask(title: "title", description: "description", complish: true, destination: Text("預覽畫面"))
+    UIComplexTask(title: "title", description: "description", complish: true, destination: Text("預覽畫面"), tabIdentifier: TabIdentifier.profile, isQuestion: true, selectedTab: .constant(TabIdentifier.profile))
 }

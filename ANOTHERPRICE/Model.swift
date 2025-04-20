@@ -68,3 +68,7 @@ struct LazyView<Content: View>: View {
         build()
     }
 }
+
+enum TabIdentifier: Hashable {
+    case home, search, issue, message, profile
+}

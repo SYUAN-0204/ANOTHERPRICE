@@ -10,6 +10,7 @@ import KeychainSwift
 import Foundation
 
 struct ProfileView: View {
+
     
     @State private var showLoginView = false
     @State private var authUid: String? = nil
@@ -22,6 +23,8 @@ struct ProfileView: View {
     @State var followers: Int = 0
     @State var following: Int = 0
     @State var level: Int = 1
+    
+    @Binding var selectedTab: TabIdentifier
     
     var body: some View {
         ZStack{
@@ -89,7 +92,7 @@ struct ProfileView: View {
                     ZStack{
                         Color.white
                         HStack{
-                            UINavigationLinkProfileTool(destination: PublishView(), icon: "tray.full", title: "我的提問")
+                            UINavigationLinkProfileTool(destination: PublishView(isFromIssue: false, selectedTab: $selectedTab), icon: "tray.full", title: "我的提問")
                             Spacer()
                             UINavigationLinkProfileTool(destination: DraftsView(), icon: "pencil.line", title: "我的草稿")
                             Spacer()
@@ -141,7 +144,7 @@ struct ProfileView: View {
                                     .foregroundColor(ColorConstants.systemDarkColor)
                                 Spacer()
                                 NavigationLink{
-                                    TasksView()
+                                    TasksView(selectedTab: $selectedTab)
                                 } label: {
                                     Text("任務中心")
                                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
@@ -270,5 +273,5 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView()
+    ProfileView(selectedTab: .constant(.profile))
 }

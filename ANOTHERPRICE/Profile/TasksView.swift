@@ -13,6 +13,8 @@ struct TasksView: View {
     @State private var totalExperience: Int = 24341
     @State private var isCompleted: Bool = true
     
+    @Binding var selectedTab: TabIdentifier
+    
     var body: some View {
         VStack{
             HStack {
@@ -70,27 +72,27 @@ struct TasksView: View {
                     }
                     .padding(.top, 10)
                     Spacer()
-                    UIComplexTask(title: "指定答題", description: "回答指定題目，獲得任務獎勵 15 點", complish: false, destination: tempView())
+                    UIComplexTask(title: "指定答題", description: "回答指定題目，獲得任務獎勵 15 點", complish: false, destination: tempView(), tabIdentifier: TabIdentifier.profile, isQuestion: true, selectedTab: $selectedTab)
                     Rectangle()
                         .fill(.gray.opacity(0.3))
                         .frame(height: 1)
                         .padding(.horizontal, 3)
-                    UIComplexTask(title: "任意答題", description: "回答任意題目，獲得任務獎勵 10 點", complish: isCompleted, destination: tempView())
+                    UIComplexTask(title: "任意答題", description: "回答任意題目，獲得任務獎勵 10 點", complish: false, destination: tempView(), tabIdentifier: TabIdentifier.home, isQuestion: false, selectedTab: $selectedTab)
                     Rectangle()
                         .fill(.gray.opacity(0.3))
                         .frame(height: 1)
                         .padding(.horizontal, 3)
-                    UIComplexTask(title: "發布問答", description: "發布任意問答，獲得任務獎勵 15 點", complish: isCompleted, destination: tempView())
+                    UIComplexTask(title: "發布問答", description: "發布任意問答，獲得任務獎勵 15 點", complish: false, destination: tempView(), tabIdentifier: TabIdentifier.issue, isQuestion: false, selectedTab: $selectedTab)
                     Rectangle()
                         .fill(.gray.opacity(0.3))
                         .frame(height: 1)
                         .padding(.horizontal, 3)
-                    UIComplexTask(title: "分享問答", description: "分享任意問答，獲得任務獎勵 5 點", complish: isCompleted, destination: tempView())
+                    UIComplexTask(title: "分享問答", description: "分享任意問答，獲得任務獎勵 5 點", complish: isCompleted, destination: tempView(), tabIdentifier: TabIdentifier.home, isQuestion: false, selectedTab: $selectedTab)
                     Rectangle()
                         .fill(.gray.opacity(0.3))
                         .frame(height: 1)
                         .padding(.horizontal, 3)
-                    UIComplexTask(title: "消耗 30 點", description: "消耗點數 30 點，獲得任務獎勵 10 點", complish: isCompleted, destination: tempView())
+                    UIComplexTask(title: "消耗 30 點", description: "消耗點數 30 點，獲得任務獎勵 10 點", complish: isCompleted, destination: tempView(), tabIdentifier: TabIdentifier.issue, isQuestion: false, selectedTab: $selectedTab)
                     Spacer()
                 }
                 .frame(height: 285)
@@ -106,5 +108,5 @@ struct TasksView: View {
 }
 
 #Preview {
-    TasksView()
+    TasksView(selectedTab: .constant(TabIdentifier.profile))
 }
