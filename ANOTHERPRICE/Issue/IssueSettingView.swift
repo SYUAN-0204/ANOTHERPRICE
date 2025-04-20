@@ -183,42 +183,42 @@ struct IssueSettingView: View {
                     .padding(.top, -5)
             }
             .padding(.horizontal, 10)
-                HStack {
-                    NavigationLink{
-                        tempView()
-                    } label: {
-                        if 匿名 {
-                            Image(uiImage: userAvatar)
-                                .resizable()
-                                .scaledToFill() // 確保填滿圓形
-                                .frame(width: 40, height: 40) // 限制大小
-                                .background(Color(.systemGray6))
-                                .clipShape(Circle()) // 剪裁為圓形
-                                .overlay(
-                                    Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
-                                )
-                            Text("匿名精靈")
-                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
-                                .foregroundColor(ColorConstants.systemSubColor)
-                        }
-                        else {
-                            Image(uiImage: userAvatar)
-                                .resizable()
-                                .scaledToFill() // 確保填滿圓形
-                                .frame(width: 40, height: 40) // 限制大小
-                                .background(Color(.systemGray6))
-                                .clipShape(Circle()) // 剪裁為圓形
-                                .overlay(
-                                    Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
-                                )
-                            Text("這是另外的價錢")
-                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
-                                .foregroundColor(ColorConstants.systemSubColor)
-                        }
+            HStack {
+                NavigationLink{
+                    tempView()
+                } label: {
+                    if 匿名 {
+                        Image(uiImage: userAvatar)
+                            .resizable()
+                            .scaledToFill() // 確保填滿圓形
+                            .frame(width: 40, height: 40) // 限制大小
+                            .background(Color(.systemGray6))
+                            .clipShape(Circle()) // 剪裁為圓形
+                            .overlay(
+                                Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
+                            )
+                        Text("匿名精靈")
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
+                            .foregroundColor(ColorConstants.systemSubColor)
                     }
-                    .disabled(匿名)
-                    if !匿名 {
-                        UITextLevel(totalExp: 3564)
+                    else {
+                        Image(uiImage: userAvatar)
+                            .resizable()
+                            .scaledToFill() // 確保填滿圓形
+                            .frame(width: 40, height: 40) // 限制大小
+                            .background(Color(.systemGray6))
+                            .clipShape(Circle()) // 剪裁為圓形
+                            .overlay(
+                                Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
+                            )
+                        Text("這是另外的價錢")
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
+                            .foregroundColor(ColorConstants.systemSubColor)
+                    }
+                }
+                .disabled(匿名)
+                if !匿名 {
+                    UITextLevel(totalExp: 3564)
                     Spacer()
                     Button{
                     } label: {
@@ -238,8 +238,8 @@ struct IssueSettingView: View {
                         }
                     }
                     .disabled(true)
-                    }
                 }
+            }
             .padding(.horizontal, 15)
             Rectangle()
                 .fill(.gray.opacity(0.3))
@@ -274,7 +274,7 @@ struct IssueSettingView: View {
                     Text(description)
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                         .foregroundColor(ColorConstants.systemDarkColor.opacity(0.8))
-                    .padding(.top, -3)
+                        .padding(.top, -3)
                     let tagString = tags
                         .components(separatedBy: " ")
                         .filter { !$0.isEmpty && $0.starts(with: "#") }
@@ -284,7 +284,7 @@ struct IssueSettingView: View {
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                         .foregroundColor(ColorConstants.systemMainColor)
                         .padding(.top, -3)
-                    .padding(.top, 20)
+                        .padding(.top, 20)
                 }
             }
             .padding(.horizontal, 15)
