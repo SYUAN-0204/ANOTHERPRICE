@@ -72,3 +72,9 @@ struct LazyView<Content: View>: View {
 enum TabIdentifier: Hashable {
     case home, search, issue, message, profile
 }
+
+enum Route: Hashable {
+    case issueEdit(isDraft: Bool, draftId: String?, title: String, description: String)
+    case issueSetting
+    case publish
+}

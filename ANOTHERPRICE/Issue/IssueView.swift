@@ -21,6 +21,8 @@ struct IssueView: View {
     @State private var noDraftsMessage: String? = nil
     @State private var showLoginView = false
     
+    @Binding var path: [Route]
+    
     struct Draft: Identifiable, Equatable {
         var id: String
         var title: String
@@ -30,6 +32,25 @@ struct IssueView: View {
     var body: some View {
         ZStack{
             VStack{
+                NavigationLink(value:  Route.issueEdit(isDraft: false, draftId: nil, title: "", description: "")) {
+                    ZStack{
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.white)
+                            .stroke(ColorConstants.systemMainColor, style: StrokeStyle(lineWidth: 1))
+                        HStack{
+                            Image(systemName: "pencil.line")
+                                .font(.system(size: 20))
+                                .foregroundColor(ColorConstants.systemMainColor)
+                            Text("新建問題")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    .frame(height: 80)
+                }
+                .padding(.top, 20)
+                .padding(.horizontal, 8)
+                /*
                 NavigationLink{
                     IssueEditView(isDraft: false, draftId: nil, title: "", description: "")
                 } label: {
@@ -49,7 +70,7 @@ struct IssueView: View {
                     .frame(height: 80)
                 }
                 .padding(.top, 20)
-                .padding(.horizontal, 8)
+                .padding(.horizontal, 8)*/
                 HStack {
                     Text("草稿記錄")
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
@@ -81,7 +102,48 @@ struct IssueView: View {
                             LazyVStack {
                                 ForEach(drafts.indices, id: \.self) { index in
                                     let draft = drafts[index]
-                                    NavigationLink {
+                                    NavigationLink(value: Route.issueEdit(isDraft: true, draftId: draft.id, title: draft.title, description: draft.description)) {
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .fill(Color.white)
+                                                .frame(height: 80)
+                                                .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
+                                            VStack(alignment: .leading) {
+                                                if(draft.title.isEmpty){
+                                                    Text("無標題")
+                                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                                        .foregroundColor(ColorConstants.systemDarkColor)
+                                                        .lineLimit(1)
+                                                }else{
+                                                    Text(draft.title)
+                                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                                        .foregroundColor(ColorConstants.systemDarkColor)
+                                                        .lineLimit(1)
+                                                }
+                                                if(draft.description.isEmpty){
+                                                    Text("無描述\n")
+                                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                                        .foregroundColor(.gray)
+                                                        .padding(.top, -10)
+                                                        .lineLimit(2)
+                                                        .multilineTextAlignment(.leading)
+                                                }else{
+                                                    Text(draft.description + "\n")
+                                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                                        .foregroundColor(.gray)
+                                                        .padding(.top, -10)
+                                                        .lineLimit(2)
+                                                        .multilineTextAlignment(.leading)
+                                                }
+                                                HStack{
+                                                    Spacer()
+                                                }
+                                            }
+                                            .padding(.horizontal, 10)
+                                        }
+                                        .padding(.horizontal, 10)
+                                    }
+                                    /*NavigationLink {
                                         IssueEditView(isDraft: true, draftId: draft.id, title: draft.title, description: draft.description)
                                     } label: {
                                         ZStack {
@@ -124,6 +186,7 @@ struct IssueView: View {
                                         }
                                         .padding(.horizontal, 10)
                                     }
+                                     */
                                     .onAppear {
                                         if index == drafts.count - 1 && hasMoreData && !isFetchingMore {
                                             fetchDrafts(initial: false)
@@ -242,5 +305,5 @@ struct IssueView: View {
 }
 
 #Preview {
-    IssueView()
+    IssueView(path: .constant([]))
 }

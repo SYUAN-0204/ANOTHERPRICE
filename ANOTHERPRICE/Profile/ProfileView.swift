@@ -24,6 +24,8 @@ struct ProfileView: View {
     @State var following: Int = 0
     @State var level: Int = 1
     
+    @State private var path: [Route] = []
+    
     @Binding var selectedTab: TabIdentifier
     
     var body: some View {

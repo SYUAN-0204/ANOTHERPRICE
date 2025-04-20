@@ -65,7 +65,7 @@ struct PublishView: View {
                     Spacer()
                 }
                 .padding(.leading, 10)
-                .frame(width: 80)
+                .frame(width: 120)
                 Spacer()
                 Text("我的提問")
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
@@ -85,7 +85,7 @@ struct PublishView: View {
                                 }
                             }
                         } label: {
-                            Text(hasSelection ? "清除" : "全選")
+                            Text(hasSelection ? "取消全選" : "全選")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                                 .foregroundColor(ColorConstants.systemMainColor)
                         }
@@ -103,7 +103,7 @@ struct PublishView: View {
                     }
                 }
                 .padding(.trailing, 10)
-                .frame(width: 80)
+                .frame(width: 120)
             }
             .frame(height: 36)
             

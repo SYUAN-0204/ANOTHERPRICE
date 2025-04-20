@@ -31,6 +31,8 @@ struct IssueEditView: View {
     @State private var isFileSelected: Bool = false
     @State private var shouldNavigate = false
     
+    @Binding var path: [Route]
+    
     var body: some View {
         ZStack{
             VStack{
@@ -60,7 +62,8 @@ struct IssueEditView: View {
                         Spacer()
                         Button {
                             saveToKeychain() // 儲存 Keychain 的邏輯
-                            shouldNavigate = true
+                            path.append(.issueSetting)
+                            //shouldNavigate = true
                         } label: {
                             Text("繼續")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
@@ -71,10 +74,10 @@ struct IssueEditView: View {
                         }
                         .disabled(title.isEmpty)
                     }
-
+/*
                     .navigationDestination(isPresented: $shouldNavigate) {
                         LazyView(IssueSettingView())
-                    }
+                    }*/
                     .padding(.trailing, 10)
                     .frame(width: 80)
                 }
@@ -353,5 +356,5 @@ struct IssueEditView: View {
 }
 
 #Preview {
-    IssueEditView(isDraft: false, draftId: nil, title: "", description: "")
+    IssueEditView(isDraft: false, draftId: nil, title: "", description: "", path: .constant([]))
 }
