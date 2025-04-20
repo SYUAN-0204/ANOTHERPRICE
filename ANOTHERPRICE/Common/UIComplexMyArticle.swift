@@ -43,10 +43,10 @@ struct UIComplexMyArticle: View {
                     .overlay(
                         HStack{
                             VStack(alignment: .leading) {
-                                Text(title)
-                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                                    .foregroundColor(ColorConstants.systemDarkColor)
-                                    .lineLimit(1)
+                                    Text(title)
+                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                        .foregroundColor(ColorConstants.systemDarkColor)
+                                        .lineLimit(1)
                                 Text(date)
                                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 10))
                                     .foregroundColor(.gray)

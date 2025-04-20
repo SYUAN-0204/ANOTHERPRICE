@@ -113,8 +113,8 @@ struct IssueEditView: View {
                                     }
                                 }
                             )
-                            .padding(.horizontal, 10)
                     }
+                    .padding(.horizontal, 10)
                     HStack{
                         Spacer()
                         Text("\(title.count)/50")

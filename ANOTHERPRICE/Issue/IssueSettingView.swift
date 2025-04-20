@@ -25,11 +25,22 @@ struct IssueSettingView: View {
     @State private var reward:String = ""
     @State private var balance:Int = 34
     @State private var selectedDate = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
+    @State private var 匿名 = false
+    @State private var selected匿名:String = "off"
+    @State private var 匿名List = ["on", "off"]
+    
+    @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
     
     @EnvironmentObject var nav: NavigationCoordinator
     
+    let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"  // 自定義格式
+        return formatter
+    }()
+    
     var body: some View {
-        VStack{
+        VStack(alignment: .leading){
             HStack {
                 HStack{
                     Button {
@@ -83,6 +94,27 @@ struct IssueSettingView: View {
                             .foregroundColor(selectedCategory.isEmpty ? .gray.opacity(0.5): ColorConstants.systemDarkColor.opacity(0.9))
                         Spacer()
                     }
+                    UITextIssueSettingTitle(title: "匿名")
+                    Menu {
+                        Picker("Options", selection: $selected匿名) {
+                            ForEach(匿名List, id: \.self) { order in
+                                Text(order)
+                            }
+                        }
+                    } label: {
+                        Text(selected匿名)
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                            .foregroundColor(selected匿名.isEmpty ? .gray.opacity(0.5): ColorConstants.systemDarkColor.opacity(0.9))
+                        Spacer()
+                    }
+                    .onChange(of: selected匿名) {
+                        if selected匿名 == "on" {
+                            匿名 = true
+                        }
+                        else {
+                            匿名 = false
+                        }
+                    }
                 }
                 .frame(height: 36)
                 .padding(.horizontal, 5)
@@ -92,7 +124,7 @@ struct IssueSettingView: View {
                     .padding(.top, -5)
                 HStack{
                     UITextIssueSettingTitle(title: "標籤")
-                    TextField("至多五個（選填）", text: $tags)
+                    TextField("至多五個，以空格分隔 #標籤（選填）", text: $tags)
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                         .foregroundColor(ColorConstants.systemDarkColor.opacity(0.9))
                         .frame(height: 36)
@@ -151,11 +183,111 @@ struct IssueSettingView: View {
                     .padding(.top, -5)
             }
             .padding(.horizontal, 10)
+                HStack {
+                    NavigationLink{
+                        tempView()
+                    } label: {
+                        if 匿名 {
+                            Image(uiImage: userAvatar)
+                                .resizable()
+                                .scaledToFill() // 確保填滿圓形
+                                .frame(width: 40, height: 40) // 限制大小
+                                .background(Color(.systemGray6))
+                                .clipShape(Circle()) // 剪裁為圓形
+                                .overlay(
+                                    Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
+                                )
+                            Text("匿名精靈")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
+                                .foregroundColor(ColorConstants.systemSubColor)
+                        }
+                        else {
+                            Image(uiImage: userAvatar)
+                                .resizable()
+                                .scaledToFill() // 確保填滿圓形
+                                .frame(width: 40, height: 40) // 限制大小
+                                .background(Color(.systemGray6))
+                                .clipShape(Circle()) // 剪裁為圓形
+                                .overlay(
+                                    Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
+                                )
+                            Text("這是另外的價錢")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
+                                .foregroundColor(ColorConstants.systemSubColor)
+                        }
+                    }
+                    .disabled(匿名)
+                    if !匿名 {
+                        UITextLevel(totalExp: 3564)
+                    Spacer()
+                    Button{
+                    } label: {
+                        ZStack{
+                            RoundedRectangle(cornerRadius: 3)
+                                .stroke(ColorConstants.systemMainColor, lineWidth: 1)
+                                .frame(width: 66, height: 24)
+                            HStack{
+                                Image(systemName: "plus")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(ColorConstants.systemMainColor)
+                                    .padding(.trailing, -7)
+                                Text("關注")
+                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                    .foregroundColor(ColorConstants.systemMainColor)
+                            }
+                        }
+                    }
+                    .disabled(true)
+                    }
+                }
+            .padding(.horizontal, 15)
+            Rectangle()
+                .fill(.gray.opacity(0.3))
+                .frame(height: 1)
+                .padding(.horizontal, 10)
             ScrollView{
-                Text("還沒想好預覽顯示排版\n\(title)\n\(description)")
+                VStack(alignment: .leading){
+                    Text(title)
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
+                        .foregroundColor(ColorConstants.systemDarkColor)
+                    HStack{
+                        if !selectedCategory.isEmpty {
+                            Text(selectedCategory)
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                                .foregroundColor(ColorConstants.systemDarkColor)
+                                .lineLimit(1)
+                                .padding(.horizontal, 3)
+                                .background(ColorConstants.systemMainColor.opacity(0.2))
+                                .cornerRadius(3)
+                        }
+                        Text("Deadline : \(dateFormatter.string(from: selectedDate))")
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                            .foregroundColor(.gray)
+                        Text("-")
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                            .foregroundColor(.gray)
+                        Text("Point : \(balance)")
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.top, -7)
+                    Text(description)
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                        .foregroundColor(ColorConstants.systemDarkColor.opacity(0.8))
+                    .padding(.top, -3)
+                    let tagString = tags
+                        .components(separatedBy: " ")
+                        .filter { !$0.isEmpty && $0.starts(with: "#") }
+                        .prefix(5)
+                        .joined(separator: " ")
+                    Text(tagString)
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                        .foregroundColor(ColorConstants.systemMainColor)
+                        .padding(.top, -3)
+                    .padding(.top, 20)
+                }
             }
             .padding(.horizontal, 15)
-            .padding(.top, 7)
             Spacer()
         }
         .navigationBarBackButtonHidden(true)

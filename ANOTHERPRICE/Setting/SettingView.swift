@@ -78,9 +78,19 @@ struct SettingView: View {
                 }
                 .background(Color.white)
                 
-                VStack(spacing: 0){
-                    UIButtonSettingTool(title: "切換帳號")
+                NavigationLink{
+                    temp()
+                } label: {
+                    HStack{
+                        Spacer()
+                        Text("切換帳號")
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                            .foregroundColor(.black)
+                        Spacer()
+                    }
                 }
+                .frame(height: 50)
+                .padding(.horizontal, 10)
                 .background(Color.white)
                 .padding(.top, 10)
                 
@@ -90,7 +100,6 @@ struct SettingView: View {
                     })
                 }
                 .background(Color.white)
-                .padding(.top, 10)
                 
                 VStack(spacing: 0){
                     Button(action: {
@@ -113,7 +122,7 @@ struct SettingView: View {
         }
         .background(Color.gray.opacity(0.1))
         .navigationBarBackButtonHidden(true)
-        .alert("帳號登出", isPresented: $logout) {
+        .alert("登出帳號", isPresented: $logout) {
             Button("取消", role: .cancel) { }
             Button("確定", role: .destructive) {
                 logoutAction()

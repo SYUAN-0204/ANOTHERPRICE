@@ -31,6 +31,7 @@ struct PublishView: View {
     
     @EnvironmentObject var nav: NavigationCoordinator
     let isFromIssue: Bool
+    @Binding var selectedTab: TabIdentifier
     
     struct Draft: Identifiable, Equatable {
         var id: String
@@ -117,78 +118,94 @@ struct PublishView: View {
             
             
             if drafts.isEmpty {
-                Text(noDraftsMessage ?? "暫無提問")
+                Text(noDraftsMessage ?? "誠實精靈翻了翻提問箱，發現你還沒提過問題")
                     .foregroundColor(.gray)
-                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                     .padding(.vertical, 10)
+                    .padding(.top, 20)
+                Button{
+                    selectedTab = TabIdentifier.issue
+                    dismiss()
+                } label: {
+                    ZStack{
+                        RoundedRectangle(cornerRadius: 5)
+                            .stroke(ColorConstants.systemMainColor, lineWidth: 1)
+                            .frame(width: 120, height: 30)
+                        Text("建立提問")
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                            .foregroundColor(ColorConstants.systemMainColor)
+                            .padding(.vertical, 10)
+                            .padding(.horizontal, 30)
+                    }
+                }
+                Spacer()
             }
-            
-            ScrollView{
-                ForEach(drafts.indices, id: \.self) { index in
-                    let draft = drafts[index]
-                    Group {
-                        if isMultiSelect {
-                            UIComplexUploadArticle(
-                                isSelected: $drafts[index].isSelected,
-                                selecte: $isMultiSelect, trashcanState: $isTrashSelected, title: draft.title, date: "Last Upload : \(draft.formattedDate) ; Last Comment : 2025-04-03", content: draft.description, heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW"
-                            )
-                        } else {
-                            NavigationLink(
-                                destination:             tempView()
-                            ) {
-                                UIComplexUploadArticle(isSelected: .constant(false),selecte: .constant(false), trashcanState: .constant(false), title: draft.title, date: "Last Upload : \(draft.formattedDate) ; Last Comment : 2025-04-03", content: draft.description, heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW")
+            else {
+                ScrollView{
+                    ForEach(drafts.indices, id: \.self) { index in
+                        let draft = drafts[index]
+                        Group {
+                            if isMultiSelect {
+                                UIComplexUploadArticle(
+                                    isSelected: $drafts[index].isSelected,
+                                    selecte: $isMultiSelect, trashcanState: $isTrashSelected, board: "科技", title: draft.title, date: "Last Upload : \(draft.formattedDate) ; Last Comment : 2025-04-03", content: draft.description, heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW"
+                                )
+                            } else {
+                                NavigationLink(destination: tempView()) {
+                                    UIComplexUploadArticle(isSelected: .constant(false),selecte: .constant(false), trashcanState: .constant(false), board: "科技", title: draft.title, date: "Last Upload : \(draft.formattedDate) ; Last Comment : 2025-04-03", content: draft.description, heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW")
+                                }
+                                .buttonStyle(PlainButtonStyle())
                             }
-                            .buttonStyle(PlainButtonStyle())
+                            
+                        }
+                        .onAppear {
+                            if index == drafts.count - 1 && hasMoreData && !isFetchingMore {
+                                fetchDrafts(initial: false)
+                            }
                         }
                         
-                    }
-                    .onAppear {
-                        if index == drafts.count - 1 && hasMoreData && !isFetchingMore {
-                            fetchDrafts(initial: false)
-                        }
+                        Rectangle()
+                            .fill(.gray.opacity(0.4))
+                            .frame(height: 1)
                     }
                     
+                    if isFetchingMore {
+                        ProgressView("載入更多中...")
+                            .padding(.vertical, 10)
+                    }
+                    
+                    if !hasMoreData && !drafts.isEmpty {
+                        Text("沒有更多提問了")
+                            .foregroundColor(.gray)
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                            .padding(.vertical, 10)
+                    }
+                }
+                Spacer()
+                if isMultiSelect {
                     Rectangle()
-                        .fill(.gray.opacity(0.4))
+                        .fill(.gray)
                         .frame(height: 1)
-                }
-                
-                if isFetchingMore {
-                    ProgressView("載入更多中...")
-                        .padding(.vertical, 10)
-                }
-                
-                if !hasMoreData && !drafts.isEmpty {
-                    Text("沒有更多提問了")
-                        .foregroundColor(.gray)
-                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
-                        .padding(.vertical, 10)
-                }
-            }
-            Spacer()
-            if isMultiSelect {
-                Rectangle()
-                    .fill(.gray)
-                    .frame(height: 1)
-                Button() {
-                    let selectedDrafts = drafts.filter { $0.isSelected }
-                    //print("(DraftsView)被勾選的草稿有：")
-                    for draft in selectedDrafts {
-                        deleteDraft(draftId: draft.id)
-                        //print("- \(draft.title) (\(draft.id))")
+                    Button() {
+                        let selectedDrafts = drafts.filter { $0.isSelected }
+                        //print("(DraftsView)被勾選的草稿有：")
+                        for draft in selectedDrafts {
+                            deleteDraft(draftId: draft.id)
+                            //print("- \(draft.title) (\(draft.id))")
+                        }
+                    } label: {
+                        HStack{
+                            Image(systemName: "trash")
+                                .font(.system(size: 18))
+                                .foregroundColor(ColorConstants.tomatoRed.opacity(hasSelection ? 1.0 : 0.7))
+                            Text("刪除")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                .foregroundColor(ColorConstants.tomatoRed.opacity(hasSelection ? 1.0 : 0.7))
+                        }
                     }
-                } label: {
-                    HStack{
-                        Image(systemName: "trash")
-                            .font(.system(size: 18))
-                            .foregroundColor(ColorConstants.tomatoRed.opacity(hasSelection ? 1.0 : 0.7))
-                        Text("刪除")
-                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                            .foregroundColor(ColorConstants.tomatoRed.opacity(hasSelection ? 1.0 : 0.7))
-                    }
+                    .frame(height: 28)
+                    .disabled(!hasSelection)
                 }
-                .frame(height: 28)
-                .disabled(!hasSelection)
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -204,11 +221,11 @@ struct PublishView: View {
     func fetchDrafts(initial: Bool) {
         guard let userUid = keychain.get("authUid") else { return }
         guard !isFetchingMore else { return }
-
+        
         let db = Firestore.firestore()
         var query: Query = db.collection("users").document(userUid).collection("publish")
             .order(by: "updatedAt", descending: true)
-
+        
         if initial {
             isLoading = true
             query = query.limit(to: 8)
@@ -219,66 +236,66 @@ struct PublishView: View {
                 query = query.start(afterDocument: last)
             }
         }
-
+        
         query.getDocuments { snapshot, error in
             if initial {
                 isLoading = false
             } else {
                 isFetchingMore = false
             }
-
+            
             guard error == nil, let snapshot = snapshot else {
                 print("獲取 publish 錯誤: \(error?.localizedDescription ?? "未知錯誤")")
                 return
             }
-
+            
             let group = DispatchGroup()
             var newDrafts: [Draft] = []
-
+            
             for doc in snapshot.documents {
                 let documentId = doc.documentID
-
+                
                 group.enter()
                 db.collection("public").document(documentId).getDocument { publicDoc, error in
                     defer { group.leave() }
-
+                    
                     if let error = error {
                         print("讀取 public/\(documentId) 失敗: \(error.localizedDescription)")
                         return
                     }
-
+                    
                     guard let data = publicDoc?.data() else {
                         print("public/\(documentId) 不存在或無資料")
                         return
                     }
-
+                    
                     let updatedAt = (data["updatedAt"] as? Timestamp)?.dateValue() ?? Date()
                     let dateFormatter = DateFormatter()
                     dateFormatter.dateFormat = "yyyy-MM-dd"
                     let formattedDate = dateFormatter.string(from: updatedAt)
-
+                    
                     let draft = Draft(
                         id: documentId,
                         title: data["title"] as? String ?? "無標題",
                         description: data["description"] as? String ?? "無描述",
                         formattedDate: formattedDate
                     )
-
+                    
                     newDrafts.append(draft)
                 }
             }
-
+            
             group.notify(queue: .main) {
                 if initial {
                     drafts = newDrafts
                 } else {
                     drafts.append(contentsOf: newDrafts)
                 }
-
+                
                 lastDocument = snapshot.documents.last
                 hasMoreData = newDrafts.count >= (initial ? 8 : 5)
-
-                noDraftsMessage = drafts.isEmpty ? "暫無草稿" : nil
+                
+                noDraftsMessage = drafts.isEmpty ? "誠實精靈翻了翻提問箱，發現你還沒提過問題" : nil
             }
         }
     }
@@ -305,6 +322,6 @@ struct PublishView: View {
 }
 
 #Preview {
-    PublishView(isFromIssue: true)
+    PublishView(isFromIssue: true, selectedTab: .constant(.profile))
         .environmentObject(NavigationCoordinator())
 }

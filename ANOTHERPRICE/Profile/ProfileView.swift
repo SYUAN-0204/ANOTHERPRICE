@@ -94,7 +94,7 @@ struct ProfileView: View {
                     ZStack{
                         Color.white
                         HStack{
-                            UINavigationLinkProfileTool(destination: PublishView(isFromIssue: false), icon: "tray.full", title: "我的提問")
+                            UINavigationLinkProfileTool(destination: PublishView(isFromIssue: false, selectedTab: $selectedTab), icon: "tray.full", title: "我的提問")
                             Spacer()
                             Button(){
                                 nav.push(.draft)

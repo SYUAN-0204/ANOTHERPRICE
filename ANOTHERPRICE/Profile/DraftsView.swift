@@ -40,6 +40,7 @@ struct DraftsView: View {
     }
     
     @EnvironmentObject var nav: NavigationCoordinator
+    @Binding var selectedTab: TabIdentifier
     
     var body: some View {
         VStack{
@@ -112,103 +113,121 @@ struct DraftsView: View {
             .frame(height: 36)
             
             if drafts.isEmpty {
-                Text(noDraftsMessage ?? "暫無草稿")
+                Text(noDraftsMessage ?? "誠實精靈搖了搖草稿箱，發現一張草稿都沒有")
                     .foregroundColor(.gray)
-                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                     .padding(.vertical, 10)
+                    .padding(.top, 20)
+                Button{
+                    selectedTab = TabIdentifier.issue
+                    dismiss()
+                } label: {
+                    ZStack{
+                        RoundedRectangle(cornerRadius: 5)
+                            .stroke(ColorConstants.systemMainColor, lineWidth: 1)
+                            .frame(width: 120, height: 30)
+                        Text("建立草稿")
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                            .foregroundColor(ColorConstants.systemMainColor)
+                            .padding(.vertical, 10)
+                            .padding(.horizontal, 30)
+                    }
+                }
+                Spacer()
             }
-            
-            ScrollView{
-                ForEach(drafts.indices, id: \.self) { index in
-                    let draft = drafts[index]
-                    Group {
-                        if isMultiSelect {
-                            UIComplexMyArticle(
-                                isSelected: $drafts[index].isSelected,
-                                selecte: $isMultiSelect,
-                                trashcanState: $isTrashSelected,
-                                title: draft.title.isEmpty ? "無標題" : draft.title,
-                                date: "Last Edit : \(draft.formattedDate)",
-                                content: draft.description.isEmpty ? "無敘述" : draft.description,
-                                onDelete: {
-                                    deleteDraft(draftId: draft.id)
-                                }
-                            )
-                        } else {
-                            Button(){
-                                nav.push(.issueEdit(isDraft: true, draftId: draft.id, title: draft.title, description: draft.description))
-                            } label:
-                            /*NavigationLink(
-                                destination: /*LazyView(IssueEditView(
-                                    isDraft: true,
-                                    draftId: draft.id,
-                                    title: draft.title,
-                                    description: draft.description
-                                ))*/tempView()
-                            )*/ {
+            else {
+                ScrollView{
+                    ForEach(drafts.indices, id: \.self) { index in
+                        let draft = drafts[index]
+                        Group {
+                            if isMultiSelect {
                                 UIComplexMyArticle(
-                                    isSelected: .constant(false),
-                                    selecte: .constant(false),
-                                    trashcanState: .constant(false),
+                                    isSelected: $drafts[index].isSelected,
+                                    selecte: $isMultiSelect,
+                                    trashcanState: $isTrashSelected,
                                     title: draft.title.isEmpty ? "無標題" : draft.title,
-                                    date: "Last Edit : 2025-04-03",
+                                    date: "Last Edit : \(draft.formattedDate)",
                                     content: draft.description.isEmpty ? "無敘述" : draft.description,
                                     onDelete: {
                                         deleteDraft(draftId: draft.id)
                                     }
                                 )
+                            } else {
+                                Button(){
+                                    nav.push(.issueEdit(isDraft: true, draftId: draft.id, title: draft.title, description: draft.description))
+                                } label:
+                                /*NavigationLink(
+                                 destination: /*LazyView(IssueEditView(
+                                               isDraft: true,
+                                               draftId: draft.id,
+                                               title: draft.title,
+                                               description: draft.description
+                                               ))*/tempView()
+                                 )*/ {
+                                     UIComplexMyArticle(
+                                        isSelected: .constant(false),
+                                        selecte: .constant(false),
+                                        trashcanState: .constant(false),
+                                        title: draft.title.isEmpty ? "無標題" : draft.title,
+                                        date: "Last Edit : 2025-04-03",
+                                        content: draft.description.isEmpty ? "無敘述" : draft.description,
+                                        onDelete: {
+                                            deleteDraft(draftId: draft.id)
+                                        }
+                                     )
+                                 }
+                                 .buttonStyle(PlainButtonStyle())
                             }
-                            .buttonStyle(PlainButtonStyle())
+                            
+                        }
+                        .onAppear {
+                            if index == drafts.count - 1 && hasMoreData && !isFetchingMore {
+                                fetchDrafts(initial: false)
+                            }
                         }
                         
-                    }
-                    .onAppear {
-                        if index == drafts.count - 1 && hasMoreData && !isFetchingMore {
-                            fetchDrafts(initial: false)
-                        }
+                        Rectangle()
+                            .fill(.gray.opacity(0.4))
+                            .frame(height: 1)
                     }
                     
+                    if isFetchingMore {
+                        ProgressView("載入更多中...")
+                            .padding(.vertical, 10)
+                    }
+                    
+                    if !hasMoreData && !drafts.isEmpty {
+                        Text("沒有更多草稿了")
+                            .foregroundColor(.gray)
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                            .padding(.vertical, 10)
+                    }
+                }
+                Spacer()
+                if isMultiSelect {
                     Rectangle()
-                        .fill(.gray.opacity(0.4))
+                        .fill(.gray)
                         .frame(height: 1)
-                }
-                
-                if isFetchingMore {
-                    ProgressView("載入更多中...")
-                        .padding(.vertical, 10)
-                }
-                
-                if !hasMoreData && !drafts.isEmpty {
-                    Text("沒有更多草稿了")
-                        .foregroundColor(.gray)
-                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
-                        .padding(.vertical, 10)
-                }
-            }
-            Spacer()
-            if isMultiSelect {
-                Rectangle()
-                    .fill(.gray)
-                    .frame(height: 1)
-                Button() {
-                    let selectedDrafts = drafts.filter { $0.isSelected }
-                    //print("(DraftsView)被勾選的草稿有：")
-                    for draft in selectedDrafts {
-                        deleteDraft(draftId: draft.id)
-                        //print("- \(draft.title) (\(draft.id))")
+                    Button() {
+                        let selectedDrafts = drafts.filter { $0.isSelected }
+                        //print("(DraftsView)被勾選的草稿有：")
+                        for draft in selectedDrafts {
+                            deleteDraft(draftId: draft.id)
+                            //print("- \(draft.title) (\(draft.id))")
+                        }
+                    } label: {
+                        HStack{
+                            Image(systemName: "trash")
+                                .font(.system(size: 18))
+                                .foregroundColor(ColorConstants.tomatoRed.opacity(hasSelection ? 1.0 : 0.7))
+                            Text("刪除")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                .foregroundColor(ColorConstants.tomatoRed.opacity(hasSelection ? 1.0 : 0.7))
+                        }
                     }
-                } label: {
-                    HStack{
-                        Image(systemName: "trash")
-                            .font(.system(size: 18))
-                            .foregroundColor(ColorConstants.tomatoRed.opacity(hasSelection ? 1.0 : 0.7))
-                        Text("刪除")
-                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                            .foregroundColor(ColorConstants.tomatoRed.opacity(hasSelection ? 1.0 : 0.7))
-                    }
+                    .frame(height: 28)
+                    .disabled(!hasSelection)
                 }
-                .frame(height: 28)
-                .disabled(!hasSelection)
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -278,7 +297,7 @@ struct DraftsView: View {
             hasMoreData = newDrafts.count >= (initial ? 8 : 5)
             
             if drafts.isEmpty {
-                noDraftsMessage = "暫無草稿"
+                noDraftsMessage = "誠實精靈搖了搖草稿箱，發現一張草稿都沒有"
             } else {
                 noDraftsMessage = nil
             }
@@ -302,6 +321,6 @@ struct DraftsView: View {
 }
 
 #Preview {
-    DraftsView()
+    DraftsView(selectedTab: .constant(.profile))
         .environmentObject(NavigationCoordinator())
 }
