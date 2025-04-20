@@ -13,9 +13,6 @@ import KeychainSwift
 struct PublishView: View {
     @Environment(\.dismiss) var dismiss
     
-    let isFromIssue: Bool
-    @Binding var selectedTab: TabIdentifier
-    
     @State private var keychain = KeychainSwift()
     @State private var isLoading = true
     @State private var authUid: String? = nil
@@ -58,9 +55,6 @@ struct PublishView: View {
                     }
                     else {
                         Button {
-                            if isFromIssue{
-                                selectedTab = TabIdentifier.issue
-                            }
                             dismiss()
                         } label: {
                             Image(systemName: "arrow.left")
@@ -303,5 +297,5 @@ struct PublishView: View {
 }
 
 #Preview {
-    PublishView(isFromIssue: true, selectedTab: .constant(TabIdentifier.home))
+    PublishView()
 }
