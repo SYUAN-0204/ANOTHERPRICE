@@ -21,7 +21,7 @@ struct IssueView: View {
     @State private var noDraftsMessage: String? = nil
     @State private var showLoginView = false
     
-    @Binding var path: [Route]
+    @EnvironmentObject var nav: NavigationCoordinator
     
     struct Draft: Identifiable, Equatable {
         var id: String
@@ -32,7 +32,9 @@ struct IssueView: View {
     var body: some View {
         ZStack{
             VStack{
-                NavigationLink(value:  Route.issueEdit(isDraft: false, draftId: nil, title: "", description: "")) {
+                Button(){
+                    nav.push(.issueEdit(isDraft: false, draftId: nil, title: "", description: ""))
+                } label: {
                     ZStack{
                         RoundedRectangle(cornerRadius: 10)
                             .fill(Color.white)
@@ -50,6 +52,24 @@ struct IssueView: View {
                 }
                 .padding(.top, 20)
                 .padding(.horizontal, 8)
+                /*NavigationLink(value:  Route.issueEdit(isDraft: false, draftId: nil, title: "", description: "")) {
+                    ZStack{
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.white)
+                            .stroke(ColorConstants.systemMainColor, style: StrokeStyle(lineWidth: 1))
+                        HStack{
+                            Image(systemName: "pencil.line")
+                                .font(.system(size: 20))
+                                .foregroundColor(ColorConstants.systemMainColor)
+                            Text("新建問題")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    .frame(height: 80)
+                }
+                .padding(.top, 20)
+                .padding(.horizontal, 8)*/
                 /*
                 NavigationLink{
                     IssueEditView(isDraft: false, draftId: nil, title: "", description: "")
@@ -102,7 +122,10 @@ struct IssueView: View {
                             LazyVStack {
                                 ForEach(drafts.indices, id: \.self) { index in
                                     let draft = drafts[index]
-                                    NavigationLink(value: Route.issueEdit(isDraft: true, draftId: draft.id, title: draft.title, description: draft.description)) {
+                                    Button(){
+                                        nav.push(.issueEdit(isDraft: true, draftId: draft.id, title: draft.title, description: draft.description))
+                                    } label:
+                                    /*NavigationLink(value: Route.issueEdit(isDraft: true, draftId: draft.id, title: draft.title, description: draft.description)) */{
                                         ZStack {
                                             RoundedRectangle(cornerRadius: 10)
                                                 .fill(Color.white)
@@ -305,5 +328,6 @@ struct IssueView: View {
 }
 
 #Preview {
-    IssueView(path: .constant([]))
+    IssueView()
+        .environmentObject(NavigationCoordinator())
 }

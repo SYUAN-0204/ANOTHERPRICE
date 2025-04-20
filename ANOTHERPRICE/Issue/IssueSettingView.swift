@@ -26,7 +26,7 @@ struct IssueSettingView: View {
     @State private var balance:Int = 34
     @State private var selectedDate = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
     
-    @Binding var path: [Route]
+    @EnvironmentObject var nav: NavigationCoordinator
     
     var body: some View {
         VStack{
@@ -52,8 +52,8 @@ struct IssueSettingView: View {
                     Spacer()
                     Button() {
                         publicDraft()
-                        //path.removeAll()
-                        path.append(.publish)
+                        nav.push(.publish)
+                        //path.append(.publish)
                     } label: {
                         Text("發布")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
@@ -222,5 +222,6 @@ struct IssueSettingView: View {
 }
 
 #Preview {
-    IssueSettingView(path: .constant([]))
+    IssueSettingView()
+        .environmentObject(NavigationCoordinator())
 }

@@ -31,7 +31,7 @@ struct IssueEditView: View {
     @State private var isFileSelected: Bool = false
     @State private var shouldNavigate = false
     
-    @Binding var path: [Route]
+    @EnvironmentObject var nav: NavigationCoordinator
     
     var body: some View {
         ZStack{
@@ -62,7 +62,8 @@ struct IssueEditView: View {
                         Spacer()
                         Button {
                             saveToKeychain() // 儲存 Keychain 的邏輯
-                            path.append(.issueSetting)
+                            nav.push(.issueSetting)
+                            //path.append(.issueSetting)
                             //shouldNavigate = true
                         } label: {
                             Text("繼續")
@@ -356,5 +357,6 @@ struct IssueEditView: View {
 }
 
 #Preview {
-    IssueEditView(isDraft: false, draftId: nil, title: "", description: "", path: .constant([]))
+    IssueEditView(isDraft: false, draftId: nil, title: "", description: "")
+        .environmentObject(NavigationCoordinator())
 }

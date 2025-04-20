@@ -29,6 +29,9 @@ struct PublishView: View {
     @State private var noDraftsMessage: String? = nil
     @State private var db = Firestore.firestore()
     
+    @EnvironmentObject var nav: NavigationCoordinator
+    let isFromIssue: Bool
+    
     struct Draft: Identifiable, Equatable {
         var id: String
         var title: String
@@ -55,7 +58,12 @@ struct PublishView: View {
                     }
                     else {
                         Button {
-                            dismiss()
+                            if isFromIssue {
+                                nav.popToRoot()
+                            }
+                            else {
+                                dismiss()
+                            }
                         } label: {
                             Image(systemName: "arrow.left")
                                 .font(.system(size: 18))
@@ -297,5 +305,6 @@ struct PublishView: View {
 }
 
 #Preview {
-    PublishView()
+    PublishView(isFromIssue: true)
+        .environmentObject(NavigationCoordinator())
 }

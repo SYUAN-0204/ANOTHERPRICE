@@ -39,6 +39,8 @@ struct DraftsView: View {
         var formattedDate: String 
     }
     
+    @EnvironmentObject var nav: NavigationCoordinator
+    
     var body: some View {
         VStack{
             HStack {
@@ -133,14 +135,17 @@ struct DraftsView: View {
                                 }
                             )
                         } else {
-                            NavigationLink(
+                            Button(){
+                                nav.push(.issueEdit(isDraft: true, draftId: draft.id, title: draft.title, description: draft.description))
+                            } label:
+                            /*NavigationLink(
                                 destination: /*LazyView(IssueEditView(
                                     isDraft: true,
                                     draftId: draft.id,
                                     title: draft.title,
                                     description: draft.description
                                 ))*/tempView()
-                            ) {
+                            )*/ {
                                 UIComplexMyArticle(
                                     isSelected: .constant(false),
                                     selecte: .constant(false),
@@ -298,4 +303,5 @@ struct DraftsView: View {
 
 #Preview {
     DraftsView()
+        .environmentObject(NavigationCoordinator())
 }

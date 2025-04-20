@@ -13,14 +13,14 @@ struct ToolView: View {
     private let keychain = KeychainSwift()
     
     @State private var selectedTab: TabIdentifier = .home
-    @State private var path: [Route] = []
+    @StateObject private var nav = NavigationCoordinator()
     
     init() {
         UITabBar.appearance().backgroundColor = UIColor.white
         }
     
     var body: some View {
-        NavigationStack(path: $path){
+        NavigationStack(path: $nav.path){
             TabView(selection: $selectedTab) {
             Text("Home")
                 .tabItem {
@@ -33,7 +33,7 @@ struct ToolView: View {
                     Label("搜尋", systemImage: "magnifyingglass")
                 }
                 .tag(TabIdentifier.search)
-            IssueView(path: $path)
+            IssueView()
                 .tabItem {
                     Label("提問", systemImage: "questionmark.message")
                         .environment(\.symbolVariants, .none)
@@ -56,11 +56,13 @@ struct ToolView: View {
         .navigationDestination(for: Route.self) { route in
                         switch route {
                         case .issueEdit(let isDraft, let draftId, let title, let description):
-                            IssueEditView(isDraft: isDraft, draftId: draftId, title: title, description: description, path: $path)
+                            IssueEditView(isDraft: isDraft, draftId: draftId, title: title, description: description)
                         case .issueSetting:
-                            IssueSettingView(path: $path)
+                            IssueSettingView()
                         case .publish:
-                            temp(path: $path)
+                            PublishView(isFromIssue: true)//temp()
+                        case .draft:
+                            DraftsView()
                         }
                     }
         }
@@ -69,6 +71,7 @@ struct ToolView: View {
                 isLoggedIn = true
             }
         }
+        .environmentObject(nav)
     }
 }
 

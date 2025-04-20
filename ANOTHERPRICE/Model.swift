@@ -77,4 +77,25 @@ enum Route: Hashable {
     case issueEdit(isDraft: Bool, draftId: String?, title: String, description: String)
     case issueSetting
     case publish
+    case draft
+}
+
+class NavigationCoordinator: ObservableObject {
+    @Published var path: [Route] = []
+    
+    func push(_ route: Route) {
+        path.append(route)
+    }
+
+    func pop() {
+        _ = path.popLast()
+    }
+
+    func popToRoot() {
+        path.removeAll()
+    }
+
+    func replace(with route: Route) {
+        path = [route]
+    }
 }

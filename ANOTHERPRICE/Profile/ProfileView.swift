@@ -24,7 +24,7 @@ struct ProfileView: View {
     @State var following: Int = 0
     @State var level: Int = 1
     
-    @State private var path: [Route] = []
+    @EnvironmentObject var nav: NavigationCoordinator
     
     @Binding var selectedTab: TabIdentifier
     
@@ -94,9 +94,21 @@ struct ProfileView: View {
                     ZStack{
                         Color.white
                         HStack{
-                            UINavigationLinkProfileTool(destination: PublishView(), icon: "tray.full", title: "我的提問")
+                            UINavigationLinkProfileTool(destination: PublishView(isFromIssue: false), icon: "tray.full", title: "我的提問")
                             Spacer()
-                            UINavigationLinkProfileTool(destination: DraftsView(), icon: "pencil.line", title: "我的草稿")
+                            Button(){
+                                nav.push(.draft)
+                            } label: {
+                                VStack{
+                                    Image(systemName: "pencil.line")
+                                        .font(.system(size: 24))
+                                        .frame(height: 30)
+                                    Text("我的草稿")
+                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 13))
+                                        .foregroundColor(ColorConstants.systemDarkColor.opacity(0.8))
+                                }
+                            }
+                            //UINavigationLinkProfileTool(destination: DraftsView(), icon: "pencil.line", title: "我的草稿")
                             Spacer()
                             UINavigationLinkProfileTool(destination: FavoritesView(), icon: "book.pages", title: "我的收藏")
                             Spacer()
@@ -276,4 +288,5 @@ struct ProfileView: View {
 
 #Preview {
     ProfileView(selectedTab: .constant(.profile))
+        .environmentObject(NavigationCoordinator())
 }
