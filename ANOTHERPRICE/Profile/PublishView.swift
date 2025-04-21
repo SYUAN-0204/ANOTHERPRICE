@@ -309,11 +309,12 @@ struct PublishView: View {
             } else {
                 print("(DraftsView) 刪除 public/{\(draftId)} 資料成功")
                 
-                db.collection("users").document(userUid).collection("drafts").document(draftId).delete() { error in
+                db.collection("users").document(userUid).collection("publish").document(draftId).delete() { error in
                     if let error = error {
                         print("刪除 users/{\(userUid)}/drafts 中的草稿失敗: \(error.localizedDescription)")
                     } else {
                         print("(DraftsView) 刪除 users/{\(userUid)}/drafts 中的草稿成功")
+                        drafts.removeAll { $0.id == draftId }
                     }
                 }
             }
