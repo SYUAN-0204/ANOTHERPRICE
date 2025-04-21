@@ -68,7 +68,7 @@ struct ProfileView: View {
                     .padding(.top, 20)
                     VStack{
                         NavigationLink{
-                            tempView()
+                            temp8()
                         } label: {
                             HStack{
                                 Text("個人主頁")
