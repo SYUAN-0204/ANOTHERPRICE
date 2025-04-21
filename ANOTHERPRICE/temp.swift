@@ -25,7 +25,7 @@ struct temp: View {
                 }
                 .padding(.leading, 10)
                 Spacer()
-                Text("設定")
+                Text("切換帳號")
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
                     .fontWeight(.semibold)
                 Spacer()

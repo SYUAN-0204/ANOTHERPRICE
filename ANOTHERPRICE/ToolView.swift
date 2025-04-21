@@ -14,6 +14,7 @@ struct ToolView: View {
     
     @State private var selectedTab: TabIdentifier = .home
     @StateObject private var nav = NavigationCoordinator()
+    @State private var 訊息數量: Int = 8
     
     init() {
         UITabBar.appearance().backgroundColor = UIColor.white
@@ -39,12 +40,13 @@ struct ToolView: View {
                             .environment(\.symbolVariants, .none)
                     }
                     .tag(TabIdentifier.issue)
-                ProfileEditView()
+                tempView()
                     .tabItem {
                         Label("訊息", systemImage: "envelope")
                             .environment(\.symbolVariants, .none)
                     }
                     .tag(TabIdentifier.message)
+                    .badge(訊息數量 > 0 ? "\(訊息數量)":nil)
                 ProfileView(selectedTab: $selectedTab)
                     .tabItem {
                         Label("會員", systemImage: "person")

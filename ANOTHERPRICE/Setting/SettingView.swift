@@ -12,6 +12,7 @@ import FirebaseFirestore
 
 struct SettingView: View {
     @Environment(\.dismiss) var dismiss
+    
     @State var logout: Bool = false
     @State private var authUid: String? = KeychainSwift().get("authUid")
     
@@ -42,13 +43,30 @@ struct SettingView: View {
             }
             .frame(height: 36)
             .background(Color.white)
-            ScrollView(){
+            VStack{
                 VStack(spacing: 0){
+                    NavigationLink{
+                        ProfileEditView()
+                    } label: {
+                        HStack{
+                            Text("帳號資料")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                .foregroundColor(.black)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    .frame(height: 50)
+                    .padding(.horizontal, 10)
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.1))
+                        .frame(height: 1)
                     NavigationLink{
                         tempView()
                     } label: {
                         HStack{
-                            Text("帳號資料")
+                            Text("主頁設定")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                                 .foregroundColor(.black)
                             Spacer()
@@ -119,6 +137,7 @@ struct SettingView: View {
                 .background(Color.white)
                 .padding(.top, 10)
             }
+            Spacer()
         }
         .background(Color.gray.opacity(0.1))
         .navigationBarBackButtonHidden(true)

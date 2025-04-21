@@ -59,13 +59,9 @@ struct UIComplexIssueCard<Destination: View>: View {
                         .multilineTextAlignment(.leading)
                     HStack{
                         Spacer()
-                        Button{
-                            
-                        } label: {
-                            Image(systemName: like ? "heart.fill":"heart")
-                                .font(.system(size: 14))
-                                .foregroundColor(ColorConstants.systemMainColor)
-                        }
+                        Image(systemName: like ? "heart.fill":"heart")
+                            .font(.system(size: 14))
+                            .foregroundColor(ColorConstants.systemMainColor)
                         Text("\(heart)")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                             .foregroundColor(ColorConstants.systemMainColor)

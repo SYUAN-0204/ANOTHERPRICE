@@ -183,7 +183,7 @@ struct ProfileView: View {
                                 .foregroundColor(.gray)
                             HStack{
                                 NavigationLink{
-                                    tempView()
+                                    temp3()
                                 } label: {
                                     ZStack{
                                         RoundedRectangle(cornerRadius: 10)

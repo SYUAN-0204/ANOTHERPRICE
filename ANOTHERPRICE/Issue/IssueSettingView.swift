@@ -64,7 +64,6 @@ struct IssueSettingView: View {
                     Button() {
                         publicDraft()
                         nav.push(.publish)
-                        //path.append(.publish)
                     } label: {
                         Text("發布")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))

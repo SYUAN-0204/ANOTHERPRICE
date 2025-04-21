@@ -24,76 +24,38 @@ struct UIComplexMyArticle: View {
     
     var body: some View {
         VStack{
-            ZStack(alignment: .trailing) {
-                HStack {
-                    Spacer()
-                    Button(){
-                        onDelete()
-                    } label: {
-                        Image(systemName: "trash")
-                            .foregroundColor(.white)
-                            .frame(width: 60, height: 110)
-                            .background(ColorConstants.tomatoRed)
-                    }
-                }
-                .padding(.horizontal)
-                Rectangle()
-                    .fill(Color.white)
-                    .frame(height: 110)
-                    .overlay(
-                        HStack{
-                            VStack(alignment: .leading) {
-                                    Text(title)
-                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                                        .foregroundColor(ColorConstants.systemDarkColor)
-                                        .lineLimit(1)
-                                Text(date)
-                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 10))
-                                    .foregroundColor(.gray)
-                                Text(content + "\n\n\n")
-                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 15))
-                                    .foregroundColor(ColorConstants.systemDarkColor.opacity(0.8))
-                                
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            if selecte {
-                                Button {
-                                    isSelected.toggle()
-                                } label: {
-                                    Image(systemName: isSelected ? "checkmark.square" : "square")
-                                        .font(.system(size: 20))
-                                        .foregroundColor(ColorConstants.systemDarkColor)
-                                }
-                                .padding(.bottom, 80)
-                            }
+            Rectangle()
+                .fill(Color.white)
+                .frame(height: 110)
+                .overlay(
+                    HStack{
+                        VStack(alignment: .leading) {
+                            Text(title)
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                .foregroundColor(ColorConstants.systemDarkColor)
+                                .lineLimit(1)
+                            Text(date)
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 10))
+                                .foregroundColor(.gray)
+                            Text(content + "\n\n\n")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 15))
+                                .foregroundColor(ColorConstants.systemDarkColor.opacity(0.8))
+                            
                         }
-                    )
-                    .offset(x: offsetX + dragOffset)
-                    .simultaneousGesture(
-                        DragGesture()
-                            .updating($dragOffset) { value, state, _ in
-                                if value.translation.width < 0 {
-                                    state = value.translation.width
-                                }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        if selecte {
+                            Button {
+                                isSelected.toggle()
+                            } label: {
+                                Image(systemName: isSelected ? "checkmark.square" : "square")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(ColorConstants.systemDarkColor)
                             }
-                            .onEnded { value in
-                                if value.translation.width < -40 {
-                                    withAnimation {
-                                        offsetX = maxOffset
-                                        trashcanState = true
-                                        selecte = false
-                                    }
-                                } else {
-                                    withAnimation {
-                                        offsetX = 0
-                                        trashcanState = false
-                                    }
-                                }
-                                print(trashcanState)
-                            }
-                    )
-                    .padding(.horizontal)
-            }
+                            .padding(.bottom, 80)
+                        }
+                    }
+                )
+                .padding(.horizontal)
         }
     }
 }
