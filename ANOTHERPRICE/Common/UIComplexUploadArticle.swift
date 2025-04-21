@@ -29,108 +29,70 @@ struct UIComplexUploadArticle: View {
     
     var body: some View {
         VStack{
-            ZStack(alignment: .trailing) {
-                HStack {
-                    Spacer()
-                    Button(){
-                        //垃圾桶功能
-                    } label: {
-                        Image(systemName: "trash")
-                            .foregroundColor(.white)
-                            .frame(width: 60, height: 110)
-                            .background(ColorConstants.tomatoRed)
-                    }
-                }
-                .padding(.horizontal)
-                Rectangle()
-                    .fill(Color.white)
-                    .frame(height: 110)
-                    .overlay(
-                        HStack{
-                            VStack(alignment: .leading) {
-                                HStack{
-                                    ZStack{
-                                        Text(board)
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                                            .foregroundColor(ColorConstants.systemDarkColor)
-                                            .lineLimit(1)
-                                            .padding(.horizontal, 3)
-                                    }
-                                    .background(ColorConstants.systemMainColor.opacity(0.2))
-                                    .cornerRadius(3)
-                                    Text(title)
+            Rectangle()
+                .fill(Color.white)
+                .frame(height: 110)
+                .overlay(
+                    HStack{
+                        VStack(alignment: .leading) {
+                            HStack{
+                                ZStack{
+                                    Text(board)
                                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                                         .foregroundColor(ColorConstants.systemDarkColor)
                                         .lineLimit(1)
+                                        .padding(.horizontal, 3)
                                 }
-                                Text(date)
-                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 10))
-                                    .foregroundColor(.gray)
-                                Text(content + "\n\n")
-                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 15))
-                                    .foregroundColor(ColorConstants.systemDarkColor.opacity(0.8))
-                                if !selecte {
-                                    HStack{
-                                        Spacer()
-                                        Image(systemName: "heart.fill")
+                                .background(ColorConstants.systemMainColor.opacity(0.2))
+                                .cornerRadius(3)
+                                Text(title)
+                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                    .foregroundColor(ColorConstants.systemDarkColor)
+                                    .lineLimit(1)
+                            }
+                            Text(date)
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 10))
+                                .foregroundColor(.gray)
+                            Text(content + "\n\n")
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 15))
+                                .foregroundColor(ColorConstants.systemDarkColor.opacity(0.8))
+                            if !selecte {
+                                HStack{
+                                    Spacer()
+                                    Image(systemName: "heart.fill")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(ColorConstants.systemMainColor)
+                                    Text("\(heart)")
+                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                                        .foregroundColor(ColorConstants.systemMainColor)
+                                    Image(systemName: "ellipsis.message")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(ColorConstants.systemMainColor)
+                                    Text("\(message)")
+                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                                        .foregroundColor(ColorConstants.systemMainColor)
+                                    ShareLink(item: "✨「\(author)發布了一則問答《\(title)》，快來看看吧！」\n打開 APP 搜尋口令：/*\(code)*/🪄\n🔗  \(http)") {
+                                        Image(systemName: "arrowshape.turn.up.right")
                                             .font(.system(size: 14))
                                             .foregroundColor(ColorConstants.systemMainColor)
-                                        Text("\(heart)")
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
-                                            .foregroundColor(ColorConstants.systemMainColor)
-                                        Image(systemName: "ellipsis.message")
-                                            .font(.system(size: 14))
-                                            .foregroundColor(ColorConstants.systemMainColor)
-                                        Text("\(message)")
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
-                                            .foregroundColor(ColorConstants.systemMainColor)
-                                        ShareLink(item: "✨「\(author)發布了一則問答《\(title)》，快來看看吧！」\n打開 APP 搜尋口令：/*\(code)*/🪄\n🔗  \(http)") {
-                                            Image(systemName: "arrowshape.turn.up.right")
-                                                .font(.system(size: 14))
-                                                .foregroundColor(ColorConstants.systemMainColor)
-                                        }
                                     }
                                 }
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            if selecte {
-                                Button() {
-                                    isSelected.toggle()
-                                } label: {
-                                    Image(systemName: isSelected ? "checkmark.square" : "square")
-                                        .font(.system(size: 20))
-                                        .foregroundColor(ColorConstants.systemDarkColor)
-                                }
-                                .padding(.bottom, 80)
                             }
                         }
-                    )
-                    .offset(x: offsetX + dragOffset)
-                    .simultaneousGesture(
-                        DragGesture()
-                            .updating($dragOffset) { value, state, _ in
-                                if value.translation.width < 0 {
-                                    state = value.translation.width
-                                }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        if selecte {
+                            Button() {
+                                isSelected.toggle()
+                            } label: {
+                                Image(systemName: isSelected ? "checkmark.square" : "square")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(ColorConstants.systemDarkColor)
                             }
-                            .onEnded { value in
-                                if value.translation.width < -40 {
-                                    withAnimation {
-                                        offsetX = maxOffset
-                                        trashcanState = true
-                                        selecte = false
-                                    }
-                                } else {
-                                    withAnimation {
-                                        offsetX = 0
-                                        trashcanState = false
-                                    }
-                                }
-                                print(trashcanState)
-                            }
-                    )
-                    .padding(.horizontal)
-            }
+                            .padding(.bottom, 80)
+                        }
+                    }
+                )
+                .padding(.horizontal)
         }
     }
 }

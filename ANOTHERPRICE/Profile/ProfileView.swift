@@ -67,13 +67,17 @@ struct ProfileView: View {
                     }
                     .padding(.top, 20)
                     VStack{
-                        HStack{
-                            Text("個人主頁")
-                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                            Image(systemName: "chevron.right")
-                                .padding(.leading, -8)
+                        NavigationLink{
+                            tempView()
+                        } label: {
+                            HStack{
+                                Text("個人主頁")
+                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                Image(systemName: "chevron.right")
+                                    .padding(.leading, -8)
+                            }
+                            .foregroundColor(.gray)
                         }
-                        .foregroundColor(.gray)
                     }
                     Spacer()
                 }

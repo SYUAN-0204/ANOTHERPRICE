@@ -141,7 +141,7 @@ struct temp3: View {
                             .padding(.horizontal, 3)
                             .background(ColorConstants.systemMainColor.opacity(0.2))
                             .cornerRadius(3)
-                        Text("Deadline : 2025-05-23 - Last Common : 2025-05-22")
+                        Text("Deadline : 2025-05-23 16:25")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                             .foregroundColor(.gray)
                         Text("-")
@@ -200,6 +200,9 @@ struct temp3: View {
                                 .foregroundColor(ColorConstants.systemMainColor)
                         }
                         Spacer()
+                        Text("Upload : 2025-05-23 16:25")
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                            .foregroundColor(.gray)
                     }
                     .padding(.top, 5)
                 }
@@ -334,6 +337,8 @@ struct temp3: View {
                 .frame(width: 60, height: 28)
             }
             .padding(.horizontal, 15)
+            .padding(.top, 5)
+            .padding(.bottom, 15)
         }
         .navigationBarBackButtonHidden(true)
     }
