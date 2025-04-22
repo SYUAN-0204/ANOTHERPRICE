@@ -12,6 +12,7 @@ struct temp6: View {
     
     @State private var 簽名: String = ""
     @State private var 佔用: Bool = false
+    @State private var 長度: Double = 0
     
     var body: some View {
         VStack{
@@ -54,10 +55,26 @@ struct temp6: View {
                 TextField("請輸入新暱稱", text: $簽名)
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                     .onChange(of: 簽名) {
+                        // 移除換行符號
                         簽名 = 簽名.replacingOccurrences(of: "\n", with: "")
-                        if 簽名.count > 8 {
-                            簽名 = String(簽名.prefix(8))
+                        
+                        var totalLength: Double = 0
+                        var result = ""
+                        
+                        for char in 簽名 {
+                            let scalarValue = char.unicodeScalars.first?.value ?? 0
+                            let isASCII = scalarValue <= 127
+                            totalLength += isASCII ? 0.5 : 1.0
+                            
+                            if totalLength <= 8 {
+                                result.append(char)
+                            } else {
+                                break
+                            }
                         }
+                        
+                        長度 = totalLength
+                        簽名 = result
                     }
                 if !簽名.isEmpty {
                     Image(systemName: 佔用 ? "exclamationmark.triangle.fill" :"checkmark")
@@ -77,7 +94,7 @@ struct temp6: View {
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                     .foregroundColor(.gray)
                 Spacer()
-                Text("\(簽名.count)/8")
+                Text("\(長度.f(1))/8")
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
                     .foregroundColor(.gray)
             }

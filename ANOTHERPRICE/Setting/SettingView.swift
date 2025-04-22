@@ -63,7 +63,7 @@ struct SettingView: View {
                         .fill(Color.gray.opacity(0.1))
                         .frame(height: 1)
                     NavigationLink{
-                        tempView()
+                        temp9()
                     } label: {
                         HStack{
                             Text("主頁設定")

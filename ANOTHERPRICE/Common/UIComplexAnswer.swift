@@ -11,12 +11,13 @@ struct UIComplexAnswer: View {
     let userAvatar: UIImage
     let anonymous: Bool
     let comment: String
+    let totalExp: Int
     @State var expand: Bool = false
     @Binding var like: Bool
     let heart: Int
     var body: some View {
         NavigationLink{
-            tempView()
+            temp8(我的主頁: false)
         } label: {
             HStack{
                 Image(uiImage: userAvatar)
@@ -29,9 +30,12 @@ struct UIComplexAnswer: View {
                         Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
                     )
                 VStack(alignment: .leading){
-                    Text(anonymous ? "神秘旅人":"用戶名稱")
-                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 15))
-                        .foregroundColor(ColorConstants.systemSubColor)
+                    HStack{
+                        Text(anonymous ? "神秘旅人":"用戶名稱")
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 15))
+                            .foregroundColor(ColorConstants.systemSubColor)
+                        UITextLevel(totalExp: totalExp, width: 26, height: 12, size: 10)
+                    }
                     Text("2025-04-13 16:32")
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 10))
                         .foregroundColor(.gray)
@@ -89,5 +93,5 @@ struct UIComplexAnswer: View {
 }
 
 #Preview {
-    UIComplexAnswer(userAvatar: UIImage(named: "Logo_122D3E") ?? UIImage(), anonymous: false, comment: "这是用户的评论内容", like: .constant(false), heart: 12)
+    UIComplexAnswer(userAvatar: UIImage(named: "Logo_122D3E") ?? UIImage(), anonymous: false, comment: "这是用户的评论内容", totalExp: 123, like: .constant(false), heart: 12)
 }

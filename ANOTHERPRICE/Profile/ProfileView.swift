@@ -47,14 +47,7 @@ struct ProfileView: View {
                         HStack{
                             Text(userName ?? "這是另外的價錢")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                            ZStack{
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(ColorConstants.systemMainColor)
-                                    .frame(width: 40, height: 18)
-                                Text("Lv \(level)")
-                                    .font(.custom("BubblegumSans-Regular", size: 14))
-                                    .foregroundColor(.white)
-                            }
+                            UITextLevel(totalExp: 2344, width: 40, height: 18, size: 14)
                             Spacer()
                         }
                         HStack{
@@ -68,7 +61,7 @@ struct ProfileView: View {
                     .padding(.top, 20)
                     VStack{
                         NavigationLink{
-                            temp8()
+                            temp8(我的主頁: true)
                         } label: {
                             HStack{
                                 Text("個人主頁")
@@ -183,7 +176,7 @@ struct ProfileView: View {
                                 .foregroundColor(.gray)
                             HStack{
                                 NavigationLink{
-                                    temp3()
+                                    temp3(來自主頁: false)
                                 } label: {
                                     ZStack{
                                         RoundedRectangle(cornerRadius: 10)

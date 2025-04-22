@@ -217,7 +217,7 @@ struct IssueSettingView: View {
                 }
                 .disabled(匿名)
                 if !匿名 {
-                    UITextLevel(totalExp: 3564)
+                    UITextLevel(totalExp: 3564, width: 32, height: 14, size: 12)
                     Spacer()
                     Button{
                     } label: {

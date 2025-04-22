@@ -10,16 +10,20 @@ import SwiftUI
 struct UITextLevel: View {
     let totalExp: Int
     let barWidth: CGFloat = 100
+    let width: CGFloat
+    let height: CGFloat
+    let size: CGFloat
     
     var body: some View {
         let levelData = getLevelData(from: totalExp)
         ZStack{
-            RoundedRectangle(cornerRadius: 7)
+            RoundedRectangle(cornerRadius: height / 2)
                 .fill(ColorConstants.systemMainColor)
-                .frame(width: 32, height: 14)
+                .frame(width: width, height: height)
             Text("Lv \(levelData.level)")
-                .font(.custom("BubblegumSans-Regular", size: 12))
+                .font(.custom("BubblegumSans-Regular", size: size))
                 .foregroundColor(.white)
+                .frame(height: height)
         }
     }
     
@@ -43,5 +47,5 @@ struct UITextLevel: View {
 }
 
 #Preview {
-    UITextLevel(totalExp: 345)
+    UITextLevel(totalExp: 345, width: 32, height: 14, size: 12)
 }

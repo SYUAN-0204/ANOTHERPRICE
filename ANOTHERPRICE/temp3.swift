@@ -10,10 +10,12 @@ import SwiftUI
 struct temp3: View {
     @Environment(\.dismiss) var dismiss
     
+    let 來自主頁: Bool
     @State private var 匿名 = false
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
     @State private var 自己提問: Bool = false
     @State private var 關注: Bool = false
+    @State private var 取消關注: Bool = false
     @State private var tags = "#標籤 #不同標籤"
     @State private var title: String = "標題"
     @State private var like: Bool = false
@@ -58,7 +60,7 @@ struct temp3: View {
             .frame(height: 36)
             HStack {
                 NavigationLink{
-                    tempView()
+                    temp8(我的主頁: 自己提問)
                 } label: {
                     Image(uiImage: userAvatar)
                         .resizable()
@@ -75,37 +77,42 @@ struct temp3: View {
                 }
                 .disabled(匿名)
                 if !匿名 {
-                    UITextLevel(totalExp: 3564)
+                    UITextLevel(totalExp: 3564, width: 32, height: 14, size: 12)
                     Spacer()
                     if !自己提問 {
                         Button{
-                            關注.toggle()
+                            if !關注 {
+                                關注 = true
+                            }
+                            else {
+                                取消關注 = true
+                            }
                         } label: {
                             if 關注 {
                                 ZStack{
                                     RoundedRectangle(cornerRadius: 3)
-                                        .fill(ColorConstants.systemMainColor)
+                                        .stroke(ColorConstants.systemMainColor, lineWidth: 1)
                                         .frame(width: 66, height: 24)
                                     HStack{
                                         Text("已關注")
                                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                                            .foregroundColor(.white)
+                                            .foregroundColor(ColorConstants.systemMainColor)
                                     }
                                 }
                             }
                             else {
                                 ZStack{
                                     RoundedRectangle(cornerRadius: 3)
-                                        .stroke(ColorConstants.systemMainColor, lineWidth: 1)
+                                        .fill(ColorConstants.systemMainColor)
                                         .frame(width: 66, height: 24)
                                     HStack{
                                         Image(systemName: "plus")
                                             .font(.system(size: 12))
-                                            .foregroundColor(ColorConstants.systemMainColor)
+                                            .foregroundColor(.white)
                                             .padding(.trailing, -7)
                                         Text("關注")
                                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                                            .foregroundColor(ColorConstants.systemMainColor)
+                                            .foregroundColor(.white)
                                     }
                                 }
                             }
@@ -229,7 +236,7 @@ struct temp3: View {
                 }
                 .padding(.horizontal, 5)
                 ForEach(0..<5) { _ in
-                    UIComplexAnswer(userAvatar: userAvatar, anonymous: 匿名, comment: 評論, like: $like, heart: heart)
+                    UIComplexAnswer(userAvatar: userAvatar, anonymous: 匿名, comment: 評論, totalExp: 12343, like: $like, heart: heart)
                 }
             }
             .padding(.horizontal, 10)
@@ -281,9 +288,15 @@ struct temp3: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .alert("取消關注 帳戶暱稱", isPresented: $取消關注) {
+            Button("取消", role: .cancel) { }
+            Button("確定", role: .destructive) {
+                關注 = false
+            }
+        }
     }
 }
 
 #Preview {
-    temp3()
+    temp3(來自主頁: true)
 }

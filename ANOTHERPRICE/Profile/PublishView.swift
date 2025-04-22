@@ -94,7 +94,7 @@ struct PublishView: View {
                                 }
                             }
                         } label: {
-                            Text(hasSelection ? "取消全選" : "全選")
+                            Text(hasSelection ? "取消選擇" : "全選")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                                 .foregroundColor(ColorConstants.systemMainColor)
                         }

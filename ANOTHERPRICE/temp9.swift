@@ -1,21 +1,25 @@
 //
-//  Untitled.swift
+//  temp9.swift
 //  ANOTHERPRICE
 //
-//  Created by 宜真on 2025/3/22.
+//  Created by 遠上寒山 on 2025/4/22.
 //
 
 import SwiftUI
 import PhotosUI
 
-struct ProfileEditView: View {
+struct temp9: View {
     @Environment(\.dismiss) var dismiss
     
     @State var userAvatar: UIImage = UIImage(named: "Advertise") ?? UIImage()
     @State private var showPhotoOptions = false
     @State private var photoSource: PhotoSource?
     @State private var selectedItem: PhotosPickerItem? // 用於 iOS 16+ PhotosPicker
-
+    
+    @State private var 提問隱私狀態:String = "公開"
+    @State private var 回答隱私狀態:String = "公開"
+    @State private var 隱私狀態 = ["公開", "僅限粉絲", "僅限本人"]
+    
     var body: some View {
         VStack{
             HStack {
@@ -28,7 +32,7 @@ struct ProfileEditView: View {
                 }
                 .padding(.leading, 10)
                 Spacer()
-                Text("帳號資料")
+                Text("主頁設定")
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
                     .fontWeight(.semibold)
                 Spacer()
@@ -48,17 +52,16 @@ struct ProfileEditView: View {
                     self.showPhotoOptions.toggle()
                 } label: {
                     HStack {
-                        Text("頭像")
+                        Text("主頁背景")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                             .foregroundColor(.black)
                         Spacer()
                         Image(uiImage: userAvatar)
                             .resizable()
-                            .scaledToFill() // 確保填滿圓形
-                            .frame(width: 60, height: 60) // 限制大小
-                            .background(Color(.systemGray6))
-                            .clipShape(Circle()) // 剪裁為圓形
-                            .padding(.trailing, -5)
+                            .scaledToFill()
+                            .frame(width: 402*0.27, height: 260*0.27)
+                                .clipped()
+                                .padding(.trailing, -5)
                         Image(systemName: "chevron.right")
                             .foregroundColor(.gray)
                     }
@@ -71,8 +74,12 @@ struct ProfileEditView: View {
                         if let newItem = selectedItem,
                            let data = try? await newItem.loadTransferable(type: Data.self),
                            let image = UIImage(data: data) {
-                            // 裁剪成正方形後再更新頭像
-                            if let croppedImage = image.cropToSquare() {
+                            
+                            // 使用比例裁剪 (402:260 ≈ 1.546)
+                            let aspectWidth: CGFloat = 402
+                            let aspectHeight: CGFloat = 260
+                            
+                            if let croppedImage = image.cropToAspectRatio(widthRatio: aspectWidth, heightRatio: aspectHeight) {
                                 userAvatar = croppedImage
                             } else {
                                 userAvatar = image
@@ -85,14 +92,40 @@ struct ProfileEditView: View {
                     .fill(Color.gray.opacity(0.1))
                     .frame(height: 1)
                 NavigationLink{
-                    temp7()
+                    temp5()
                 } label: {
                     HStack {
-                        Text("帳號")
+                        Text("個性簽名")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                             .foregroundColor(.black)
                         Spacer()
-                        Text("HonestElf")
+                        Text("路過的旅人並未在此留下痕跡")
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                            .foregroundColor(ColorConstants.systemDarkColor.opacity(0.7))
+                            .lineLimit(1)
+                            .padding(.trailing, -5)
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.horizontal, 10)
+                }
+                .frame(height: 50)
+                Rectangle()
+                    .fill(Color.gray.opacity(0.1))
+                    .frame(height: 1)
+                Menu {
+                    Picker("Options", selection: $提問隱私狀態) {
+                        ForEach(隱私狀態, id: \.self) { order in
+                            Text(order)
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Text("提問")
+                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                            .foregroundColor(.black)
+                        Spacer()
+                        Text(提問隱私狀態)
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                             .foregroundColor(ColorConstants.systemDarkColor.opacity(0.7))
                             .padding(.trailing, -5)
@@ -105,15 +138,19 @@ struct ProfileEditView: View {
                 Rectangle()
                     .fill(Color.gray.opacity(0.1))
                     .frame(height: 1)
-                NavigationLink{
-                    temp6()
+                Menu {
+                    Picker("Options", selection: $回答隱私狀態) {
+                        ForEach(隱私狀態, id: \.self) { order in
+                            Text(order)
+                        }
+                    }
                 } label: {
                     HStack {
-                        Text("暱稱")
+                        Text("回答")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                             .foregroundColor(.black)
                         Spacer()
-                        Text("誠實精靈")
+                        Text(回答隱私狀態)
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                             .foregroundColor(ColorConstants.systemDarkColor.opacity(0.7))
                             .padding(.trailing, -5)
@@ -124,7 +161,7 @@ struct ProfileEditView: View {
                 }
                 .frame(height: 50)
             }
-            .background(.white)
+            .background(Color.white)
             Spacer()
         }
         .background(Color.gray.opacity(0.1))
@@ -133,5 +170,5 @@ struct ProfileEditView: View {
 }
 
 #Preview {
-    ProfileEditView()
+    temp9()
 }

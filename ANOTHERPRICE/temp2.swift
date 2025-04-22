@@ -45,7 +45,7 @@ struct temp2: View {
             .background(ColorConstants.systemMainColor)
             ScrollView{
                 ForEach(0..<5) { _ in
-                    UIComplexIssueCard(destination: temp3(), title: "標題", date: "2025-09-04", common: "2025-04-23", coin: 344, content: "好東西", like: true, heart: heart, message: message, author: author, code: code, http: http)
+                    UIComplexIssueCard(destination: temp3(來自主頁: false), title: "標題", date: "2025-09-04", common: "2025-04-23", coin: 344, content: "好東西", like: true, heart: heart, message: message, author: author, code: code, http: http)
                 }
             }
         }
