@@ -61,7 +61,7 @@ struct IssueEditView: View {
                     HStack {
                         Spacer()
                         Button {
-                            saveToKeychain() // 儲存 Keychain 的邏輯
+                            saveToKeychain()
                             nav.push(.issueSetting)
                             //path.append(.issueSetting)
                             //shouldNavigate = true
@@ -75,10 +75,10 @@ struct IssueEditView: View {
                         }
                         .disabled(title.isEmpty)
                     }
-/*
-                    .navigationDestination(isPresented: $shouldNavigate) {
-                        LazyView(IssueSettingView())
-                    }*/
+                    /*
+                     .navigationDestination(isPresented: $shouldNavigate) {
+                     LazyView(IssueSettingView())
+                     }*/
                     .padding(.trailing, 10)
                     .frame(width: 80)
                 }
@@ -92,8 +92,12 @@ struct IssueEditView: View {
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
                             .frame(minHeight: 40)
                             .onChange(of: title) {
+                                if title.starts(with: "\n") ||  title.starts(with: " ") {
+                                    title = String(title.dropFirst())
+                                }
                                 if title.count > 50 {
                                     title = String(title.prefix(50))
+                                    
                                 }
                             }
                             .overlay(
@@ -148,6 +152,11 @@ struct IssueEditView: View {
                                 }
                             }
                         )
+                        .onChange(of: description) {
+                            if description.starts(with: "\n") ||  description.starts(with: " ") {
+                                description = String(description.dropFirst())
+                            }
+                        }
                         .padding(.horizontal, 10)
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack{
@@ -306,20 +315,26 @@ struct IssueEditView: View {
     }
     
     func saveToKeychain() {
-        keychain.set(title, forKey: "title")
-        keychain.set(description, forKey: "description")
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedDescription = description.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        keychain.set(trimmedTitle, forKey: "title")
+        keychain.set(trimmedDescription, forKey: "description")
         keychain.set(draftId ?? "", forKey: "draftId")
     }
-
+    
     func saveDraft() {
         let userUid = keychain.get("authUid") ?? nil
         if(userUid == nil) {
             return
         }
         
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedDescription = description.trimmingCharacters(in: .whitespacesAndNewlines)
+        
         let draftData: [String: Any] = [
-            "title": title,
-            "description": description,
+            "title": trimmedTitle,
+            "description": trimmedDescription,
             "createdAt": Timestamp(),
             "updatedAt": Timestamp()
         ]
@@ -339,10 +354,12 @@ struct IssueEditView: View {
             return
         }
         
-        let db = Firestore.firestore()
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedDescription = description.trimmingCharacters(in: .whitespacesAndNewlines)
+        
         let updatedData: [String: Any] = [
-            "title": title,
-            "description": description,
+            "title": trimmedTitle,
+            "description": trimmedDescription,
             "updatedAt": Timestamp()
         ]
         

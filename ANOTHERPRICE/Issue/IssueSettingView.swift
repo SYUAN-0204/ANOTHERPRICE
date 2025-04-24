@@ -35,7 +35,7 @@ struct IssueSettingView: View {
     
     let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm"  // 自定義格式
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
         return formatter
     }()
     
@@ -183,39 +183,36 @@ struct IssueSettingView: View {
             }
             .padding(.horizontal, 10)
             HStack {
-                NavigationLink{
-                    tempView()
-                } label: {
-                    if 匿名 {
-                        Image(uiImage: userAvatar)
-                            .resizable()
-                            .scaledToFill() // 確保填滿圓形
-                            .frame(width: 40, height: 40) // 限制大小
-                            .background(Color(.systemGray6))
-                            .clipShape(Circle()) // 剪裁為圓形
-                            .overlay(
-                                Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
-                            )
-                        Text("匿名精靈")
-                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
-                            .foregroundColor(ColorConstants.systemSubColor)
-                    }
-                    else {
-                        Image(uiImage: userAvatar)
-                            .resizable()
-                            .scaledToFill() // 確保填滿圓形
-                            .frame(width: 40, height: 40) // 限制大小
-                            .background(Color(.systemGray6))
-                            .clipShape(Circle()) // 剪裁為圓形
-                            .overlay(
-                                Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
-                            )
-                        Text("這是另外的價錢")
-                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
-                            .foregroundColor(ColorConstants.systemSubColor)
-                    }
+                
+                if 匿名 {
+                    Image(uiImage: userAvatar)
+                        .resizable()
+                        .scaledToFill() // 確保填滿圓形
+                        .frame(width: 40, height: 40) // 限制大小
+                        .background(Color(.systemGray6))
+                        .clipShape(Circle()) // 剪裁為圓形
+                        .overlay(
+                            Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
+                        )
+                    Text("匿名精靈")
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
+                        .foregroundColor(ColorConstants.systemSubColor)
                 }
-                .disabled(匿名)
+                else {
+                    Image(uiImage: userAvatar)
+                        .resizable()
+                        .scaledToFill() // 確保填滿圓形
+                        .frame(width: 40, height: 40) // 限制大小
+                        .background(Color(.systemGray6))
+                        .clipShape(Circle()) // 剪裁為圓形
+                        .overlay(
+                            Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
+                        )
+                    Text("這是另外的價錢")
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
+                        .foregroundColor(ColorConstants.systemSubColor)
+                }
+                
                 if !匿名 {
                     UITextLevel(totalExp: 3564, width: 32, height: 14, size: 12)
                     Spacer()
@@ -310,8 +307,12 @@ struct IssueSettingView: View {
             "author": userUid,
             "title": title,
             "description": description,
-            "createdAt": Timestamp(),
-            "updatedAt": Timestamp()
+            "category": selectedCategory,
+            "isAnonymous": 匿名,
+            "tags": tags.components(separatedBy: " ").filter { !$0.isEmpty && $0.starts(with: "#") }.prefix(5),
+            "reward": Int(reward) ?? 0,
+            "deadline": selectedDate,
+            "createdAt": Timestamp()
         ]
         
         publicRef.setData(draftData) { error in
@@ -326,7 +327,7 @@ struct IssueSettingView: View {
                 .document(userUid)
                 .collection("publish")
                 .document(documentId)
-                .setData(["documentId": documentId,"updatedAt":  Timestamp()]) { error in
+                .setData(["documentId": documentId,"createdAt":  Timestamp()]) { error in
                     if let error = error {
                         print("(IssueSettingView) 儲存 documentId 失敗: \(error.localizedDescription)")
                     } else {
