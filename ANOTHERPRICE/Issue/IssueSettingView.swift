@@ -183,7 +183,6 @@ struct IssueSettingView: View {
             }
             .padding(.horizontal, 10)
             HStack {
-                
                 if 匿名 {
                     Image(uiImage: userAvatar)
                         .resizable()
@@ -300,34 +299,74 @@ struct IssueSettingView: View {
             return
         }
         
-        let publicRef = db.collection("public").document()
-        let documentId = publicRef.documentID
+        let categoryToCollection: [String: String] = [
+            "生活": "life",
+            "學術": "academic",
+            "科技": "technology",
+            "健康": "health",
+            "理財": "finance",
+            "情感": "emotion",
+            "娛樂": "entertainment",
+            "其他": "other"
+        ]
+        
+        let tagsArray = tags.components(separatedBy: " ").filter { !$0.isEmpty && $0.starts(with: "#") }.prefix(5)
+        var targetCollection = "public_general"
+        
+        if let categorySuffix = categoryToCollection[selectedCategory] {
+            targetCollection = "public_" + categorySuffix
+        }
+        let postRef = db.collection(targetCollection).document()
+        let documentId = postRef.documentID
+        
+        let author = if(匿名) { "匿名精靈" } else { keychain.get("userName")!}
         
         let draftData: [String: Any] = [
-            "author": userUid,
+            "authorUid": userUid,
+            "author": author,
             "title": title,
             "description": description,
             "category": selectedCategory,
             "isAnonymous": 匿名,
-            "tags": tags.components(separatedBy: " ").filter { !$0.isEmpty && $0.starts(with: "#") }.prefix(5),
+            "tags": Array(tagsArray),
             "reward": Int(reward) ?? 0,
             "deadline": selectedDate,
-            "createdAt": Timestamp()
+            "createdAt": Timestamp(),
+            "heart": 0,
+            "commentCount": 0
         ]
         
-        publicRef.setData(draftData) { error in
+        
+        postRef.setData(draftData) { error in
             if let error = error {
-                print("(IssueSettingView) 上傳草稿失敗: \(error.localizedDescription)")
+                print("(IssueSettingView) 上傳到 \(targetCollection) 失敗: \(error.localizedDescription)")
                 return
             }
             
-            print("(IssueSettingView) 成功上傳 public 文件 documentID 是: \(documentId)")
+            print("(IssueSettingView) 成功上傳到 \(targetCollection) 文件 documentID 是: \(documentId)")
+            
+            for tag in tagsArray {
+                let indexData: [String: Any] = [
+                    "tag": String(tag.dropFirst()),
+                    "postId": documentId,
+                    "collection": targetCollection,
+                    "createdAt": Timestamp()
+                ]
+                
+                db.collection("search").addDocument(data: indexData) { error in
+                    if let error = error {
+                        print("(IssueSettingView) 建立標籤索引失敗 for \(tag): \(error.localizedDescription)")
+                    } else {
+                        print("(IssueSettingView) 成功建立標籤索引 for \(tag)")
+                    }
+                }
+            }
             
             self.db.collection("users")
                 .document(userUid)
                 .collection("publish")
                 .document(documentId)
-                .setData(["documentId": documentId,"createdAt":  Timestamp()]) { error in
+                .setData(["documentId": documentId, "collection": targetCollection, "createdAt": Timestamp()]) { error in
                     if let error = error {
                         print("(IssueSettingView) 儲存 documentId 失敗: \(error.localizedDescription)")
                     } else {
@@ -350,7 +389,6 @@ struct IssueSettingView: View {
             }
         }
     }
-    
 }
 
 #Preview {

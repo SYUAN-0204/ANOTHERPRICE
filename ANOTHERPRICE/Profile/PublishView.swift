@@ -35,10 +35,14 @@ struct PublishView: View {
     
     struct Draft: Identifiable, Equatable {
         var id: String
+        var board: String
         var title: String
         var description: String
         var isSelected: Bool = false
         var formattedDate: String
+        var lastCommentDate: String
+        var heart: Int
+        var commentCount: Int
     }
     
     var body: some View {
@@ -116,18 +120,26 @@ struct PublishView: View {
             }
             .frame(height: 36)
             
-            
-            if drafts.isEmpty {
+            if isLoading {
+                VStack {
+                    Text("加載中...")
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                        .foregroundColor(.gray)
+                        .padding(.top, 20)
+                        .multilineTextAlignment(.center)
+                    Spacer()
+                }
+            } else if drafts.isEmpty && !hasMoreData {
                 Text(noDraftsMessage ?? "誠實精靈翻了翻提問箱，發現你還沒提過問題")
                     .foregroundColor(.gray)
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                     .padding(.vertical, 10)
                     .padding(.top, 20)
-                Button{
+                Button {
                     selectedTab = TabIdentifier.issue
                     dismiss()
                 } label: {
-                    ZStack{
+                    ZStack {
                         RoundedRectangle(cornerRadius: 5)
                             .stroke(ColorConstants.systemMainColor, lineWidth: 1)
                             .frame(width: 120, height: 30)
@@ -148,11 +160,11 @@ struct PublishView: View {
                             if isMultiSelect {
                                 UIComplexUploadArticle(
                                     isSelected: $drafts[index].isSelected,
-                                    selecte: $isMultiSelect, trashcanState: $isTrashSelected, board: "科技", title: draft.title, date: "Upload At : \(draft.formattedDate) - Last Comment : 2025-04-03", content: draft.description, heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW"
+                                    selecte: $isMultiSelect, trashcanState: $isTrashSelected, board: draft.board, title: draft.title, date: "Upload At : \(draft.formattedDate) - Last Comment : 2025-04-03", content: draft.description, heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW"
                                 )
                             } else {
                                 NavigationLink(destination: tempView()) {
-                                    UIComplexUploadArticle(isSelected: .constant(false),selecte: .constant(false), trashcanState: .constant(false), board: "科技", title: draft.title, date: "Last Upload : \(draft.formattedDate) ; Last Comment : 2025-04-03", content: draft.description, heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW")
+                                    UIComplexUploadArticle(isSelected: .constant(false),selecte: .constant(false), trashcanState: .constant(false), board: draft.board, title: draft.title, date: "Last Upload : \(draft.formattedDate) ; Last Comment : \(draft.lastCommentDate)", content: draft.description, heart: draft.heart, message: draft.commentCount, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW")
                                 }
                                 .buttonStyle(PlainButtonStyle())
                             }
@@ -188,11 +200,7 @@ struct PublishView: View {
                         .frame(height: 1)
                     Button() {
                         let selectedDrafts = drafts.filter { $0.isSelected }
-                        //print("(DraftsView)被勾選的草稿有：")
-                        for draft in selectedDrafts {
-                            deleteDraft(draftId: draft.id)
-                            //print("- \(draft.title) (\(draft.id))")
-                        }
+                        deleteDrafts(selectedDrafts)
                     } label: {
                         HStack{
                             Image(systemName: "trash")
@@ -224,7 +232,7 @@ struct PublishView: View {
         
         let db = Firestore.firestore()
         var query: Query = db.collection("users").document(userUid).collection("publish")
-            .order(by: "updatedAt", descending: true)
+            .order(by: "createdAt", descending: true)
         
         if initial {
             isLoading = true
@@ -245,7 +253,7 @@ struct PublishView: View {
             }
             
             guard error == nil, let snapshot = snapshot else {
-                print("獲取 publish 錯誤: \(error?.localizedDescription ?? "未知錯誤")")
+                print("(PublishView)獲取 publish 錯誤: \(error?.localizedDescription ?? "未知錯誤")")
                 return
             }
             
@@ -254,33 +262,42 @@ struct PublishView: View {
             
             for doc in snapshot.documents {
                 let documentId = doc.documentID
-                
+                guard let collection = doc.data()["collection"] as? String else {
+                    print("(PublishView)缺少 collection 欄位: \(documentId)")
+                    continue
+                }
                 group.enter()
-                db.collection("public").document(documentId).getDocument { publicDoc, error in
+                db.collection(collection).document(documentId).getDocument { publicDoc, error in
                     defer { group.leave() }
                     
                     if let error = error {
-                        print("讀取 public/\(documentId) 失敗: \(error.localizedDescription)")
+                        print("(PublishView)讀取 \(collection)/\(documentId) 失敗: \(error.localizedDescription)")
                         return
                     }
                     
                     guard let data = publicDoc?.data() else {
-                        print("public/\(documentId) 不存在或無資料")
+                        print("(PublishView)\(collection)/\(documentId) 無資料")
                         return
                     }
                     
-                    let updatedAt = (data["updatedAt"] as? Timestamp)?.dateValue() ?? Date()
+                    let createdAt = (data["createdAt"] as? Timestamp)?.dateValue() ?? Date()
+                    
+                    let lastComment = (data["lastComment"] as? Timestamp)?.dateValue()
+
                     let dateFormatter = DateFormatter()
                     dateFormatter.dateFormat = "yyyy-MM-dd"
-                    let formattedDate = dateFormatter.string(from: updatedAt)
+                    let formattedDate = dateFormatter.string(from: createdAt)
+                    let lastCommentDate = lastComment != nil ? dateFormatter.string(from: lastComment!) : ""
                     
                     let draft = Draft(
-                        id: documentId,
+                        id: documentId, board: (data["category"] as! String),
                         title: data["title"] as? String ?? "無標題",
                         description: data["description"] as? String ?? "無描述",
-                        formattedDate: formattedDate
+                        formattedDate: formattedDate,
+                        lastCommentDate: lastCommentDate,
+                        heart: data["heart"] as! Int,
+                        commentCount: data["commentCount"] as! Int
                     )
-                    
                     newDrafts.append(draft)
                 }
             }
@@ -294,32 +311,89 @@ struct PublishView: View {
                 
                 lastDocument = snapshot.documents.last
                 hasMoreData = newDrafts.count >= (initial ? 8 : 5)
-                
-                noDraftsMessage = drafts.isEmpty ? "誠實精靈翻了翻提問箱，發現你還沒提過問題" : nil
             }
         }
     }
     
-    func deleteDraft(draftId: String) {
+    func deleteDrafts(_ draftsToDelete: [Draft]) {
         guard let userUid = keychain.get("authUid") else { return }
         
-        db.collection("public").document(draftId).delete() { error in
-            if let error = error {
-                print("刪除 public/{\(draftId)} 資料失敗: \(error.localizedDescription)")
-            } else {
-                print("(DraftsView) 刪除 public/{\(draftId)} 資料成功")
-                
-                db.collection("users").document(userUid).collection("publish").document(draftId).delete() { error in
-                    if let error = error {
-                        print("刪除 users/{\(userUid)}/drafts 中的草稿失敗: \(error.localizedDescription)")
-                    } else {
-                        print("(DraftsView) 刪除 users/{\(userUid)}/drafts 中的草稿成功")
-                        drafts.removeAll { $0.id == draftId }
+        let group = DispatchGroup()
+        var deletedIDs: Set<String> = []
+        
+        for draft in draftsToDelete {
+            group.enter()
+            
+            db.collection("users").document(userUid)
+                .collection("publish").document(draft.id)
+                .getDocument { publishDoc, error in
+                    guard error == nil, let data = publishDoc?.data(),
+                          let collection = data["collection"] as? String else {
+                        print("(PublishView)讀取 publish collection 失敗: \(error?.localizedDescription ?? "未知錯誤")")
+                        group.leave()
+                        return
+                    }
+                    
+                    let draftId = draft.id
+                    let deleteGroup = DispatchGroup()
+                    
+                    deleteGroup.enter()
+                    db.collection(collection).document(draftId).delete { error in
+                        if let error = error {
+                            print("(PublishView)刪除 \(collection)/\(draftId) 失敗: \(error.localizedDescription)")
+                        } else {
+                            print("(PublishView)已刪除 \(collection)/\(draftId)")
+                        }
+                        deleteGroup.leave()
+                    }
+                    
+                    deleteGroup.enter()
+                    db.collection("search").whereField("postId", isEqualTo: draftId)
+                        .getDocuments { snapshot, error in
+                            if let error = error {
+                                print("(PublishView)搜尋 postId 時失敗: \(error.localizedDescription)")
+                                deleteGroup.leave()
+                                return
+                            }
+                            let docs = snapshot?.documents ?? []
+                            let innerGroup = DispatchGroup()
+                            for doc in docs {
+                                innerGroup.enter()
+                                doc.reference.delete { _ in innerGroup.leave() }
+                            }
+                            innerGroup.notify(queue: .main) {
+                                print("(PublishView)已刪除 \(draftId) 的所有標籤索引")
+                                deleteGroup.leave()
+                            }
+                        }
+                    
+                    deleteGroup.enter()
+                    db.collection("users").document(userUid)
+                        .collection("publish").document(draftId)
+                        .delete { error in
+                            if let error = error {
+                                print("(PublishView)刪除 publish/\(draftId) 紀錄失敗: \(error.localizedDescription)")
+                            } else {
+                                print("(PublishView)已刪除 publish/\(draftId) 紀錄")
+                                deletedIDs.insert(draftId)
+                            }
+                            deleteGroup.leave()
+                        }
+                    
+                    deleteGroup.notify(queue: .main) {
+                        print("(PublishView)草稿 \(draftId) 所有刪除完成")
+                        group.leave()
                     }
                 }
-            }
+        }
+        
+        group.notify(queue: .main) {
+            print("(PublishView)所有草稿刪除流程完成，更新 UI")
+            drafts.removeAll { deletedIDs.contains($0.id) }
+            isMultiSelect = false
         }
     }
+    
 }
 
 #Preview {
