@@ -39,7 +39,8 @@ struct PublishView: View {
         var title: String
         var description: String
         var isSelected: Bool = false
-        var formattedDate: String
+        var creatAt: Date
+        var upLoadDate: String
         var lastCommentDate: String
         var heart: Int
         var commentCount: Int
@@ -160,11 +161,11 @@ struct PublishView: View {
                             if isMultiSelect {
                                 UIComplexUploadArticle(
                                     isSelected: $drafts[index].isSelected,
-                                    selecte: $isMultiSelect, trashcanState: $isTrashSelected, board: draft.board, title: draft.title, date: "Upload At : \(draft.formattedDate) - Last Comment : 2025-04-03", content: draft.description, heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW"
+                                    selecte: $isMultiSelect, trashcanState: $isTrashSelected, board: draft.board, title: draft.title, date: "Upload At : \(draft.upLoadDate) - Last Comment : 2025-04-03", content: draft.description, heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW"
                                 )
                             } else {
                                 NavigationLink(destination: tempView()) {
-                                    UIComplexUploadArticle(isSelected: .constant(false),selecte: .constant(false), trashcanState: .constant(false), board: draft.board, title: draft.title, date: "Last Upload : \(draft.formattedDate) ; Last Comment : \(draft.lastCommentDate)", content: draft.description, heart: draft.heart, message: draft.commentCount, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW")
+                                    UIComplexUploadArticle(isSelected: .constant(false),selecte: .constant(false), trashcanState: .constant(false), board: draft.board, title: draft.title, date: "Last Upload : \(draft.upLoadDate) ; Last Comment : \(draft.lastCommentDate)", content: draft.description, heart: draft.heart, message: draft.commentCount, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW")
                                 }
                                 .buttonStyle(PlainButtonStyle())
                             }
@@ -230,7 +231,6 @@ struct PublishView: View {
         guard let userUid = keychain.get("authUid") else { return }
         guard !isFetchingMore else { return }
         
-        let db = Firestore.firestore()
         var query: Query = db.collection("users").document(userUid).collection("publish")
             .order(by: "createdAt", descending: true)
         
@@ -281,19 +281,19 @@ struct PublishView: View {
                     }
                     
                     let createdAt = (data["createdAt"] as? Timestamp)?.dateValue() ?? Date()
-                    
                     let lastComment = (data["lastComment"] as? Timestamp)?.dateValue()
-
                     let dateFormatter = DateFormatter()
                     dateFormatter.dateFormat = "yyyy-MM-dd"
                     let formattedDate = dateFormatter.string(from: createdAt)
                     let lastCommentDate = lastComment != nil ? dateFormatter.string(from: lastComment!) : ""
                     
                     let draft = Draft(
-                        id: documentId, board: (data["category"] as! String),
+                        id: documentId,
+                        board: (data["category"] as! String),
                         title: data["title"] as? String ?? "無標題",
                         description: data["description"] as? String ?? "無描述",
-                        formattedDate: formattedDate,
+                        creatAt: createdAt,
+                        upLoadDate: formattedDate,
                         lastCommentDate: lastCommentDate,
                         heart: data["heart"] as! Int,
                         commentCount: data["commentCount"] as! Int
@@ -304,10 +304,10 @@ struct PublishView: View {
             
             group.notify(queue: .main) {
                 if initial {
-                    drafts = newDrafts
-                } else {
-                    drafts.append(contentsOf: newDrafts)
-                }
+                       drafts = newDrafts.sorted { $0.creatAt > $1.creatAt }  // 按时间倒序排序
+                   } else {
+                       drafts.append(contentsOf: newDrafts.sorted { $0.creatAt > $1.creatAt })  // 保证新数据排序
+                   }
                 
                 lastDocument = snapshot.documents.last
                 hasMoreData = newDrafts.count >= (initial ? 8 : 5)
