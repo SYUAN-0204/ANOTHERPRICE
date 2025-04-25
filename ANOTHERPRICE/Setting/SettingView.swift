@@ -63,7 +63,7 @@ struct SettingView: View {
                         .fill(Color.gray.opacity(0.1))
                         .frame(height: 1)
                     NavigationLink{
-                        temp9()
+                        DisplaySettingView()
                     } label: {
                         HStack{
                             Text("主頁設定")
@@ -97,7 +97,7 @@ struct SettingView: View {
                 .background(Color.white)
                 
                 NavigationLink{
-                    temp()
+                    ChangeAccountView()
                 } label: {
                     HStack{
                         Spacer()

@@ -22,15 +22,15 @@ struct IssueSettingView: View {
     @State private var selectedCategory:String = ""
     @State private var categoryList = ["生活", "學術", "科技", "健康", "理財", "情感", "娛樂", "其他"] //可以考慮從firebase抓資料，方便類別擴充
     @State private var tags:String = ""
+    @State private var userName:String = ""
     @State private var reward:String = ""
-    @State private var balance:Int = 34
+    @State private var point:Int = 0
+    @State private var exp:Int = 0
     @State private var selectedDate = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
-    @State private var 匿名 = false
+    @State private var isAnonymous = false
     @State private var selected匿名:String = "off"
-    @State private var 匿名List = ["on", "off"]
-    
+    @State private var anonymousOptions = ["on", "off"]
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
-    
     @EnvironmentObject var nav: NavigationCoordinator
     
     let dateFormatter: DateFormatter = {
@@ -63,7 +63,6 @@ struct IssueSettingView: View {
                     Spacer()
                     Button() {
                         publicDraft()
-                        nav.push(.publish)
                     } label: {
                         Text("發布")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
@@ -96,7 +95,7 @@ struct IssueSettingView: View {
                     UITextIssueSettingTitle(title: "匿名")
                     Menu {
                         Picker("Options", selection: $selected匿名) {
-                            ForEach(匿名List, id: \.self) { order in
+                            ForEach(anonymousOptions, id: \.self) { order in
                                 Text(order)
                             }
                         }
@@ -108,10 +107,10 @@ struct IssueSettingView: View {
                     }
                     .onChange(of: selected匿名) {
                         if selected匿名 == "on" {
-                            匿名 = true
+                            isAnonymous = true
                         }
                         else {
-                            匿名 = false
+                            isAnonymous = false
                         }
                     }
                 }
@@ -152,12 +151,12 @@ struct IssueSettingView: View {
                                 if number < 0 {
                                     reward = String(0)
                                 }
-                                else if number > balance {
-                                    reward = String(balance)
+                                else if number > point {
+                                    reward = String(point)
                                 }
                             }
                         }
-                    Text("點數：\(balance)")
+                    Text("點數：\(point)")
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                         .foregroundColor(ColorConstants.systemDarkColor.opacity(0.7))
                         .frame(height: 36)
@@ -183,7 +182,7 @@ struct IssueSettingView: View {
             }
             .padding(.horizontal, 10)
             HStack {
-                if 匿名 {
+                if isAnonymous {
                     Image(uiImage: userAvatar)
                         .resizable()
                         .scaledToFill() // 確保填滿圓形
@@ -207,13 +206,13 @@ struct IssueSettingView: View {
                         .overlay(
                             Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
                         )
-                    Text("這是另外的價錢")
+                    Text(userName)
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
                         .foregroundColor(ColorConstants.systemSubColor)
                 }
                 
-                if !匿名 {
-                    UITextLevel(totalExp: 3564, width: 32, height: 14, size: 12)
+                if !isAnonymous {
+                    UITextLevel(totalExp: exp, width: 32, height: 14, size: 12)
                     Spacer()
                     Button{
                     } label: {
@@ -261,7 +260,7 @@ struct IssueSettingView: View {
                         Text("-")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                             .foregroundColor(.gray)
-                        Text("Point : \(balance)")
+                        Text("Point : \(point)")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                             .foregroundColor(.gray)
                     }
@@ -290,6 +289,23 @@ struct IssueSettingView: View {
             self.draftId = keychain.get("draftId") ?? ""
             self.description = keychain.get("description") ?? ""
             self.title = keychain.get("title") ?? ""
+            self.userName = keychain.get("userName") ?? ""
+            loadpoint()
+        }
+    }
+    
+    func loadpoint() {
+        guard let userUid = keychain.get("authUid") else {
+            print("(IssueSettingView) 無法取得用戶 UID")
+            return
+        }
+        
+        db.collection("users").document(userUid).getDocument { document, error in
+            if let document = document, document.exists {
+                
+                self.point = document.data()?["point"] as? Int ?? 0
+                self.exp = document.data()?["exp"] as? Int ?? 0
+            }
         }
     }
     
@@ -319,7 +335,7 @@ struct IssueSettingView: View {
         let postRef = db.collection(targetCollection).document()
         let documentId = postRef.documentID
         
-        let author = if(匿名) { "匿名精靈" } else { keychain.get("userName")!}
+        let author = if(isAnonymous) { "匿名精靈" } else { keychain.get("userName")!}
         
         let draftData: [String: Any] = [
             "authorUid": userUid,
@@ -327,7 +343,7 @@ struct IssueSettingView: View {
             "title": title,
             "description": description,
             "category": selectedCategory,
-            "isAnonymous": 匿名,
+            "isAnonymous": isAnonymous,
             "tags": Array(tagsArray),
             "reward": Int(reward) ?? 0,
             "deadline": selectedDate,
@@ -335,7 +351,6 @@ struct IssueSettingView: View {
             "heart": 0,
             "commentCount": 0
         ]
-        
         
         postRef.setData(draftData) { error in
             if let error = error {
@@ -374,6 +389,18 @@ struct IssueSettingView: View {
                     }
                 }
             
+            if let rewardPoint = Int(reward), rewardPoint > 0 {
+                self.db.collection("users")
+                    .document(userUid)
+                    .updateData(["point": FieldValue.increment(Int64(-rewardPoint))]) { error in
+                        if let error = error {
+                            print("(IssueSettingView) 扣除點數失敗：\(error.localizedDescription)")
+                        } else {
+                            print("(IssueSettingView) 成功扣除 \(rewardPoint) 點")
+                        }
+                    }
+            }
+            
             if !draftId.isEmpty {
                 self.db.collection("users")
                     .document(userUid)
@@ -386,6 +413,10 @@ struct IssueSettingView: View {
                             print("(IssueSettingView) 成功刪除舊草稿 \(draftId)")
                         }
                     }
+            }
+            
+            DispatchQueue.main.async {
+                nav.push(.publish)
             }
         }
     }

@@ -137,7 +137,7 @@ struct SignupView: View {
         
         // checkrule
         if !validateUserNameWidth() {
-            errorMessage = "暱稱過長，最多8個中文或12個英文字"
+            errorMessage = "暱稱過長，最多8個中文或16個英文字"
             showAlert = true
             return
         }
@@ -164,7 +164,6 @@ struct SignupView: View {
                 errorMessage = error.localizedDescription
                 showAlert = true
             } else {
-                // save relative data to Firestore
                 guard let user = authResult?.user else { return }
                 
                 let db = Firestore.firestore()
@@ -172,7 +171,16 @@ struct SignupView: View {
                     "userName": userName,
                     "email": email,
                     "account": account,
-                    "registrationTime": Timestamp(date: Date())
+                    "registrationTime": Timestamp(date: Date()),
+                    "hearts":0,
+                    "helps":0,
+                    "followers": 0,
+                    "following": 0,
+                    "point": 100,
+                    "exp": 100,
+                    "bio": "",
+                    "questionPrivacy": "公開",
+                    "answerPrivacy": "公開"
                 ]) { error in
                     if let error = error {
                         errorMessage = "儲存資料到 Firestore 時發生錯誤: \(error.localizedDescription)"
@@ -232,19 +240,29 @@ struct SignupView: View {
     }
     
     private func validateUserNameWidth() -> Bool {
-        let totalWidth = userName.reduce(0) { total, character in
-            total + (isChinese(character) ? 2 : 1)
+        var totalLength: Double = 0
+        var result = ""
+
+        for char in userName {
+            let scalarValue = char.unicodeScalars.first?.value ?? 0
+            let isASCII = scalarValue <= 127
+
+            if isASCII {
+                totalLength += 0.5
+            } else {
+                totalLength += 1.0
+            }
+
+            if totalLength <= 8 {
+                result.append(char)
+            } else {
+                break
+            }
         }
-        return totalWidth <= 16
+
+        userName = result
+        return totalLength <= 8
     }
-    
-    // 判斷是否為中文字的函式
-    private func isChinese(_ character: Character) -> Bool {
-        return character.unicodeScalars.allSatisfy { scalar in
-            (0x4E00...0x9FFF).contains(scalar.value) // 常見 CJK 中文範圍
-        }
-    }
-    
 }
 
 #Preview {

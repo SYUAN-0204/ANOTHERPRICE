@@ -10,7 +10,7 @@ import SwiftUI
 struct temp4: View {
     @Environment(\.dismiss) var dismiss
     
-    @Binding var 輸入文字: String
+    @Binding var input: String
     var body: some View {
         VStack{
             HStack{
@@ -25,12 +25,12 @@ struct temp4: View {
                 }
             }
             .padding(.top, 10)
-            TextEditor(text: $輸入文字)
+            TextEditor(text: $input)
                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
                 .frame(minHeight: 200)
                 .overlay(
                     Group {
-                        if 輸入文字.isEmpty {
+                        if input.isEmpty {
                             VStack{
                                 HStack{
                                     Text("睡著了也等不到你的回答")
@@ -52,7 +52,7 @@ struct temp4: View {
                 } label: {
                     ZStack{
                         RoundedRectangle(cornerRadius: 5)
-                            .fill(ColorConstants.systemMainColor.opacity(輸入文字.isEmpty ? 0.7 : 1.0))
+                            .fill(ColorConstants.systemMainColor.opacity(input.isEmpty ? 0.7 : 1.0))
                         Text("送出")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                             .foregroundColor(.white)
@@ -66,5 +66,5 @@ struct temp4: View {
 }
 
 #Preview {
-    temp4(輸入文字: .constant(""))
+    temp4(input: .constant(""))
 }

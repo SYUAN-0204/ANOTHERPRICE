@@ -63,8 +63,6 @@ struct IssueEditView: View {
                         Button {
                             saveToKeychain()
                             nav.push(.issueSetting)
-                            //path.append(.issueSetting)
-                            //shouldNavigate = true
                         } label: {
                             Text("繼續")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
@@ -75,10 +73,6 @@ struct IssueEditView: View {
                         }
                         .disabled(title.isEmpty)
                     }
-                    /*
-                     .navigationDestination(isPresented: $shouldNavigate) {
-                     LazyView(IssueSettingView())
-                     }*/
                     .padding(.trailing, 10)
                     .frame(width: 80)
                 }

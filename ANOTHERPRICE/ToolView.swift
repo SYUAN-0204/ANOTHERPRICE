@@ -23,7 +23,7 @@ struct ToolView: View {
     var body: some View {
         NavigationStack(path: $nav.path){
             TabView(selection: $selectedTab) {
-                temp2()
+                HomeView()
                     .tabItem {
                         Label("首頁", systemImage: "house")
                             .environment(\.symbolVariants, .none)

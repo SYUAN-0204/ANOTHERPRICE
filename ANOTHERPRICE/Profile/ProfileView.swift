@@ -6,12 +6,12 @@
 //
 
 import SwiftUI
+import FirebaseAuth
+import FirebaseFirestore
 import KeychainSwift
 import Foundation
 
 struct ProfileView: View {
-
-    
     @State private var showLoginView = false
     @State private var authUid: String? = nil
     @State private var keychain = KeychainSwift()
@@ -22,8 +22,7 @@ struct ProfileView: View {
     @State var peopleHelped: Int = 0
     @State var followers: Int = 0
     @State var following: Int = 0
-    @State var level: Int = 1
-    
+    @State var exp: Int = 0
     @EnvironmentObject var nav: NavigationCoordinator
     
     @Binding var selectedTab: TabIdentifier
@@ -47,7 +46,7 @@ struct ProfileView: View {
                         HStack{
                             Text(userName ?? "這是另外的價錢")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                            UITextLevel(totalExp: 2344, width: 40, height: 18, size: 14)
+                            UITextLevel(totalExp: exp, width: 40, height: 18, size: 14)
                             Spacer()
                         }
                         HStack{
@@ -61,7 +60,7 @@ struct ProfileView: View {
                     .padding(.top, 20)
                     VStack{
                         NavigationLink{
-                            temp8(我的主頁: true)
+                            DisplayView(isMyDisplayView: true)
                         } label: {
                             HStack{
                                 Text("個人主頁")
@@ -77,13 +76,13 @@ struct ProfileView: View {
                 .padding(.top, 10)
                 .frame(height: 90)
                 HStack{
-                    UITextProfileDetails(detailInput: likesCount, detailTitle: "獲讚數")
+                    UITextProfileDetails(detailInput: $likesCount, detailTitle: "獲讚數")
                     Spacer()
-                    UITextProfileDetails(detailInput: peopleHelped, detailTitle: "幫助數")
+                    UITextProfileDetails(detailInput: $peopleHelped, detailTitle: "幫助數")
                     Spacer()
-                    UITextProfileDetails(detailInput: followers, detailTitle: "粉絲")
+                    UITextProfileDetails(detailInput: $followers, detailTitle: "粉絲")
                     Spacer()
-                    UITextProfileDetails(detailInput: following, detailTitle: "關注")
+                    UITextProfileDetails(detailInput: $following, detailTitle: "關注")
                 }
                 .frame(height: 60)
                 .padding(.horizontal, 20)
@@ -105,7 +104,6 @@ struct ProfileView: View {
                                         .foregroundColor(ColorConstants.systemDarkColor.opacity(0.8))
                                 }
                             }
-                            //UINavigationLinkProfileTool(destination: DraftsView(), icon: "pencil.line", title: "我的草稿")
                             Spacer()
                             UINavigationLinkProfileTool(destination: FavoritesView(), icon: "book.pages", title: "我的收藏")
                             Spacer()
@@ -176,7 +174,7 @@ struct ProfileView: View {
                                 .foregroundColor(.gray)
                             HStack{
                                 NavigationLink{
-                                    temp3(來自主頁: false)
+                                    PostDetailView(來自主頁: false)
                                 } label: {
                                     ZStack{
                                         RoundedRectangle(cornerRadius: 10)
@@ -244,7 +242,8 @@ struct ProfileView: View {
                                 self.authUid = keychain.get("authUid")
                                 self.userName = keychain.get("userName")
                                 self.registrationDays = daysSinceRegistration() + 1
-                                        
+                                
+                                fetchUserDetails()
                                 print("(ProfileView)Auth UID: \(authUid ?? "nil")")
                                 print("(ProfileView)User Name: \(userName ?? "nil")")
                                 print("(ProfileView)Registration Days: \(registrationDays)")
@@ -259,6 +258,37 @@ struct ProfileView: View {
             self.authUid = keychain.get("authUid")
             self.userName = keychain.get("userName")
             self.registrationDays = daysSinceRegistration() + 1
+            fetchUserDetails()
+        }
+        .onDisappear() {
+            likesCount = 0
+            peopleHelped = 0
+            followers = 0
+            following =  0
+            exp = 0
+        }
+    }
+    
+    private func fetchUserDetails() {
+        let db = Firestore.firestore()
+        guard let userUid = keychain.get("authUid") else { return }
+
+        db.collection("users").document(userUid).getDocument { document, error in
+            if let error = error {
+                print("獲取使用者資料失敗: \(error.localizedDescription)")
+                return
+            }
+
+            if let document = document, document.exists {
+                let data = document.data()
+                likesCount = data?["hearts"] as? Int ?? 0
+                peopleHelped = data?["helps"] as? Int ?? 0
+                followers = data?["followers"] as? Int ?? 0
+                following = data?["following"] as? Int ?? 0
+                exp = data?["exp"] as? Int ?? 0
+            } else {
+                print("(ProfileView)文件不存在")
+            }
         }
     }
     

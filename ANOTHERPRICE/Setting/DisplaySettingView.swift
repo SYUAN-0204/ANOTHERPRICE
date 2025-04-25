@@ -8,17 +8,16 @@
 import SwiftUI
 import PhotosUI
 
-struct temp9: View {
+struct DisplaySettingView: View {
     @Environment(\.dismiss) var dismiss
     
     @State var userAvatar: UIImage = UIImage(named: "Advertise") ?? UIImage()
     @State private var showPhotoOptions = false
     @State private var photoSource: PhotoSource?
     @State private var selectedItem: PhotosPickerItem? // 用於 iOS 16+ PhotosPicker
-    
-    @State private var 提問隱私狀態:String = "公開"
-    @State private var 回答隱私狀態:String = "公開"
-    @State private var 隱私狀態 = ["公開", "僅限粉絲", "僅限本人"]
+    @State private var questionPrivacy:String = "公開"
+    @State private var answerPrivacy:String = "公開"
+    @State private var privacyOptions = ["公開", "僅限粉絲", "僅限本人"]
     
     var body: some View {
         VStack{
@@ -92,7 +91,7 @@ struct temp9: View {
                     .fill(Color.gray.opacity(0.1))
                     .frame(height: 1)
                 NavigationLink{
-                    temp5()
+                    BioEditView()
                 } label: {
                     HStack {
                         Text("個性簽名")
@@ -114,8 +113,8 @@ struct temp9: View {
                     .fill(Color.gray.opacity(0.1))
                     .frame(height: 1)
                 Menu {
-                    Picker("Options", selection: $提問隱私狀態) {
-                        ForEach(隱私狀態, id: \.self) { order in
+                    Picker("Options", selection: $questionPrivacy) {
+                        ForEach(privacyOptions, id: \.self) { order in
                             Text(order)
                         }
                     }
@@ -125,7 +124,7 @@ struct temp9: View {
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                             .foregroundColor(.black)
                         Spacer()
-                        Text(提問隱私狀態)
+                        Text(questionPrivacy)
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                             .foregroundColor(ColorConstants.systemDarkColor.opacity(0.7))
                             .padding(.trailing, -5)
@@ -139,8 +138,8 @@ struct temp9: View {
                     .fill(Color.gray.opacity(0.1))
                     .frame(height: 1)
                 Menu {
-                    Picker("Options", selection: $回答隱私狀態) {
-                        ForEach(隱私狀態, id: \.self) { order in
+                    Picker("Options", selection: $answerPrivacy) {
+                        ForEach(privacyOptions, id: \.self) { order in
                             Text(order)
                         }
                     }
@@ -150,7 +149,7 @@ struct temp9: View {
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                             .foregroundColor(.black)
                         Spacer()
-                        Text(回答隱私狀態)
+                        Text(answerPrivacy)
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                             .foregroundColor(ColorConstants.systemDarkColor.opacity(0.7))
                             .padding(.trailing, -5)
@@ -170,5 +169,5 @@ struct temp9: View {
 }
 
 #Preview {
-    temp9()
+    DisplaySettingView()
 }

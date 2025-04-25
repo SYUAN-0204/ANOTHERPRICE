@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct UITextProfileDetails: View {
-    @State var detailInput: Int
+    @Binding var detailInput: Int
     @State var detailTitle: String
     
     var body: some View {
@@ -23,5 +23,5 @@ struct UITextProfileDetails: View {
 }
 
 #Preview {
-    UITextProfileDetails(detailInput: 10000, detailTitle: "Title")
+    UITextProfileDetails(detailInput: .constant(10000), detailTitle: "Title")
 }

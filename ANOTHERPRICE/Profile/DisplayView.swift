@@ -8,7 +8,7 @@
 import SwiftUI
 import PhotosUI
 
-struct temp8: View {
+struct DisplayView: View {
     @Environment(\.dismiss) var dismiss
     
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
@@ -16,13 +16,13 @@ struct temp8: View {
     @State private var photoSource: PhotoSource?
     @State private var selectedItem: PhotosPickerItem? // 用於 iOS 16+ PhotosPicker
     
-    let 我的主頁: Bool
-    @State private var 選擇: Bool = true
-    @State private var 關注: Bool = false
-    @State private var 取消關注: Bool = false
-    @State private var 私訊: Bool = false
-    @State private var 不開放訪客: Bool = true
-    @State private var 不開放粉絲: Bool = true
+    let isMyDisplayView: Bool
+    @State private var isSelected: Bool = true
+    @State private var isFollowing: Bool = false
+    @State private var isUnfollowed: Bool = false
+    @State private var isMessaging: Bool = false
+    @State private var isVisitorBlocked: Bool = true
+    @State private var isFanBlocked: Bool = true
     
     var body: some View {
         ZStack(alignment: .top){
@@ -80,7 +80,7 @@ struct temp8: View {
                                     Circle().stroke(Color.white, lineWidth: 0.1)
                                 )
                         }
-                        .disabled(我的主頁)
+                        .disabled(isMyDisplayView)
                         .photosPicker(isPresented: $showPhotoOptions, selection: $selectedItem, matching: .images)
                         .onChange(of: selectedItem) {
                             Task {
@@ -135,7 +135,7 @@ struct temp8: View {
                 .frame(height: 200)
                 HStack{
                     Button(){
-                        選擇 = true
+                        isSelected = true
                     } label: {
                         VStack{
                             Text("提問")
@@ -143,17 +143,17 @@ struct temp8: View {
                                 .foregroundColor(ColorConstants.systemDarkColor)
                                 .frame(width: 40)
                             Rectangle()
-                                .fill(選擇 ? ColorConstants.systemMainColor:Color.clear)
+                                .fill(isSelected ? ColorConstants.systemMainColor:Color.clear)
                                 .frame(height: 1.5)
                                 .padding(.top, -10)
                                 .frame(width: 46)
                         }
                     }
-                    .disabled(選擇)
+                    .disabled(isSelected)
                     .frame(width: 60)
                     .padding(.top, 10)
                     Button(){
-                        選擇 = false
+                        isSelected = false
                     } label: {
                         VStack{
                             Text("回答")
@@ -161,26 +161,26 @@ struct temp8: View {
                                 .foregroundColor(ColorConstants.systemDarkColor)
                                 .frame(width: 40)
                             Rectangle()
-                                .fill(!選擇 ? ColorConstants.systemMainColor:Color.clear)
+                                .fill(!isSelected ? ColorConstants.systemMainColor:Color.clear)
                                 .frame(height: 1.5)
                                 .padding(.top, -10)
                                 .frame(width: 46)
                         }
                     }
-                    .disabled(!選擇)
+                    .disabled(!isSelected)
                     .frame(width: 60)
                     .padding(.top, 10)
                     Spacer()
-                    if !我的主頁 {
+                    if !isMyDisplayView {
                         Button{
-                            if !關注 {
-                                關注 = true
+                            if !isFollowing {
+                                isFollowing = true
                             }
                             else {
-                                取消關注 = true
+                                isUnfollowed = true
                             }
                         } label: {
-                            if 關注 {
+                            if isFollowing {
                                 ZStack{
                                     RoundedRectangle(cornerRadius: 12)
                                     .stroke(ColorConstants.systemMainColor, lineWidth: 1)
@@ -211,7 +211,7 @@ struct temp8: View {
                         }
                         .padding(.trailing, 7)
                         Button{
-                            私訊 = true
+                            isMessaging = true
                         } label: {
                                 ZStack{
                                     RoundedRectangle(cornerRadius: 12)
@@ -229,7 +229,7 @@ struct temp8: View {
                                 }
                         }
                         .padding(.trailing, 7)
-                        .sheet(isPresented: $私訊) {
+                        .sheet(isPresented: $isMessaging) {
                             tempView()
                                 .presentationDetents([.fraction(0.7)])
                         }
@@ -237,14 +237,14 @@ struct temp8: View {
                 }
                 .frame(height: 20)
                 .padding(.horizontal, 5)
-                if 選擇 {
+                if isSelected {
                     ScrollView{
-                        if 不開放訪客 && !我的主頁 {
-                            Text("這是另外的價錢沒有向\(不開放粉絲 ? " 訪客 ":" 任何用戶 ")開放他的提問")
+                        if isVisitorBlocked && !isMyDisplayView {
+                            Text("這是另外的價錢沒有向\(isFanBlocked ? " 訪客 ":" 任何用戶 ")開放他的提問")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                                 .foregroundColor(.gray)
                                 .padding(.top, 20)
-                            Text("\(不開放粉絲 ? "\n關注後查看":"")")
+                            Text("\(isFanBlocked ? "\n關注後查看":"")")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                                 .foregroundColor(.gray)
                                 .padding(.top, -20)
@@ -255,19 +255,19 @@ struct temp8: View {
                         }
                         else {
                             ForEach(0..<12) { _ in
-                                UIComplexIssueCard(destination: temp3(來自主頁: false), title: "標題", date: "2025-09-04", common: "2025-04-23", coin: 344, content: "好東西", like: true, heart: 3, message: 4, author: "author", code: "code", http: "http")
+                                UIComplexIssueCard(destination: PostDetailView(來自主頁: false), title: "標題", date: "2025-09-04", common: "2025-04-23", coin: 344, content: "好東西", like: true, heart: 3, message: 4, author: "author", code: "code", http: "http")
                             }
                         }
                     }
                 }
                 else {
                     ScrollView{
-                        if 不開放訪客 && !我的主頁 {
-                            Text("這是另外的價錢沒有向\(不開放粉絲 ? " 訪客 ":" 任何用戶 ")開放他的回答")
+                        if isVisitorBlocked && !isMyDisplayView {
+                            Text("這是另外的價錢沒有向\(isFanBlocked ? " 訪客 ":" 任何用戶 ")開放他的回答")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                                 .foregroundColor(.gray)
                                 .padding(.top, 20)
-                            Text("\(不開放粉絲 ? "\n關注後查看":"")")
+                            Text("\(isFanBlocked ? "\n關注後查看":"")")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                                 .foregroundColor(.gray)
                                 .padding(.top, -20)
@@ -278,7 +278,7 @@ struct temp8: View {
                         }
                         else {
                             ForEach(0..<12) { _ in
-                                UIComplexIssueCard(destination: temp3(來自主頁: true), title: "標題", date: "2025-09-04", common: "2025-04-23", coin: 344, content: "好東西", like: true, heart: 3, message: 4, author: "author", code: "code", http: "http")
+                                UIComplexIssueCard(destination: PostDetailView(來自主頁: true), title: "標題", date: "2025-09-04", common: "2025-04-23", coin: 344, content: "好東西", like: true, heart: 3, message: 4, author: "author", code: "code", http: "http")
                             }
                         }
                     }
@@ -287,15 +287,15 @@ struct temp8: View {
             .padding(.horizontal, 10)
         }
         .navigationBarBackButtonHidden(true)
-        .alert("取消關注 帳戶暱稱", isPresented: $取消關注) {
+        .alert("取消關注 帳戶暱稱", isPresented: $isUnfollowed) {
             Button("取消", role: .cancel) { }
             Button("確定", role: .destructive) {
-                關注 = false
+                isFollowing = false
             }
         }
     }
 }
 
 #Preview {
-    temp8(我的主頁: true)
+    DisplayView(isMyDisplayView: true)
 }

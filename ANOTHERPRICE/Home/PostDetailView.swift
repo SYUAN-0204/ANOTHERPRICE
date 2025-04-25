@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct temp3: View {
+struct PostDetailView: View {
     @Environment(\.dismiss) var dismiss
     
     let 來自主頁: Bool
@@ -60,7 +60,7 @@ struct temp3: View {
             .frame(height: 36)
             HStack {
                 NavigationLink{
-                    temp8(我的主頁: 自己提問)
+                    DisplayView(isMyDisplayView: 自己提問)
                 } label: {
                     Image(uiImage: userAvatar)
                         .resizable()
@@ -261,7 +261,7 @@ struct temp3: View {
                                 .padding(.trailing, 5)
                         }
                         .sheet(isPresented: $展開回覆) {
-                            temp4(輸入文字: $回答)
+                            temp4(input: $回答)
                                 .presentationDetents([.fraction(0.96)])
                         }
                     }
@@ -298,5 +298,5 @@ struct temp3: View {
 }
 
 #Preview {
-    temp3(來自主頁: true)
+    PostDetailView(來自主頁: true)
 }

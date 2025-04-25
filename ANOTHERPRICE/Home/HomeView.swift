@@ -10,7 +10,7 @@ import FirebaseFirestore
 import FirebaseAuth
 import KeychainSwift
 
-struct temp2: View {
+struct HomeView: View {
     @State private var categoryList = ["生活", "學術", "科技", "健康", "理財", "情感", "娛樂", "其他"]
     @State private var selectedCategory: String = "生活"
     @State private var drafts: [Draft] = []
@@ -73,7 +73,7 @@ struct temp2: View {
             ScrollView {
                 ForEach(drafts) { draft in
                     UIComplexIssueCard(
-                        destination: temp3(來自主頁: false),
+                        destination: PostDetailView(來自主頁: false),
                         title: draft.title,
                         date: draft.deadLine,
                         common: draft.lastCommentDate,
@@ -147,7 +147,7 @@ struct temp2: View {
                     defer { group.leave() }
                     
                     guard let data = publicDoc?.data() else {
-                        print("(temp2View)讀取 \(category)/\(documentId) 失敗")
+                        print("(HomeView)讀取 \(category)/\(documentId) 失敗")
                         return
                     }
                     
@@ -189,5 +189,5 @@ struct temp2: View {
 }
 
 #Preview {
-    temp2()
+    HomeView()
 }

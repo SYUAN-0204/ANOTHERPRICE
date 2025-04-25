@@ -17,7 +17,7 @@ struct UIComplexAnswer: View {
     let heart: Int
     var body: some View {
         NavigationLink{
-            temp8(我的主頁: false)
+            DisplayView(isMyDisplayView: false)
         } label: {
             HStack{
                 Image(uiImage: userAvatar)

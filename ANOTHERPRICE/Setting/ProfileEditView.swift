@@ -106,7 +106,7 @@ struct ProfileEditView: View {
                     .fill(Color.gray.opacity(0.1))
                     .frame(height: 1)
                 NavigationLink{
-                    temp6()
+                    userNameEditView()
                 } label: {
                     HStack {
                         Text("暱稱")

@@ -304,9 +304,9 @@ struct PublishView: View {
             
             group.notify(queue: .main) {
                 if initial {
-                       drafts = newDrafts.sorted { $0.creatAt > $1.creatAt }  // 按时间倒序排序
+                       drafts = newDrafts.sorted { $0.creatAt > $1.creatAt }
                    } else {
-                       drafts.append(contentsOf: newDrafts.sorted { $0.creatAt > $1.creatAt })  // 保证新数据排序
+                       drafts.append(contentsOf: newDrafts.sorted { $0.creatAt > $1.creatAt })  
                    }
                 
                 lastDocument = snapshot.documents.last

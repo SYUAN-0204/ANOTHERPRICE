@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct temp: View {
+struct ChangeAccountView: View {
     @Environment(\.dismiss) var dismiss
     
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
-    @State var 切換帳號: Bool = false
+    @State var isSwitchingAccount: Bool = false
     
     var body: some View {
         VStack{
@@ -40,17 +40,17 @@ struct temp: View {
             .background(Color.white)
             ScrollView(){
                 VStack(spacing: 0){
-                    UIButtonSwitchAccount(switchAccount: $切換帳號, photo: userAvatar, isLogin: false)
+                    UIButtonSwitchAccount(switchAccount: $isSwitchingAccount, photo: userAvatar, isLogin: false)
                     Rectangle()
                         .fill(Color.gray.opacity(0.1))
                         .frame(height: 1)
-                    UIButtonSwitchAccount(switchAccount: $切換帳號, photo: userAvatar, isLogin: true)
+                    UIButtonSwitchAccount(switchAccount: $isSwitchingAccount, photo: userAvatar, isLogin: true)
                 }
             }
         }
         .background(Color.gray.opacity(0.1))
         .navigationBarBackButtonHidden(true)
-        .alert("帳號登出", isPresented: $切換帳號) {
+        .alert("帳號登出", isPresented: $isSwitchingAccount) {
             Button("取消", role: .cancel) { }
             Button("確定", role: .destructive) {
                 
@@ -60,5 +60,5 @@ struct temp: View {
 }
 
 #Preview {
-    temp()
+    ChangeAccountView()
 }
