@@ -64,26 +64,22 @@ struct userNameEditView: View {
                         userName = userName.replacingOccurrences(of: "\n", with: "")
                         
                         var totalLength: Double = 0
-                            var result = ""
-                            
-                            for char in userName {
-                                let scalarValue = char.unicodeScalars.first?.value ?? 0
-                                let isASCII = scalarValue <= 127
-                                if isASCII {
-                                    totalLength += 0.5
-                                } else {
-                                    totalLength += 1.0
-                                }
-                                if totalLength <= 8 {
-                                    result.append(char)
-                                } else {
-                                    break
-                                }
-                            }
-                            
-                            length = totalLength
-                            userName = result
+                        var result = ""
                         
+                        for char in userName {
+                            let scalarValue = char.unicodeScalars.first?.value ?? 0
+                            let isASCII = scalarValue <= 127
+                            if isASCII {
+                                totalLength += 0.5
+                            } else {
+                                totalLength += 1.0
+                            }
+                            if totalLength <= 8 {
+                                result.append(char)
+                            } else {
+                                break
+                            }
+                        }
                         length = totalLength
                         userName = result
                         checkUserName { isDuplicate in
@@ -158,9 +154,10 @@ struct userNameEditView: View {
                currentPoints >= 100 {
                 
                 try await userRef.updateData([
-                    "nickname": userName,
+                    "userName": userName,
                     "point": currentPoints - 100
                 ])
+                keychain.set(userName, forKey: "userName")
                 dismiss()
                 
             } else {
