@@ -46,7 +46,7 @@ struct SettingView: View {
             VStack{
                 VStack(spacing: 0){
                     NavigationLink{
-                        ProfileEditView()
+                        ProfileSettingView()
                     } label: {
                         HStack{
                             Text("帳號資料")

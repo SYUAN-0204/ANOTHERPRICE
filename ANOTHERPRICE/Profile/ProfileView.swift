@@ -174,7 +174,7 @@ struct ProfileView: View {
                                 .foregroundColor(.gray)
                             HStack{
                                 NavigationLink{
-                                    PostDetailView(來自主頁: false)
+                                    PostDetailView(isMyDisplayView: false)
                                 } label: {
                                     ZStack{
                                         RoundedRectangle(cornerRadius: 10)

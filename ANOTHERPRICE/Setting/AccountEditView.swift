@@ -1,5 +1,5 @@
 //
-//  temp6.swift
+//  temp7.swift
 //  ANOTHERPRICE
 //
 //  Created by 遠上寒山 on 2025/4/21.
@@ -10,12 +10,11 @@ import FirebaseFirestore
 import FirebaseAuth
 import KeychainSwift
 
-struct userNameEditView: View {
+struct AccountEditView: View {
     @Environment(\.dismiss) var dismiss
     
-    @State private var userName: String = ""
-    @State private var isUserNameDuplicate: Bool = false
-    @State private var length: Double = 0
+    @State private var account: String = ""
+    @State private var isAccountDuplicate: Bool = false
     @State private var showPointAlert = false
     
     var body: some View {
@@ -34,7 +33,7 @@ struct userNameEditView: View {
                 }
                 .frame(width: 80)
                 Spacer()
-                Text("變更暱稱")
+                Text("變更帳號")
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
                     .fontWeight(.semibold)
                 Spacer()
@@ -42,7 +41,7 @@ struct userNameEditView: View {
                     Spacer()
                     Button {
                         Task {
-                            await updateUserName()
+                            await updateAccount()
                         }
                     } label: {
                         Text("變更")
@@ -51,64 +50,39 @@ struct userNameEditView: View {
                             .frame(height: 36)
                     }
                     .padding(.trailing, 10)
-                    .disabled(userName.isEmpty || isUserNameDuplicate || showPointAlert)
-                }
+                    .disabled(account.isEmpty || isAccountDuplicate || showPointAlert)                }
                 .frame(width: 80)
             }
             .frame(height: 36)
             .background(Color.white)
             HStack{
-                TextField("請輸入新暱稱", text: $userName)
+                TextField("請輸入新帳號", text: $account)
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                    .onChange(of: userName) {
-                        userName = userName.replacingOccurrences(of: "\n", with: "")
-                        
-                        var totalLength: Double = 0
-                        var result = ""
-                        
-                        for char in userName {
-                            let scalarValue = char.unicodeScalars.first?.value ?? 0
-                            let isASCII = scalarValue <= 127
-                            if isASCII {
-                                totalLength += 0.5
-                            } else {
-                                totalLength += 1.0
-                            }
-                            if totalLength <= 8 {
-                                result.append(char)
-                            } else {
-                                break
-                            }
-                        }
-                        length = totalLength
-                        userName = result
-                        checkUserName { isDuplicate in
+                    .onChange(of: account) {
+                        checkAccount{ isDuplicate in
                             DispatchQueue.main.async {
-                                isUserNameDuplicate = isDuplicate
+                                isAccountDuplicate = isDuplicate
                             }
                         }
                     }
-                if !userName.isEmpty {
-                    Image(systemName: isUserNameDuplicate ? "exclamationmark.triangle.fill" :"checkmark")
+                if !account.isEmpty {
+                    Image(systemName: isAccountDuplicate ? "exclamationmark.triangle.fill" :"checkmark")
                         .font(.system(size: 14))
-                        .foregroundColor(isUserNameDuplicate ? ColorConstants.tomatoRed : ColorConstants.emeraldGreen)
+                        .foregroundColor(isAccountDuplicate ? ColorConstants.tomatoRed : ColorConstants.emeraldGreen)
                 }
             }
-            .padding(.horizontal, 15)
-            .padding(.top, 10)
-            .frame(height: 24)
+                .padding(.horizontal, 15)
+                .padding(.top, 10)
+                .frame(height: 24)
             Rectangle()
                 .fill(ColorConstants.systemMainColor)
                 .frame(height: 1.5)
                 .padding(.horizontal, 15)
             HStack{
-                Text("修改暱稱需要消耗 100 點")
+                Text("修改帳號需要消耗 100 點")
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                     .foregroundColor(.gray)
                 Spacer()
-                Text("\(length.f(1))/8")
-                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
-                    .foregroundColor(.gray)
             }
             .padding(.horizontal, 16)
             .padding(.top, -5)
@@ -123,22 +97,22 @@ struct userNameEditView: View {
         }
     }
     
-    private func checkUserName(completion: @escaping (Bool) -> Void) {
+    private func checkAccount(completion: @escaping (Bool) -> Void) {
         let db = Firestore.firestore()
-        let accountQuery = db.collection("users").whereField("userName", isEqualTo: userName)
+        let accountQuery = db.collection("users").whereField("account", isEqualTo: account)
         
         accountQuery.getDocuments { (querySnapshot, error) in
             if let error = error {
-                print("(SignupView)暱稱查詢錯誤: \(error.localizedDescription)")
+                print("(SignupView)帳號查詢錯誤: \(error.localizedDescription)")
                 completion(false)
                 return
             }
             
-            completion(querySnapshot?.documents.isEmpty == false)
+            completion(querySnapshot?.documents.isEmpty == false) // 如果帳號已經存在，回傳 true
         }
     }
     
-    private func updateUserName() async{
+    private func updateAccount() async{
         let keychain = KeychainSwift()
         guard let userUid = keychain.get("authUid") else {
             return
@@ -153,10 +127,9 @@ struct userNameEditView: View {
                currentPoints >= 100 {
                 
                 try await userRef.updateData([
-                    "userName": userName,
+                    "account": account,
                     "point": currentPoints - 100
                 ])
-                keychain.set(userName, forKey: "userName")
                 dismiss()
                 
             } else {
@@ -169,5 +142,5 @@ struct userNameEditView: View {
 }
 
 #Preview {
-    userNameEditView()
+    AccountEditView()
 }

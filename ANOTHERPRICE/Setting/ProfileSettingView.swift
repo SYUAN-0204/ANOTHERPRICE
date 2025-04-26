@@ -8,7 +8,7 @@
 import SwiftUI
 import PhotosUI
 
-struct ProfileEditView: View {
+struct ProfileSettingView: View {
     @Environment(\.dismiss) var dismiss
     
     @State var userAvatar: UIImage = UIImage(named: "Advertise") ?? UIImage()
@@ -85,7 +85,7 @@ struct ProfileEditView: View {
                     .fill(Color.gray.opacity(0.1))
                     .frame(height: 1)
                 NavigationLink{
-                    temp7()
+                    AccountEditView()
                 } label: {
                     HStack {
                         Text("帳號")
@@ -133,5 +133,5 @@ struct ProfileEditView: View {
 }
 
 #Preview {
-    ProfileEditView()
+    ProfileSettingView()
 }

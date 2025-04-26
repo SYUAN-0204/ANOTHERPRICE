@@ -10,12 +10,12 @@ import SwiftUI
 struct PostDetailView: View {
     @Environment(\.dismiss) var dismiss
     
-    let 來自主頁: Bool
-    @State private var 匿名 = false
+    let isMyDisplayView: Bool
+    @State private var isAnonymous = false
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
-    @State private var 自己提問: Bool = false
-    @State private var 關注: Bool = false
-    @State private var 取消關注: Bool = false
+    @State private var isSelfIssue: Bool = false
+    @State private var follow: Bool = false
+    @State private var cancelFollow: Bool = false
     @State private var tags = "#標籤 #不同標籤"
     @State private var title: String = "標題"
     @State private var like: Bool = false
@@ -25,8 +25,8 @@ struct PostDetailView: View {
     @State private var author: String = "誠實精靈"
     @State private var code: String = "/*edwefwec8*/"
     @State private var http: String = "https://www.anotherprice.com"
-    @State private var 排序方式: Bool = false
-    @State private var 回答: String = ""
+    @State private var order: Bool = false
+    @State private var response: String = ""
     @State private var 評論: String = "一條很長長長長e長的評論，一條很長長長長長的評論，一條很長長長長長的評論，一條很長長長長長的評論，一條很長長長長長的評論"
     @State private var 展開狀態: Bool = false
     @State private var 展開回覆: Bool = false
@@ -60,7 +60,7 @@ struct PostDetailView: View {
             .frame(height: 36)
             HStack {
                 NavigationLink{
-                    DisplayView(isMyDisplayView: 自己提問)
+                    DisplayView(isMyDisplayView: isSelfIssue)
                 } label: {
                     Image(uiImage: userAvatar)
                         .resizable()
@@ -71,24 +71,24 @@ struct PostDetailView: View {
                         .overlay(
                             Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
                         )
-                    Text(匿名 ? "匿名精靈":"用戶名稱")
+                    Text(isAnonymous ? "匿名精靈":"用戶名稱")
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
                         .foregroundColor(ColorConstants.systemSubColor)
                 }
-                .disabled(匿名)
-                if !匿名 {
+                .disabled(isAnonymous)
+                if !isAnonymous {
                     UITextLevel(totalExp: 3564, width: 32, height: 14, size: 12)
                     Spacer()
-                    if !自己提問 {
+                    if !isSelfIssue {
                         Button{
-                            if !關注 {
-                                關注 = true
+                            if !follow {
+                                follow = true
                             }
                             else {
-                                取消關注 = true
+                                cancelFollow = true
                             }
                         } label: {
-                            if 關注 {
+                            if follow {
                                 ZStack{
                                     RoundedRectangle(cornerRadius: 3)
                                         .stroke(ColorConstants.systemMainColor, lineWidth: 1)
@@ -224,27 +224,27 @@ struct PostDetailView: View {
                         .foregroundColor(ColorConstants.systemDarkColor.opacity(0.8))
                     Spacer()
                     Button{
-                        排序方式.toggle()
+                        order.toggle()
                     } label: {
                         Image(systemName: "line.3.horizontal")
                             .font(.system(size: 12))
                             .foregroundColor(ColorConstants.systemDarkColor.opacity(0.6))
-                        Text(排序方式 ? "按時間":"按熱度")
+                        Text(order ? "按時間":"按熱度")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                             .foregroundColor(ColorConstants.systemDarkColor.opacity(0.6))
                     }
                 }
                 .padding(.horizontal, 5)
                 ForEach(0..<5) { _ in
-                    UIComplexAnswer(userAvatar: userAvatar, anonymous: 匿名, comment: 評論, totalExp: 12343, like: $like, heart: heart)
+                    UIComplexAnswer(userAvatar: userAvatar, anonymous: isAnonymous, comment: 評論, totalExp: 12343, like: $like, heart: heart)
                 }
             }
             .padding(.horizontal, 10)
             .padding(.bottom, 5)
-            if !自己提問 {
+            if !isSelfIssue {
                 HStack{
                     HStack{
-                        TextField("睡著了也等不到你的回答" ,text: $回答)
+                        TextField("睡著了也等不到你的回答" ,text: $response)
                             .autocapitalization(.none)
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
                             .foregroundColor(ColorConstants.systemSubColor)
@@ -261,7 +261,7 @@ struct PostDetailView: View {
                                 .padding(.trailing, 5)
                         }
                         .sheet(isPresented: $展開回覆) {
-                            temp4(input: $回答)
+                            temp4(input: $response)
                                 .presentationDetents([.fraction(0.96)])
                         }
                     }
@@ -274,7 +274,7 @@ struct PostDetailView: View {
                     } label: {
                         ZStack{
                             RoundedRectangle(cornerRadius: 5)
-                                .fill(ColorConstants.systemMainColor.opacity(回答.isEmpty ? 0.7 : 1.0))
+                                .fill(ColorConstants.systemMainColor.opacity(response.isEmpty ? 0.7 : 1.0))
                             Text("送出")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                                 .foregroundColor(.white)
@@ -288,15 +288,15 @@ struct PostDetailView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .alert("取消關注 帳戶暱稱", isPresented: $取消關注) {
+        .alert("取消關注 帳戶暱稱", isPresented: $cancelFollow) {
             Button("取消", role: .cancel) { }
             Button("確定", role: .destructive) {
-                關注 = false
+                follow = false
             }
         }
     }
 }
 
 #Preview {
-    PostDetailView(來自主頁: true)
+    PostDetailView(isMyDisplayView: true)
 }

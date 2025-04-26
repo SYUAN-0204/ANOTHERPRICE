@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct UITextPageDetails: View {
-    @State var detailInput: Int
+    @Binding var detailInput: Int
     @State var detailTitle: String
     
     var body: some View {
@@ -25,5 +25,5 @@ struct UITextPageDetails: View {
 }
 
 #Preview {
-    UITextPageDetails(detailInput: 10000, detailTitle: "Title")
+    UITextPageDetails(detailInput: .constant(10000), detailTitle: "Title")
 }

@@ -393,7 +393,6 @@ struct PublishView: View {
             isMultiSelect = false
         }
     }
-    
 }
 
 #Preview {

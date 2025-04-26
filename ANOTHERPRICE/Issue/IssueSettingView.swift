@@ -28,7 +28,7 @@ struct IssueSettingView: View {
     @State private var exp:Int = 0
     @State private var selectedDate = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
     @State private var isAnonymous = false
-    @State private var selected匿名:String = "off"
+    @State private var selectAnonymous:String = "off"
     @State private var anonymousOptions = ["on", "off"]
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
     @EnvironmentObject var nav: NavigationCoordinator
@@ -94,19 +94,19 @@ struct IssueSettingView: View {
                     }
                     UITextIssueSettingTitle(title: "匿名")
                     Menu {
-                        Picker("Options", selection: $selected匿名) {
+                        Picker("Options", selection: $selectAnonymous) {
                             ForEach(anonymousOptions, id: \.self) { order in
                                 Text(order)
                             }
                         }
                     } label: {
-                        Text(selected匿名)
+                        Text(selectAnonymous)
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                            .foregroundColor(selected匿名.isEmpty ? .gray.opacity(0.5): ColorConstants.systemDarkColor.opacity(0.9))
+                            .foregroundColor(selectAnonymous.isEmpty ? .gray.opacity(0.5): ColorConstants.systemDarkColor.opacity(0.9))
                         Spacer()
                     }
-                    .onChange(of: selected匿名) {
-                        if selected匿名 == "on" {
+                    .onChange(of: selectAnonymous) {
+                        if selectAnonymous == "on" {
                             isAnonymous = true
                         }
                         else {

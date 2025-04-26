@@ -7,15 +7,27 @@
 
 import SwiftUI
 import PhotosUI
+import FirebaseAuth
+import FirebaseFirestore
+import KeychainSwift
 
 struct DisplayView: View {
     @Environment(\.dismiss) var dismiss
     
+    @State private var db = Firestore.firestore()
+    @State private var authUid: String? = nil
+    @State private var keychain = KeychainSwift()
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
+    @State var userName: String = "這是另外的價錢"
+    @State var bio: String = "路過的旅人並未在此留下痕跡"
+    @State var registrationDays: Int = 0
+    @State var likesCount: Int = 0
+    @State var followers: Int = 0
+    @State var following: Int = 0
+    @State var exp: Int = 0
     @State private var showPhotoOptions = false
     @State private var photoSource: PhotoSource?
     @State private var selectedItem: PhotosPickerItem? // 用於 iOS 16+ PhotosPicker
-    
     let isMyDisplayView: Bool
     @State private var isSelected: Bool = true
     @State private var isFollowing: Bool = false
@@ -23,6 +35,25 @@ struct DisplayView: View {
     @State private var isMessaging: Bool = false
     @State private var isVisitorBlocked: Bool = true
     @State private var isFanBlocked: Bool = true
+    @State private var drafts: [Draft] = []
+    @State private var isLoading = true
+    @State private var isFetchingMore = false
+    @State private var hasMoreData = true
+    @State private var lastDocument: DocumentSnapshot? = nil
+    @State private var noDraftsMessage: String? = nil
+    
+    struct Draft: Identifiable {
+        var id: String
+        var board: String
+        var title: String
+        var description: String
+        var createdAt: Date
+        var deadLine: String
+        var lastCommentDate: String
+        var heart: Int
+        var commentCount: Int
+        var reward: Int
+    }
     
     var body: some View {
         ZStack(alignment: .top){
@@ -98,12 +129,12 @@ struct DisplayView: View {
                         }
                         VStack{
                             HStack{
-                                Text("這是另外")
+                                Text(userName)
                                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                                     .foregroundColor(.white)
-                                UITextLevel(totalExp: 14534, width: 40, height: 18, size: 14)
+                                UITextLevel(totalExp: exp, width: 40, height: 18, size: 14)
                                 HStack{
-                                    Text("著陸 56 天")
+                                    Text("著陸 \(registrationDays) 天")
                                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
                                         .foregroundColor(.white.opacity(0.8))
                                 }
@@ -111,11 +142,11 @@ struct DisplayView: View {
                             }
                             HStack{
                                 HStack{
-                                    UITextPageDetails(detailInput: 1000000, detailTitle: "粉絲")
+                                    UITextPageDetails(detailInput: $followers, detailTitle: "粉絲")
                                     Spacer()
-                                    UITextPageDetails(detailInput: 0, detailTitle: "關注")
+                                    UITextPageDetails(detailInput: $following, detailTitle: "關注")
                                     Spacer()
-                                    UITextPageDetails(detailInput: 0, detailTitle: "獲讚")
+                                    UITextPageDetails(detailInput: $likesCount, detailTitle: "獲讚")
                                 }
                                 .frame(width: 160)
                                 Spacer()
@@ -124,7 +155,7 @@ struct DisplayView: View {
                         Spacer()
                     }
                     .frame(height: 70)
-                    Text("路過的旅人並未在此留下痕跡")
+                    Text(bio)
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 15))
                         .foregroundColor(.white)
                         .padding(.top, 5)
@@ -183,8 +214,8 @@ struct DisplayView: View {
                             if isFollowing {
                                 ZStack{
                                     RoundedRectangle(cornerRadius: 12)
-                                    .stroke(ColorConstants.systemMainColor, lineWidth: 1)
-                                    .frame(width: 66, height: 24)
+                                        .stroke(ColorConstants.systemMainColor, lineWidth: 1)
+                                        .frame(width: 66, height: 24)
                                     HStack{
                                         Text("已關注")
                                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
@@ -213,20 +244,20 @@ struct DisplayView: View {
                         Button{
                             isMessaging = true
                         } label: {
-                                ZStack{
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(ColorConstants.systemMainColor, lineWidth: 1)
-                                        .frame(width: 66, height: 24)
-                                    HStack{
-                                        Image(systemName: "ellipsis.message")
-                                            .font(.system(size: 12))
-                                            .foregroundColor(ColorConstants.systemMainColor)
-                                            .padding(.trailing, -7)
-                                        Text("私訊")
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                                            .foregroundColor(ColorConstants.systemMainColor)
-                                    }
+                            ZStack{
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(ColorConstants.systemMainColor, lineWidth: 1)
+                                    .frame(width: 66, height: 24)
+                                HStack{
+                                    Image(systemName: "ellipsis.message")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(ColorConstants.systemMainColor)
+                                        .padding(.trailing, -7)
+                                    Text("私訊")
+                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                        .foregroundColor(ColorConstants.systemMainColor)
                                 }
+                            }
                         }
                         .padding(.trailing, 7)
                         .sheet(isPresented: $isMessaging) {
@@ -237,6 +268,19 @@ struct DisplayView: View {
                 }
                 .frame(height: 20)
                 .padding(.horizontal, 5)
+                
+                if isFetchingMore {
+                    ProgressView("載入更多中...")
+                        .padding(.vertical, 10)
+                }
+                
+                if !hasMoreData && !drafts.isEmpty {
+                    Text("沒有更多提問了")
+                        .foregroundColor(.gray)
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                        .padding(.vertical, 10)
+                }
+                
                 if isSelected {
                     ScrollView{
                         if isVisitorBlocked && !isMyDisplayView {
@@ -254,8 +298,20 @@ struct DisplayView: View {
                                 .padding(.top, 10)
                         }
                         else {
-                            ForEach(0..<12) { _ in
-                                UIComplexIssueCard(destination: PostDetailView(來自主頁: false), title: "標題", date: "2025-09-04", common: "2025-04-23", coin: 344, content: "好東西", like: true, heart: 3, message: 4, author: "author", code: "code", http: "http")
+                            LazyVStack {
+                                ForEach(drafts) { draft in
+                                    UIComplexIssueCard(destination: PostDetailView(isMyDisplayView: false), title: draft.title, date: draft.deadLine, common: draft.lastCommentDate, coin: draft.reward, content: draft.title, like: true, heart: draft.heart, message: draft.commentCount, author: "author", code: "code", http: "http")
+                                        .onAppear {
+                                            if draft.id == drafts.last?.id && hasMoreData && !isFetchingMore {
+                                                fetchDrafts(initial: false)
+                                            }
+                                        }
+                                }
+                            }
+                            .onAppear {
+                                if drafts.isEmpty {
+                                    fetchDrafts(initial: true)
+                                }
                             }
                         }
                     }
@@ -278,7 +334,7 @@ struct DisplayView: View {
                         }
                         else {
                             ForEach(0..<12) { _ in
-                                UIComplexIssueCard(destination: PostDetailView(來自主頁: true), title: "標題", date: "2025-09-04", common: "2025-04-23", coin: 344, content: "好東西", like: true, heart: 3, message: 4, author: "author", code: "code", http: "http")
+                                UIComplexIssueCard(destination: PostDetailView(isMyDisplayView: true), title: "標題", date: "2025-09-04", common: "2025-04-23", coin: 344, content: "好東西", like: true, heart: 3, message: 4, author: "author", code: "code", http: "http")
                             }
                         }
                     }
@@ -291,6 +347,146 @@ struct DisplayView: View {
             Button("取消", role: .cancel) { }
             Button("確定", role: .destructive) {
                 isFollowing = false
+            }
+        }
+        .onAppear {
+            self.authUid = keychain.get("authUid")
+            self.userName = keychain.get("userName") ?? "這是另外"
+            self.registrationDays = daysSinceRegistration() + 1
+            fetchUserDetails()
+        }
+    }
+    
+    private func fetchUserDetails() {
+        guard let userUid = keychain.get("authUid") else { return }
+        
+        db.collection("users").document(userUid).getDocument { document, error in
+            if let error = error {
+                print("獲取使用者資料失敗: \(error.localizedDescription)")
+                return
+            }
+            
+            if let document = document, document.exists {
+                let data = document.data()
+                likesCount = data?["hearts"] as? Int ?? 0
+                bio = data?["bio"] as? String ?? "路過的旅人並未在此留下痕跡"
+                if(bio.isEmpty){
+                    bio = "路過的旅人並未在此留下痕跡"
+                }
+                followers = data?["followers"] as? Int ?? 0
+                following = data?["following"] as? Int ?? 0
+                exp = data?["exp"] as? Int ?? 0
+            } else {
+                print("(ProfileView)文件不存在")
+            }
+        }
+    }
+    
+    private func daysSinceRegistration() -> Int {
+        guard let registDayString = keychain.get("registDay") else {
+            return 0
+        }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
+        dateFormatter.locale = Locale(identifier: "zh_TW")
+        
+        guard let registDate = dateFormatter.date(from: registDayString) else {
+            return 0
+        }
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: registDate)
+        
+        let components = calendar.dateComponents([.day], from: startOfDay, to: Date())
+        
+        return components.day ?? 0
+    }
+    
+    func fetchDrafts(initial: Bool) {
+        guard let userUid = keychain.get("authUid") else { return }
+        guard !isFetchingMore else { return }
+        
+        var query: Query = db.collection("users").document(userUid).collection("publish")
+            .order(by: "createdAt", descending: true)
+        
+        if initial {
+            isLoading = true
+            query = query.limit(to: 8)
+        } else {
+            query = query.limit(to: 5)
+            isFetchingMore = true
+            if let last = lastDocument {
+                query = query.start(afterDocument: last)
+            }
+        }
+        
+        query.getDocuments { snapshot, error in
+            if initial {
+                isLoading = false
+            } else {
+                isFetchingMore = false
+            }
+            
+            guard error == nil, let snapshot = snapshot else {
+                print("(PublishView)獲取 publish 錯誤: \(error?.localizedDescription ?? "未知錯誤")")
+                return
+            }
+            
+            let group = DispatchGroup()
+            var newDrafts: [Draft] = []
+            
+            for doc in snapshot.documents {
+                let documentId = doc.documentID
+                guard let collection = doc.data()["collection"] as? String else {
+                    print("(PublishView)缺少 collection 欄位: \(documentId)")
+                    continue
+                }
+                group.enter()
+                db.collection(collection).document(documentId).getDocument { publicDoc, error in
+                    defer { group.leave() }
+                    
+                    if let error = error {
+                        print("(PublishView)讀取 \(collection)/\(documentId) 失敗: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    guard let data = publicDoc?.data() else {
+                        print("(PublishView)\(collection)/\(documentId) 無資料")
+                        return
+                    }
+                    
+                    let deadline = (data["deadline"] as? Timestamp)?.dateValue() ?? Date()
+                    let lastComment = (data["lastComment"] as? Timestamp)?.dateValue()
+                    let dateFormatter = DateFormatter()
+                    dateFormatter.dateFormat = "yyyy-MM-dd"
+                    let formattedDate = dateFormatter.string(from: deadline)
+                    let lastCommentDate = lastComment != nil ? dateFormatter.string(from: lastComment!) : ""
+                    
+                    let draft = Draft(
+                        id: documentId,
+                        board: (data["category"] as! String),
+                        title: data["title"] as? String ?? "無標題",
+                        description: data["description"] as? String ?? "無敘述",
+                        createdAt: (data["createdAt"] as? Timestamp)?.dateValue() ?? Date(),
+                        deadLine: formattedDate,
+                        lastCommentDate: lastCommentDate,
+                        heart: data["heart"] as? Int ?? 0,
+                        commentCount: data["commentCount"] as? Int ?? 0,
+                        reward: data["reward"] as? Int ?? 0
+                    )
+                    newDrafts.append(draft)
+                }
+            }
+            
+            group.notify(queue: .main) {
+                if initial {
+                    drafts = newDrafts.sorted { $0.createdAt > $1.createdAt }
+                } else {
+                    drafts.append(contentsOf: newDrafts.sorted { $0.createdAt > $1.createdAt })
+                }
+                
+                lastDocument = snapshot.documents.last
+                hasMoreData = newDrafts.count >= (initial ? 8 : 5)
             }
         }
     }

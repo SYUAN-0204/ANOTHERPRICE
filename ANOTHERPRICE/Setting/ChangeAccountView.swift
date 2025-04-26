@@ -56,6 +56,7 @@ struct ChangeAccountView: View {
                 
             }
         }
+        
     }
 }
 

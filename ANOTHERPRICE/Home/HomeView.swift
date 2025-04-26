@@ -73,7 +73,7 @@ struct HomeView: View {
             ScrollView {
                 ForEach(drafts) { draft in
                     UIComplexIssueCard(
-                        destination: PostDetailView(來自主頁: false),
+                        destination: PostDetailView(isMyDisplayView: false),
                         title: draft.title,
                         date: draft.deadLine,
                         common: draft.lastCommentDate,
