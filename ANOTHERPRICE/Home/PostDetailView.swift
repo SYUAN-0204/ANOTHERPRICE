@@ -59,7 +59,8 @@ struct PostDetailView: View {
             }
             .frame(height: 36)
             HStack {
-                NavigationLink{
+                UINavigationPostToDisplay(isSelfIssue: isSelfIssue, userAvatar: userAvatar, isAnonymous: isAnonymous)
+                /*NavigationLink{
                     DisplayView(isMyDisplayView: isSelfIssue)
                 } label: {
                     Image(uiImage: userAvatar)
@@ -75,7 +76,7 @@ struct PostDetailView: View {
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
                         .foregroundColor(ColorConstants.systemSubColor)
                 }
-                .disabled(isAnonymous)
+                .disabled(isAnonymous)*/
                 if !isAnonymous {
                     UITextLevel(totalExp: 3564, width: 32, height: 14, size: 12)
                     Spacer()

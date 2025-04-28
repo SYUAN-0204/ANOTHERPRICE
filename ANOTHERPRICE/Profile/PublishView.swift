@@ -164,7 +164,7 @@ struct PublishView: View {
                                     selecte: $isMultiSelect, trashcanState: $isTrashSelected, board: draft.board, title: draft.title, date: "Upload At : \(draft.upLoadDate) - Last Comment : 2025-04-03", content: draft.description, heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW"
                                 )
                             } else {
-                                NavigationLink(destination: tempView()) {
+                                NavigationLink(destination: PostDetailView(isMyDisplayView: true)) {
                                     UIComplexUploadArticle(isSelected: .constant(false),selecte: .constant(false), trashcanState: .constant(false), board: draft.board, title: draft.title, date: "Last Upload : \(draft.upLoadDate) ; Last Comment : \(draft.lastCommentDate)", content: draft.description, heart: draft.heart, message: draft.commentCount, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW")
                                 }
                                 .buttonStyle(PlainButtonStyle())
