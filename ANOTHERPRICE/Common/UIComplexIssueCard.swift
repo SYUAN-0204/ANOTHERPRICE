@@ -51,7 +51,7 @@ struct UIComplexIssueCard<Destination: View>: View {
                             .foregroundColor(ColorConstants.systemMainColor)
                             .frame(width: 26, alignment: .leading)
                     }
-                    Text(content + "\n\n")
+                    Text(content.isEmpty ? " " : content + "\n\n")
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                         .foregroundColor(ColorConstants.systemDarkColor.opacity(0.8))
                         .padding(.top, -8)

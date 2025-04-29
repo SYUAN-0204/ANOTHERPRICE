@@ -11,8 +11,8 @@ import FirebaseAuth
 import KeychainSwift
 
 struct HomeView: View {
-    @State private var categoryList = ["生活", "學術", "科技", "健康", "理財", "情感", "娛樂", "其他"]
-    @State private var selectedCategory: String = "生活"
+    @State private var categoryList = ["我的關注", "生活", "學術", "科技", "健康", "理財", "情感", "娛樂", "其他"]
+    @State private var selectedCategory: String = "我的關注"
     @State private var drafts: [Draft] = []
     @State private var isLoading = false
     @State private var lastDocument: DocumentSnapshot? = nil
@@ -58,10 +58,11 @@ struct HomeView: View {
                                     .fill(selectedCategory == category ?
                                         .white.opacity(0.3) :
                                             Color.clear)
-                                    .frame(width: 60, height: 28)
+                                    .frame(height: 28)
                                 Text(category)
                                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                                     .foregroundColor(.white)
+                                    .padding(.horizontal, 10)
                             }
                         }
                     }
@@ -69,6 +70,7 @@ struct HomeView: View {
                 }
                 .padding(.horizontal, 10)
             }
+            .padding(.bottom, 3)
             .background(ColorConstants.systemMainColor)
             ScrollView {
                 ForEach(drafts) { draft in

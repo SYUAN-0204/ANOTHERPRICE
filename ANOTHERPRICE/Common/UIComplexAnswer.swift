@@ -26,9 +26,6 @@ struct UIComplexAnswer: View {
                     .frame(width: 30, height: 30) // 限制大小
                     .background(Color(.systemGray6))
                     .clipShape(Circle()) // 剪裁為圓形
-                    .overlay(
-                        Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
-                    )
                 VStack(alignment: .leading){
                     HStack{
                         Text(anonymous ? "神秘旅人":"用戶名稱")

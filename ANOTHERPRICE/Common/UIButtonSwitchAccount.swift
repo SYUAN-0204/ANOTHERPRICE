@@ -23,9 +23,6 @@ struct UIButtonSwitchAccount: View {
                     .frame(width: 40, height: 40) // 限制大小
                     .background(Color(.systemGray6))
                     .clipShape(Circle()) // 剪裁為圓形
-                    .overlay(
-                        Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
-                    )
                 Text("這是另外的價錢")
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                     .foregroundColor(.black)

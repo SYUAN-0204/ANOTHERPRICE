@@ -126,6 +126,13 @@ struct IssueSettingView: View {
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                         .foregroundColor(ColorConstants.systemDarkColor.opacity(0.9))
                         .frame(height: 36)
+                        .onChange(of: tags) { oldValue, newValue in
+                                var tagArray = newValue.split(separator: " ").map { String($0) }.filter { !$0.isEmpty }
+                                if tagArray.count > 5 {
+                                    tagArray = Array(tagArray.prefix(5))
+                                    tags = tagArray.joined(separator: " ")
+                                }
+                            }
                 }
                 .padding(.horizontal, 5)
                 Rectangle()
@@ -189,9 +196,6 @@ struct IssueSettingView: View {
                         .frame(width: 40, height: 40) // 限制大小
                         .background(Color(.systemGray6))
                         .clipShape(Circle()) // 剪裁為圓形
-                        .overlay(
-                            Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
-                        )
                     Text("匿名精靈")
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
                         .foregroundColor(ColorConstants.systemSubColor)
@@ -203,9 +207,6 @@ struct IssueSettingView: View {
                         .frame(width: 40, height: 40) // 限制大小
                         .background(Color(.systemGray6))
                         .clipShape(Circle()) // 剪裁為圓形
-                        .overlay(
-                            Circle().stroke(ColorConstants.systemMainColor, lineWidth: 1)
-                        )
                     Text(userName)
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
                         .foregroundColor(ColorConstants.systemSubColor)
