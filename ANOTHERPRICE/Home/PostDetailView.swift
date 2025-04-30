@@ -237,7 +237,7 @@ struct PostDetailView: View {
                 }
                 .padding(.horizontal, 5)
                 ForEach(0..<5) { _ in
-                    UIComplexAnswer(userAvatar: userAvatar, anonymous: isAnonymous, comment: 評論, totalExp: 12343, like: $like, heart: heart)
+                    UIComplexAnswer(isSelfIssue: isSelfIssue, userAvatar: userAvatar, anonymous: isAnonymous, comment: 評論, totalExp: 12343, like: $like, heart: heart)
                 }
             }
             .padding(.horizontal, 10)

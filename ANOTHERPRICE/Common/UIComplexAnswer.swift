@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct UIComplexAnswer: View {
+    let isSelfIssue: Bool
     let userAvatar: UIImage
     let anonymous: Bool
     let comment: String
@@ -15,6 +16,8 @@ struct UIComplexAnswer: View {
     @State var expand: Bool = false
     @Binding var like: Bool
     let heart: Int
+    @State var showAlert: Bool = false
+    
     var body: some View {
         NavigationLink{
             DisplayView(isMyDisplayView: false)
@@ -39,13 +42,26 @@ struct UIComplexAnswer: View {
                 }
                 Spacer()
                 Button{
-                    
+                    showAlert = true
                 } label: {
                     Image(systemName: "ellipsis")
                         .font(.system(size: 12))
                         .foregroundColor(.gray)
                         .frame(width: 24, height: 24, alignment: .trailing)
                         .padding(.trailing, 8)
+                }
+                .alert("提示", isPresented: $showAlert) {
+                        Button("檢舉回答", role: .destructive) {
+                        }
+                    if isSelfIssue {
+                        Button("選為最佳") {
+                        }
+                    }
+                    Button("取消", role: .cancel) {
+                        showAlert = false
+                    }
+                } message: {
+                    Text("用戶 用戶名稱 的回答")
                 }
             }
         }
@@ -90,5 +106,5 @@ struct UIComplexAnswer: View {
 }
 
 #Preview {
-    UIComplexAnswer(userAvatar: UIImage(named: "Logo_122D3E") ?? UIImage(), anonymous: false, comment: "这是用户的评论内容", totalExp: 123, like: .constant(false), heart: 12)
+    UIComplexAnswer(isSelfIssue: true, userAvatar: UIImage(named: "Logo_122D3E") ?? UIImage(), anonymous: false, comment: "这是用户的评论内容", totalExp: 123, like: .constant(false), heart: 12)
 }

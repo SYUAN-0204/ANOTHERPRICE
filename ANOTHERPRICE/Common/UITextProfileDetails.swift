@@ -15,6 +15,7 @@ struct UITextProfileDetails: View {
         VStack{
             Text("\(detailInput >= 1_000_000 ? String(format: "%.1fM", Double(detailInput) / 1_000_000) : detailInput >= 1000 ? String(format: "%.1fk", Double(detailInput) / 1000) : "\(detailInput)")")
                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
+                .foregroundColor(ColorConstants.systemDarkColor)
             Text(detailTitle)
                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                 .foregroundColor(.gray)

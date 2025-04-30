@@ -80,9 +80,17 @@ struct ProfileView: View {
                     Spacer()
                     UITextProfileDetails(detailInput: $peopleHelped, detailTitle: "幫助數")
                     Spacer()
-                    UITextProfileDetails(detailInput: $followers, detailTitle: "粉絲")
+                    NavigationLink{
+                        temp5()
+                    } label: {
+                        UITextProfileDetails(detailInput: $followers, detailTitle: "粉絲")
+                    }
                     Spacer()
-                    UITextProfileDetails(detailInput: $following, detailTitle: "關注")
+                    NavigationLink{
+                        temp3()
+                    } label: {
+                        UITextProfileDetails(detailInput: $following, detailTitle: "關注")
+                    }
                 }
                 .frame(height: 60)
                 .padding(.horizontal, 20)

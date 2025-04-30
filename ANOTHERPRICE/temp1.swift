@@ -13,8 +13,8 @@ struct temp1: View {
     @State var 口令搜尋結果: Bool = false
     @State var 展開更多: Bool = false
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
-    @State var 展開關注列表: Bool = false
     @State var 是否存在口令: Bool = false
+    @State private var 歷史記錄: String = "一劍霜寒十四州出處"
     
     var body: some View {
         VStack{
@@ -127,16 +127,17 @@ struct temp1: View {
                                     .foregroundColor(ColorConstants.systemDarkColor)
                                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                                 Spacer()
-                                Button(){
-                                    展開關注列表 = true
+                                NavigationLink{
+                                    temp2()
                                 } label: {
                                     Text("查看更多")
                                         .foregroundColor(ColorConstants.systemDarkColor.opacity(0.7))
                                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
-                                }
-                                .sheet(isPresented: $展開關注列表) {
-                                    tempView()
-                                        .presentationDetents([.fraction(0.92)])
+                                        .padding(.trailing, -2)
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(ColorConstants.systemDarkColor.opacity(0.7))
+                                        .padding(.leading, -4)
                                 }
                             }
                             HStack{
@@ -211,18 +212,27 @@ struct temp1: View {
                         }
                         //這裡預設五筆資料
                         ForEach(0..<5){_ in
-                            HStack{
-                                Text("一劍霜寒十四州出處")
-                                    .foregroundColor(ColorConstants.systemDarkColor)
-                                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
-                                Spacer()
-                                Button(){
-                                    
-                                } label: {
-                                    Image(systemName: "xmark")
-                                        .foregroundColor(ColorConstants.systemDarkColor.opacity(0.7))
-                                        .font(.system(size: 14))
-                                        .frame(width: 28, height: 28)
+                            Button(){
+                                搜尋 = 歷史記錄
+                                關鍵字搜尋結果 = true
+                                let trimmed = 搜尋.trimmingCharacters(in: .whitespacesAndNewlines)
+                                if trimmed.hasPrefix("/*") && trimmed.hasSuffix("*/") {
+                                    口令搜尋結果 = true
+                                }
+                            } label: {
+                                HStack{
+                                    Text(歷史記錄)
+                                        .foregroundColor(ColorConstants.systemDarkColor)
+                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
+                                    Spacer()
+                                    Button(){
+                                        
+                                    } label: {
+                                        Image(systemName: "xmark")
+                                            .foregroundColor(ColorConstants.systemDarkColor.opacity(0.7))
+                                            .font(.system(size: 14))
+                                            .frame(width: 28, height: 28)
+                                    }
                                 }
                             }
                             Rectangle()
