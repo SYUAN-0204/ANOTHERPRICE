@@ -51,7 +51,7 @@ struct temp8: View {
                         .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 2)
                     VStack(alignment: .leading) {
                         HStack{
-                            Text("您的回答已被選為最佳答案")
+                            Text("您的回答已被選為最佳答案，獲得獎勵 50 點")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                                 .foregroundColor(ColorConstants.systemDarkColor)
                             Spacer()

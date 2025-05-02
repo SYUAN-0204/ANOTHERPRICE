@@ -30,6 +30,8 @@ struct temp1: View {
                         if !搜尋.isEmpty {
                             Button(){
                                 搜尋 = ""
+                                關鍵字搜尋結果 = false
+                                口令搜尋結果 = false
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
                                     .foregroundColor(ColorConstants.systemDarkColor.opacity(0.4))

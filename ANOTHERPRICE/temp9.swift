@@ -14,6 +14,7 @@ struct temp9: View {
     @State var userAvatar: UIImage = UIImage(named: "Advertise") ?? UIImage()
     @State private var response: String = ""
     @State private var 展開回覆: Bool = false
+    @State var showAlert: Bool = false
     
     var body: some View {
         VStack{
@@ -32,12 +33,24 @@ struct temp9: View {
                     .fontWeight(.semibold)
                 Spacer()
                 Button {
+                    showAlert = true
                 } label: {
                     Image(systemName: "ellipsis")
                         .font(.system(size: 18))
-                        .opacity(0)
+                        .foregroundColor(.gray)
                 }
                 .padding(.trailing, 10)
+                .alert("提示", isPresented: $showAlert) {
+                    Button("關注用戶") {
+                    }
+                    Button("檢舉用戶", role: .destructive) {
+                    }
+                    Button("取消", role: .cancel) {
+                        showAlert = false
+                    }
+                } message: {
+                    Text("用戶 用戶名稱 的聊天")
+                }
             }
             .frame(height: 30)
             .background(Color.white)
