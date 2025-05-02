@@ -1,0 +1,75 @@
+//
+//  temp6.swift
+//  ANOTHERPRICE
+//
+//  Created by 遠上寒山 on 2025/5/2.
+//
+
+import SwiftUI
+
+struct temp6: View {
+    @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
+    @State var showAlert: Bool = false
+    
+    var body: some View {
+        VStack(alignment: .leading){
+            HStack {
+                Button {
+                } label: {
+                    Image(systemName: "arrow.left")
+                        .font(.system(size: 18))
+                        .opacity(0)
+                }
+                .padding(.leading, 10)
+                Spacer()
+                Text("訊息")
+                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
+                    .fontWeight(.semibold)
+                Spacer()
+                Button {
+                    showAlert = true
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 18))
+                        .foregroundColor(.gray)
+                }
+                .padding(.trailing, 10)
+                .alert("提示", isPresented: $showAlert) {
+                    Button("全部已讀") {
+                    }
+                    Button("全部刪除", role: .destructive) {
+                    }
+                    Button("取消", role: .cancel) {
+                        showAlert = false
+                    }
+                } message: {
+                    Text("用戶 用戶名稱 的提問")
+                }
+            }
+            .frame(height: 36)
+            .background(Color.white)
+            ScrollView{
+                HStack{
+                    UINavigationMessage(destination: temp7(title: "我的提問"), icon: "questionmark.message", color: Color.teal, title: "我的提問", badgeCount: 1004)
+                    Spacer()
+                    UINavigationMessage(destination: temp7(title: "我的獲讚"), icon: "hand.thumbsup", color: Color.pink, title: "我的獲讚", badgeCount: 0)
+                    Spacer()
+                    UINavigationMessage(destination: temp7(title: "我的關注"), icon: "star", color: Color.orange, title: "我的關注", badgeCount: 5)
+                    Spacer()
+                    UINavigationMessage(destination: temp7(title: "系統通知"), icon: "bell", color: Color.cyan, title: "系統通知", badgeCount: 13)
+                }
+                .padding(.horizontal, 30)
+                .padding(.vertical, 16)
+                //跟著按照排
+                UINavigationPersonalMessage(destination: temp8(name: "獎勵小精靈"), userAvatar: userAvatar, name: "獎勵小精靈", date: "2-25", content: "您的獎勵已送達", badgeCount: 5)
+                ForEach(0..<10, id: \.self){_ in
+                    UINavigationPersonalMessage(destination: temp9(name: "很誠實的誠實精靈"), userAvatar: userAvatar, name: "很誠實的誠實精靈", date: "2-25", content: "qwertyuiop", badgeCount: 5)
+                }
+            }
+        }
+    }
+}
+
+#Preview {
+    temp6()
+}

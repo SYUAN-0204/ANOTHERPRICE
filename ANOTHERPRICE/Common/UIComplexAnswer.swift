@@ -51,11 +51,13 @@ struct UIComplexAnswer: View {
                         .padding(.trailing, 8)
                 }
                 .alert("提示", isPresented: $showAlert) {
-                        Button("檢舉回答", role: .destructive) {
-                        }
                     if isSelfIssue {
                         Button("選為最佳") {
                         }
+                    }
+                    Button("關注用戶") {
+                    }
+                    Button("檢舉回答", role: .destructive) {
                     }
                     Button("取消", role: .cancel) {
                         showAlert = false
@@ -101,7 +103,7 @@ struct UIComplexAnswer: View {
             .fill(.gray.opacity(0.3))
             .frame(height: 1)
             .padding(.bottom, 5)
-
+        
     }
 }
 

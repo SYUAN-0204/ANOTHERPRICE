@@ -50,13 +50,14 @@ struct ChangeAccountView: View {
         }
         .background(Color.gray.opacity(0.1))
         .navigationBarBackButtonHidden(true)
-        .alert("帳號登出", isPresented: $isSwitchingAccount) {
+        .alert("帳號切換", isPresented: $isSwitchingAccount) {
             Button("取消", role: .cancel) { }
             Button("確定", role: .destructive) {
                 
             }
+        } message: {
+            Text("帳號名稱")
         }
-        
     }
 }
 

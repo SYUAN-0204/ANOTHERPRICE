@@ -30,6 +30,7 @@ struct PostDetailView: View {
     @State private var 評論: String = "一條很長長長長e長的評論，一條很長長長長長的評論，一條很長長長長長的評論，一條很長長長長長的評論，一條很長長長長長的評論"
     @State private var 展開狀態: Bool = false
     @State private var 展開回覆: Bool = false
+    @State private var showAlert: Bool = false
     
     var body: some View {
         VStack(alignment: .leading){
@@ -134,12 +135,23 @@ struct PostDetailView: View {
                             .foregroundColor(ColorConstants.systemDarkColor)
                         Spacer()
                         Button{
-                            
+                            showAlert = true
                         } label: {
                             Image(systemName: "ellipsis")
                                 .font(.system(size: 14))
                                 .foregroundColor(.gray)
                                 .frame(width: 30, height: 24, alignment: .trailing)
+                        }
+                        .alert("提示", isPresented: $showAlert) {
+                            Button("複製連結") {
+                            }
+                            Button(isSelfIssue ? "刪除提問" : "檢舉提問", role: .destructive) {
+                            }
+                            Button("取消", role: .cancel) {
+                                showAlert = false
+                            }
+                        } message: {
+                            Text("用戶 用戶名稱 的提問")
                         }
                     }
                     HStack{
@@ -262,7 +274,7 @@ struct PostDetailView: View {
                                 .padding(.trailing, 5)
                         }
                         .sheet(isPresented: $展開回覆) {
-                            temp4(input: $response)
+                            temp4(input: $response, hint: "睡著了也等不到你的回答", button: "送出")
                                 .presentationDetents([.fraction(0.96)])
                         }
                     }

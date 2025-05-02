@@ -11,6 +11,9 @@ struct temp4: View {
     @Environment(\.dismiss) var dismiss
     
     @Binding var input: String
+    let hint: String
+    let button: String
+    
     var body: some View {
         VStack{
             HStack{
@@ -33,7 +36,7 @@ struct temp4: View {
                         if input.isEmpty {
                             VStack{
                                 HStack{
-                                    Text("睡著了也等不到你的回答")
+                                    Text(hint)
                                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
                                         .foregroundColor(.gray)
                                     Spacer()
@@ -53,7 +56,7 @@ struct temp4: View {
                     ZStack{
                         RoundedRectangle(cornerRadius: 5)
                             .fill(ColorConstants.systemMainColor.opacity(input.isEmpty ? 0.7 : 1.0))
-                        Text("送出")
+                        Text(button)
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                             .foregroundColor(.white)
                     }
@@ -66,5 +69,5 @@ struct temp4: View {
 }
 
 #Preview {
-    temp4(input: .constant(""))
+    temp4(input: .constant(""), hint: "wer", button: "nm")
 }

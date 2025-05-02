@@ -20,24 +20,31 @@ extension UIColor {
 
 //16進位色票轉換
 extension Color {
-    init(hex: Int, opacity: Double = 1) {
-        self.init(
-            .sRGB,
-            red: Double((hex >> 16) & 0xff) / 255,
-            green: Double((hex >> 08) & 0xff) / 255,
-            blue: Double((hex >> 00) & 0xff) / 255,
-            opacity: opacity
-        )
+    init(hex: String, opacity: Double = 1.0) {
+        var hexFormatted = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        
+        if hexFormatted.hasPrefix("#") {
+            hexFormatted.removeFirst()
+        }
+        
+        var rgbValue: UInt64 = 0
+        Scanner(string: hexFormatted).scanHexInt64(&rgbValue)
+        
+        let red = Double((rgbValue >> 16) & 0xFF) / 255.0
+        let green = Double((rgbValue >> 8) & 0xFF) / 255.0
+        let blue = Double(rgbValue & 0xFF) / 255.0
+        
+        self.init(.sRGB, red: red, green: green, blue: blue, opacity: opacity)
     }
 }
 
 struct ColorConstants {
-    static let systemMainColor = Color(hex: 0x3D708F)
-    static let systemSubColor = Color(hex: 0x122D3E)
-    static let systemDarkColor = Color(hex: 0x212529)
-    static let beige = Color(hex: 0xFFFFF0)
-    static let emeraldGreen = Color(hex: 0x2E8B57)
-    static let tomatoRed = Color(hex: 0xD94A38)
+    static let systemMainColor = Color(hex: "#3D708F")
+    static let systemSubColor = Color(hex: "#122D3E")
+    static let systemDarkColor = Color(hex: "#212529")
+    static let beige = Color(hex: "#FFFFF0")
+    static let emeraldGreen = Color(hex: "#2E8B57")
+    static let tomatoRed = Color(hex: "#D94A38")
 }
 
 extension UIImage {
