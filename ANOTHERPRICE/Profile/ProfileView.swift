@@ -217,7 +217,7 @@ struct ProfileView: View {
                         }
                         .padding(.top, 10)
                         NavigationLink {
-                            tempView()
+                            LazyView(temp11())
                         } label: {
                             UIImageExtoolCustom(imageName: "headset", toolTitle: "客服中心")
                         }
