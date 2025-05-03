@@ -11,7 +11,7 @@ struct TasksView: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var totalExperience: Int = 24341
-    @State private var isCompleted: Bool = true
+    @State private var isCompleted: Bool = false
     
     @Binding var selectedTab: TabIdentifier
     
@@ -54,13 +54,13 @@ struct TasksView: View {
                     UIComplexTask(title: "任意答題", description: "回答任意題目，獲得任務獎勵 10 點", complish: false, destination: PostDetailView(isMyDisplayView: false), tabIdentifier: TabIdentifier.home, isQuestion: false, selectedTab: $selectedTab)
                     UIRectangleLine(opacity: 0.1)
                         .padding(.horizontal, 3)
-                    UIComplexTask(title: "發布問答", description: "發布任意問答，獲得任務獎勵 15 點", complish: false, destination: tempView(), tabIdentifier: TabIdentifier.issue, isQuestion: false, selectedTab: $selectedTab)
+                    UIComplexTask(title: "發布問答", description: "發布任意問答，獲得任務獎勵 15 點", complish: false, destination: IssueView(), tabIdentifier: TabIdentifier.issue, isQuestion: false, selectedTab: $selectedTab)
                     UIRectangleLine(opacity: 0.1)
                         .padding(.horizontal, 3)
-                    UIComplexTask(title: "分享問答", description: "分享任意問答，獲得任務獎勵 5 點", complish: isCompleted, destination: tempView(), tabIdentifier: TabIdentifier.home, isQuestion: false, selectedTab: $selectedTab)
+                    UIComplexTask(title: "分享問答", description: "分享任意問答，獲得任務獎勵 5 點", complish: isCompleted, destination: HomeView(), tabIdentifier: TabIdentifier.home, isQuestion: false, selectedTab: $selectedTab)
                     UIRectangleLine(opacity: 0.1)
                         .padding(.horizontal, 3)
-                    UIComplexTask(title: "消耗 30 點", description: "消耗點數 30 點，獲得任務獎勵 10 點", complish: isCompleted, destination: tempView(), tabIdentifier: TabIdentifier.issue, isQuestion: false, selectedTab: $selectedTab)
+                    UIComplexTask(title: "消耗 30 點", description: "消耗點數 30 點，獲得任務獎勵 10 點", complish: isCompleted, destination: LazyView(temp12()), tabIdentifier: TabIdentifier.profile, isQuestion: true, selectedTab: $selectedTab)
                     Spacer()
                 }
                 .frame(height: 285)
