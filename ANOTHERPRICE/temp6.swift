@@ -60,8 +60,9 @@ struct temp6: View {
                 }
                 .padding(.horizontal, 30)
                 .padding(.vertical, 16)
-                //跟著按照排
+                //小精靈跟小助手一起按照日期排
                 UINavigationPersonalMessage(destination: temp8(name: "獎勵小精靈"), userAvatar: userAvatar, name: "獎勵小精靈", date: "2-25", content: "您的獎勵已送達", badgeCount: 5)
+                UINavigationPersonalMessage(destination: temp13(name: "提問小助手"), userAvatar: userAvatar, name: "提問小助手", date: "2-24", content: "您的提問已到期", badgeCount: 5)
                 ForEach(0..<10, id: \.self){_ in
                     UINavigationPersonalMessage(destination: temp9(name: "很誠實的誠實精靈"), userAvatar: userAvatar, name: "很誠實的誠實精靈", date: "2-25", content: "qwertyuiop", badgeCount: 5)
                 }

@@ -1,18 +1,16 @@
 //
-//  temp8.swift
+//  temp13.swift
 //  ANOTHERPRICE
 //
-//  Created by 遠上寒山 on 2025/5/2.
+//  Created by 遠上寒山 on 2025/5/3.
 //
 
 import SwiftUI
 
-struct temp8: View {
+struct temp13: View {
     @Environment(\.dismiss) var dismiss
     
     let name: String
-    @State private var 獎勵是否領取: Bool = true
-    @State private var 提問是否存在: Bool = true
     
     var body: some View {
         VStack{
@@ -41,9 +39,9 @@ struct temp8: View {
             .frame(height: 30)
             .background(Color.white)
             ScrollView{
-                UITextMessageDate(date: "0225-04-21")
+                UITextMessageDate(date: "2025-04-21")
                 ForEach(0..<5, id: \.self){_ in
-                    UIComplexReward(point: 50, title: "ef", content: "rgtr", issueExist: 提問是否存在, rewardExist: $獎勵是否領取)
+                    UIComplexIssueDeadline(date: "2025-04-28", title: "ref", content: "rrefer")
                 }
             }
             .background(Color.gray.opacity(0.1))
@@ -53,5 +51,5 @@ struct temp8: View {
 }
 
 #Preview {
-    temp8(name: "qwe")
+    temp13(name: "rty")
 }
