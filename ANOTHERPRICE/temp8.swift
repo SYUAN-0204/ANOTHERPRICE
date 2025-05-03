@@ -13,6 +13,7 @@ struct temp8: View {
     let name: String
     @State private var 獎勵是否領取: Bool = true
     @State private var showAlert: Bool = false
+    @State private var 提問是否存在: Bool = true
     
     var body: some View {
         VStack{
@@ -41,10 +42,7 @@ struct temp8: View {
             .frame(height: 30)
             .background(Color.white)
             ScrollView{
-                Text("2025-04-23")
-                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
-                    .foregroundColor(ColorConstants.systemDarkColor.opacity(0.6))
-                    .padding(.top, 10)
+                UITextMessageDate(date: "0225-04-21")
                 ZStack{
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color.white)
@@ -71,12 +69,15 @@ struct temp8: View {
                             .foregroundColor(ColorConstants.systemDarkColor.opacity(0.8))
                             .lineLimit(5)
                             .padding(.top, -5)
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.5))
-                            .frame(height: 1)
+                        UIRectangleLine(opacity: 0.1)
                         HStack{
                             NavigationLink{
-                                PostDetailView(isMyDisplayView: false)
+                                if 提問是否存在 {
+                                    PostDetailView(isMyDisplayView: false)
+                                }
+                                else {
+                                    LazyView(temp11())
+                                }
                             } label: {
                                 ZStack{
                                     RoundedRectangle(cornerRadius: 5)

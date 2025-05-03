@@ -23,12 +23,7 @@ struct UIComplexAnswer: View {
             DisplayView(isMyDisplayView: false)
         } label: {
             HStack{
-                Image(uiImage: userAvatar)
-                    .resizable()
-                    .scaledToFill() // 確保填滿圓形
-                    .frame(width: 30, height: 30) // 限制大小
-                    .background(Color(.systemGray6))
-                    .clipShape(Circle()) // 剪裁為圓形
+                UIProfileImage(photo: userAvatar, width: 30, height: 30)
                 VStack(alignment: .leading){
                     HStack{
                         Text(anonymous ? "神秘旅人":"用戶名稱")
@@ -99,9 +94,7 @@ struct UIComplexAnswer: View {
         }
         .padding(.leading, 38)
         .padding(.horizontal, 5)
-        Rectangle()
-            .fill(.gray.opacity(0.3))
-            .frame(height: 1)
+        UIRectangleLine(opacity: 0.3)
             .padding(.bottom, 5)
         
     }

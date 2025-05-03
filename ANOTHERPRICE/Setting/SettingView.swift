@@ -20,29 +20,7 @@ struct SettingView: View {
     
     var body: some View {
         VStack{
-            HStack {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "arrow.left")
-                        .font(.system(size: 18))
-                        .foregroundColor(.black)
-                }
-                .padding(.leading, 10)
-                Spacer()
-                Text("設定")
-                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
-                    .fontWeight(.semibold)
-                Spacer()
-                Button {} label: {
-                    Image(systemName: "arrow.left")
-                        .font(.system(size: 18))
-                        .opacity(0)
-                }
-                .padding(.trailing, 10)
-            }
-            .frame(height: 36)
-            .background(Color.white)
+            UINavigationBar(title: "設定")
             VStack{
                 VStack(spacing: 0){
                     NavigationLink{
@@ -59,9 +37,7 @@ struct SettingView: View {
                     }
                     .frame(height: 50)
                     .padding(.horizontal, 10)
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.1))
-                        .frame(height: 1)
+                    UIRectangleLine(opacity: 0.1)
                     NavigationLink{
                         DisplaySettingView()
                     } label: {
@@ -76,11 +52,9 @@ struct SettingView: View {
                     }
                     .frame(height: 50)
                     .padding(.horizontal, 10)
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.1))
-                        .frame(height: 1)
+                    UIRectangleLine(opacity: 0.1)
                     NavigationLink{
-                        tempView()
+                        temp10()
                     } label: {
                         HStack{
                             Text("訊息設定")

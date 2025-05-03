@@ -20,12 +20,7 @@ struct UINavigationPersonalMessage<Destination: View>: View {
             destination
         } label: {
             HStack{
-                Image(uiImage: userAvatar)
-                    .resizable()
-                    .scaledToFill() // 確保填滿圓形
-                    .frame(width: 46, height: 46) // 限制大小
-                    .background(Color(.systemGray6))
-                    .clipShape(Circle()) // 剪裁為圓形
+                UIProfileImage(photo: userAvatar, width: 46, height: 46)
                     .padding(.leading, 5)
                 VStack(alignment: .leading){
                     HStack{
@@ -76,9 +71,7 @@ struct UINavigationPersonalMessage<Destination: View>: View {
                 Label("標記已讀", systemImage: "envelope.open")
             }
         }
-        Rectangle()
-            .fill(.gray.opacity(0.3))
-            .frame(height: 0.5)
+        UIRectangleLine(opacity: 0.1)
             .padding(.horizontal, 5)
     }
 }

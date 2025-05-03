@@ -56,9 +56,7 @@ struct temp1: View {
             }
             .frame(height: 32)
             .padding(.horizontal, 15)
-            Rectangle()
-                .fill(Color.gray.opacity(0.1))
-                .frame(height: 1)
+            UIRectangleLine(opacity: 0.1)
             if 關鍵字搜尋結果 {
                 if 口令搜尋結果 {
                     ScrollView{
@@ -148,12 +146,7 @@ struct temp1: View {
                                         DisplayView(isMyDisplayView: false)
                                     } label: {
                                         VStack{
-                                            Image(uiImage: userAvatar)
-                                                .resizable()
-                                                .scaledToFill() // 確保填滿圓形
-                                                .frame(width: 50, height: 50) // 限制大小
-                                                .background(Color(.systemGray6))
-                                                .clipShape(Circle()) // 剪裁為圓形
+                                            UIProfileImage(photo: userAvatar, width: 50, height: 50)
                                             Text("相關用戶名")
                                                 .foregroundColor(ColorConstants.systemDarkColor)
                                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 13))
@@ -237,9 +230,7 @@ struct temp1: View {
                                     }
                                 }
                             }
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.1))
-                                .frame(height: 1)
+                            UIRectangleLine(opacity: 0.1)
                         }
                         HStack{
                             Spacer()

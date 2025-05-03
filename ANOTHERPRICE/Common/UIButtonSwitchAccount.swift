@@ -17,12 +17,7 @@ struct UIButtonSwitchAccount: View {
             switchAccount = true
         } label: {
             HStack {
-                Image(uiImage: photo)
-                    .resizable()
-                    .scaledToFill() // 確保填滿圓形
-                    .frame(width: 40, height: 40) // 限制大小
-                    .background(Color(.systemGray6))
-                    .clipShape(Circle()) // 剪裁為圓形
+                UIProfileImage(photo: photo, width: 40, height: 40)
                 Text("這是另外的價錢")
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                     .foregroundColor(.black)

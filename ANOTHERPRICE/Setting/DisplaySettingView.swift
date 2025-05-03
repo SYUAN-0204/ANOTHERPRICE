@@ -21,31 +21,7 @@ struct DisplaySettingView: View {
     
     var body: some View {
         VStack{
-            HStack {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "arrow.left")
-                        .font(.system(size: 18))
-                        .foregroundColor(.black)
-                }
-                .padding(.leading, 10)
-                Spacer()
-                Text("主頁設定")
-                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
-                    .fontWeight(.semibold)
-                Spacer()
-                Button {
-                    
-                } label: {
-                    Image(systemName: "arrow.left")
-                        .font(.system(size: 18))
-                        .opacity(0)
-                }
-                .padding(.trailing, 10)
-            }
-            .frame(height: 36)
-            .background(Color.white)
+            UINavigationBar(title: "主頁設定")
             VStack(spacing: 0){
                 Button(){
                     self.showPhotoOptions.toggle()
@@ -87,9 +63,7 @@ struct DisplaySettingView: View {
                     }
                 }
                 .frame(height: 80)
-                Rectangle()
-                    .fill(Color.gray.opacity(0.1))
-                    .frame(height: 1)
+                UIRectangleLine(opacity: 0.1)
                 NavigationLink{
                     BioEditView()
                 } label: {
@@ -109,56 +83,10 @@ struct DisplaySettingView: View {
                     .padding(.horizontal, 10)
                 }
                 .frame(height: 50)
-                Rectangle()
-                    .fill(Color.gray.opacity(0.1))
-                    .frame(height: 1)
-                Menu {
-                    Picker("Options", selection: $questionPrivacy) {
-                        ForEach(privacyOptions, id: \.self) { order in
-                            Text(order)
-                        }
-                    }
-                } label: {
-                    HStack {
-                        Text("提問")
-                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                            .foregroundColor(.black)
-                        Spacer()
-                        Text(questionPrivacy)
-                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                            .foregroundColor(ColorConstants.systemDarkColor.opacity(0.7))
-                            .padding(.trailing, -5)
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.horizontal, 10)
-                }
-                .frame(height: 50)
-                Rectangle()
-                    .fill(Color.gray.opacity(0.1))
-                    .frame(height: 1)
-                Menu {
-                    Picker("Options", selection: $answerPrivacy) {
-                        ForEach(privacyOptions, id: \.self) { order in
-                            Text(order)
-                        }
-                    }
-                } label: {
-                    HStack {
-                        Text("回答")
-                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                            .foregroundColor(.black)
-                        Spacer()
-                        Text(answerPrivacy)
-                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                            .foregroundColor(ColorConstants.systemDarkColor.opacity(0.7))
-                            .padding(.trailing, -5)
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.horizontal, 10)
-                }
-                .frame(height: 50)
+                UIRectangleLine(opacity: 0.1)
+                UIMenuSetting(list: privacyOptions, title: "提問", selected: $questionPrivacy)
+                UIRectangleLine(opacity: 0.1)
+                UIMenuSetting(list: privacyOptions, title: "回答", selected: $answerPrivacy)
             }
             .background(Color.white)
             Spacer()

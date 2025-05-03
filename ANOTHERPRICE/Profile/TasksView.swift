@@ -17,31 +17,7 @@ struct TasksView: View {
     
     var body: some View {
         VStack{
-            HStack {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "arrow.left")
-                        .font(.system(size: 18))
-                        .foregroundColor(.black)
-                }
-                .padding(.leading, 10)
-                Spacer()
-                Text("任務中心")
-                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
-                    .fontWeight(.semibold)
-                Spacer()
-                Button {
-                    
-                } label: {
-                    Image(systemName: "arrow.left")
-                        .font(.system(size: 18))
-                        .opacity(0)
-                }
-                .padding(.trailing, 10)
-            }
-            .frame(height: 36)
-            .background(Color.white)
+            UINavigationBar(title: "任務中心")
             HStack{
                 UIComplexLevelBar(totalExp: totalExperience)
                     .padding(.leading, 15)
@@ -73,24 +49,16 @@ struct TasksView: View {
                     .padding(.top, 10)
                     Spacer()
                     UIComplexTask(title: "指定答題", description: "回答指定題目，獲得任務獎勵 15 點", complish: false, destination: PostDetailView(isMyDisplayView: false), tabIdentifier: TabIdentifier.profile, isQuestion: true, selectedTab: $selectedTab)
-                    Rectangle()
-                        .fill(.gray.opacity(0.3))
-                        .frame(height: 1)
+                    UIRectangleLine(opacity: 0.1)
                         .padding(.horizontal, 3)
                     UIComplexTask(title: "任意答題", description: "回答任意題目，獲得任務獎勵 10 點", complish: false, destination: PostDetailView(isMyDisplayView: false), tabIdentifier: TabIdentifier.home, isQuestion: false, selectedTab: $selectedTab)
-                    Rectangle()
-                        .fill(.gray.opacity(0.3))
-                        .frame(height: 1)
+                    UIRectangleLine(opacity: 0.1)
                         .padding(.horizontal, 3)
                     UIComplexTask(title: "發布問答", description: "發布任意問答，獲得任務獎勵 15 點", complish: false, destination: tempView(), tabIdentifier: TabIdentifier.issue, isQuestion: false, selectedTab: $selectedTab)
-                    Rectangle()
-                        .fill(.gray.opacity(0.3))
-                        .frame(height: 1)
+                    UIRectangleLine(opacity: 0.1)
                         .padding(.horizontal, 3)
                     UIComplexTask(title: "分享問答", description: "分享任意問答，獲得任務獎勵 5 點", complish: isCompleted, destination: tempView(), tabIdentifier: TabIdentifier.home, isQuestion: false, selectedTab: $selectedTab)
-                    Rectangle()
-                        .fill(.gray.opacity(0.3))
-                        .frame(height: 1)
+                    UIRectangleLine(opacity: 0.1)
                         .padding(.horizontal, 3)
                     UIComplexTask(title: "消耗 30 點", description: "消耗點數 30 點，獲得任務獎勵 10 點", complish: isCompleted, destination: tempView(), tabIdentifier: TabIdentifier.issue, isQuestion: false, selectedTab: $selectedTab)
                     Spacer()

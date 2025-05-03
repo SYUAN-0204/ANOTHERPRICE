@@ -116,9 +116,7 @@ struct IssueSettingView: View {
                 }
                 .frame(height: 36)
                 .padding(.horizontal, 5)
-                Rectangle()
-                    .fill(.gray)
-                    .frame(height: 1)
+                UIRectangleLine(opacity: 0.7)
                     .padding(.top, -5)
                 HStack{
                     UITextIssueSettingTitle(title: "標籤")
@@ -135,9 +133,7 @@ struct IssueSettingView: View {
                             }
                 }
                 .padding(.horizontal, 5)
-                Rectangle()
-                    .fill(.gray)
-                    .frame(height: 1)
+                UIRectangleLine(opacity: 0.7)
                     .padding(.top, -5)
                 HStack{
                     UITextIssueSettingTitle(title: "懸賞點數")
@@ -170,9 +166,7 @@ struct IssueSettingView: View {
                         .padding(.trailing, 10)
                 }
                 .padding(.horizontal, 5)
-                Rectangle()
-                    .fill(.gray)
-                    .frame(height: 1)
+                UIRectangleLine(opacity: 0.7)
                     .padding(.top, -5)
                 HStack{
                     UITextIssueSettingTitle(title: "截止時間")
@@ -182,31 +176,19 @@ struct IssueSettingView: View {
                     Spacer()
                 }
                 .padding(.horizontal, 5)
-                Rectangle()
-                    .fill(.gray)
-                    .frame(height: 1)
+                UIRectangleLine(opacity: 0.7)
                     .padding(.top, -5)
             }
             .padding(.horizontal, 10)
             HStack {
                 if isAnonymous {
-                    Image(uiImage: userAvatar)
-                        .resizable()
-                        .scaledToFill() // 確保填滿圓形
-                        .frame(width: 40, height: 40) // 限制大小
-                        .background(Color(.systemGray6))
-                        .clipShape(Circle()) // 剪裁為圓形
+                    UIProfileImage(photo: userAvatar, width: 40, height: 40)
                     Text("匿名精靈")
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
                         .foregroundColor(ColorConstants.systemSubColor)
                 }
                 else {
-                    Image(uiImage: userAvatar)
-                        .resizable()
-                        .scaledToFill() // 確保填滿圓形
-                        .frame(width: 40, height: 40) // 限制大小
-                        .background(Color(.systemGray6))
-                        .clipShape(Circle()) // 剪裁為圓形
+                    UIProfileImage(photo: userAvatar, width: 40, height: 40)
                     Text(userName)
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
                         .foregroundColor(ColorConstants.systemSubColor)
@@ -236,9 +218,7 @@ struct IssueSettingView: View {
                 }
             }
             .padding(.horizontal, 15)
-            Rectangle()
-                .fill(.gray.opacity(0.3))
-                .frame(height: 1)
+            UIRectangleLine(opacity: 0.7)
                 .padding(.horizontal, 10)
             ScrollView{
                 VStack(alignment: .leading){

@@ -185,10 +185,7 @@ struct DraftsView: View {
                                 fetchDrafts(initial: false)
                             }
                         }
-                        
-                        Rectangle()
-                            .fill(.gray.opacity(0.4))
-                            .frame(height: 1)
+                        UIRectangleLine(opacity: 0.3)
                     }
                     
                     if isFetchingMore {
@@ -205,9 +202,7 @@ struct DraftsView: View {
                 }
                 Spacer()
                 if isMultiSelect {
-                    Rectangle()
-                        .fill(.gray)
-                        .frame(height: 1)
+                    UIRectangleLine(opacity: 0.7)
                     Button() {
                         let selectedDrafts = drafts.filter { $0.isSelected }
                         //print("(DraftsView)被勾選的草稿有：")

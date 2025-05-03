@@ -30,8 +30,7 @@ struct DisplayView: View {
     @State private var selectedItem: PhotosPickerItem? // 用於 iOS 16+ PhotosPicker
     let isMyDisplayView: Bool
     @State private var isSelected: Bool = true
-    @State private var isFollowing: Bool = false
-    @State private var isUnfollowed: Bool = false
+    @State private var follow: Bool = false
     @State private var isMessaging: Bool = false
     @State private var isVisitorBlocked: Bool = true
     @State private var isFanBlocked: Bool = true
@@ -101,12 +100,7 @@ struct DisplayView: View {
                         Button(){
                             self.showPhotoOptions.toggle()
                         } label: {
-                            Image(uiImage: userAvatar)
-                                .resizable()
-                                .scaledToFill() // 確保填滿圓形
-                                .frame(width: 70, height: 70) // 限制大小
-                                .background(Color(.systemGray6))
-                                .clipShape(Circle()) // 剪裁為圓形
+                            UIProfileImage(photo: userAvatar, width: 70, height: 70)
                                 .overlay(
                                     Circle().stroke(Color.white, lineWidth: 0.1)
                                 )
@@ -203,43 +197,7 @@ struct DisplayView: View {
                     .padding(.top, 10)
                     Spacer()
                     if !isMyDisplayView {
-                        Button{
-                            if !isFollowing {
-                                isFollowing = true
-                            }
-                            else {
-                                isUnfollowed = true
-                            }
-                        } label: {
-                            if isFollowing {
-                                ZStack{
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(ColorConstants.systemMainColor, lineWidth: 1)
-                                        .frame(width: 66, height: 24)
-                                    HStack{
-                                        Text("已關注")
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                                            .foregroundColor(ColorConstants.systemMainColor)
-                                    }
-                                }
-                            }
-                            else {
-                                ZStack{
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(ColorConstants.systemMainColor)
-                                        .frame(width: 66, height: 24)
-                                    HStack{
-                                        Image(systemName: "plus")
-                                            .font(.system(size: 12))
-                                            .foregroundColor(.white)
-                                            .padding(.trailing, -7)
-                                        Text("關注")
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                                            .foregroundColor(.white)
-                                    }
-                                }
-                            }
-                        }
+                        UIButtonFollow(follow: $follow)
                         .padding(.trailing, 7)
                         Button{
                             isMessaging = true
@@ -343,12 +301,6 @@ struct DisplayView: View {
             .padding(.horizontal, 10)
         }
         .navigationBarBackButtonHidden(true)
-        .alert("取消關注 帳戶暱稱", isPresented: $isUnfollowed) {
-            Button("取消", role: .cancel) { }
-            Button("確定", role: .destructive) {
-                isFollowing = false
-            }
-        }
         .onAppear {
             self.authUid = keychain.get("authUid")
             self.userName = keychain.get("userName") ?? "這是另外"

@@ -15,12 +15,7 @@ struct UINavigationPostToDisplay: View {
         NavigationLink{
             DisplayView(isMyDisplayView: isSelfIssue)
         } label: {
-            Image(uiImage: userAvatar)
-                .resizable()
-                .scaledToFill() // 確保填滿圓形
-                .frame(width: 40, height: 40) // 限制大小
-                .background(Color(.systemGray6))
-                .clipShape(Circle()) // 剪裁為圓形
+            UIProfileImage(photo: userAvatar, width: 40, height: 40)
             Text(isAnonymous ? "匿名精靈":"用戶名稱")
                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
                 .foregroundColor(ColorConstants.systemSubColor)

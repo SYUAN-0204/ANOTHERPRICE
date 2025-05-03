@@ -121,9 +121,7 @@ struct IssueEditView: View {
                             .padding(.trailing, 16)
                     }
                     .padding(.top, -15)
-                    Rectangle()
-                        .fill(.gray)
-                        .frame(height: 1)
+                    UIRectangleLine(opacity: 0.7)
                         .padding(.horizontal, 10)
                         .padding(.top, -5)
                     TextEditor(text: $description)

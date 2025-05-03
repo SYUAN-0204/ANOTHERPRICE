@@ -15,7 +15,6 @@ struct PostDetailView: View {
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
     @State private var isSelfIssue: Bool = false
     @State private var follow: Bool = false
-    @State private var cancelFollow: Bool = false
     @State private var tags = "#標籤 #不同標籤"
     @State private var title: String = "標題"
     @State private var like: Bool = false
@@ -82,50 +81,12 @@ struct PostDetailView: View {
                     UITextLevel(totalExp: 3564, width: 32, height: 14, size: 12)
                     Spacer()
                     if !isSelfIssue {
-                        Button{
-                            if !follow {
-                                follow = true
-                            }
-                            else {
-                                cancelFollow = true
-                            }
-                        } label: {
-                            if follow {
-                                ZStack{
-                                    RoundedRectangle(cornerRadius: 3)
-                                        .stroke(ColorConstants.systemMainColor, lineWidth: 1)
-                                        .frame(width: 66, height: 24)
-                                    HStack{
-                                        Text("已關注")
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                                            .foregroundColor(ColorConstants.systemMainColor)
-                                    }
-                                }
-                            }
-                            else {
-                                ZStack{
-                                    RoundedRectangle(cornerRadius: 3)
-                                        .fill(ColorConstants.systemMainColor)
-                                        .frame(width: 66, height: 24)
-                                    HStack{
-                                        Image(systemName: "plus")
-                                            .font(.system(size: 12))
-                                            .foregroundColor(.white)
-                                            .padding(.trailing, -7)
-                                        Text("關注")
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
-                                            .foregroundColor(.white)
-                                    }
-                                }
-                            }
-                        }
+                        UIButtonFollow(follow: $follow)
                     }
                 }
             }
             .padding(.horizontal, 15)
-            Rectangle()
-                .fill(.gray.opacity(0.3))
-                .frame(height: 1)
+            UIRectangleLine(opacity: 0.3)
                 .padding(.horizontal, 10)
             ScrollView(showsIndicators: false){
                 VStack(alignment: .leading){
@@ -228,9 +189,7 @@ struct PostDetailView: View {
                     .padding(.top, 5)
                 }
                 .padding(.horizontal, 5)
-                Rectangle()
-                    .fill(.gray.opacity(0.3))
-                    .frame(height: 1)
+                UIRectangleLine(opacity: 0.3)
                 HStack{
                     Text("回答")
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
@@ -301,12 +260,6 @@ struct PostDetailView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .alert("取消關注 帳戶暱稱", isPresented: $cancelFollow) {
-            Button("取消", role: .cancel) { }
-            Button("確定", role: .destructive) {
-                follow = false
-            }
-        }
     }
 }
 

@@ -176,10 +176,7 @@ struct PublishView: View {
                                 fetchDrafts(initial: false)
                             }
                         }
-                        
-                        Rectangle()
-                            .fill(.gray.opacity(0.4))
-                            .frame(height: 1)
+                        UIRectangleLine(opacity: 0.3)
                     }
                     
                     if isFetchingMore {
@@ -196,9 +193,7 @@ struct PublishView: View {
                 }
                 Spacer()
                 if isMultiSelect {
-                    Rectangle()
-                        .fill(.gray)
-                        .frame(height: 1)
+                    UIRectangleLine(opacity: 0.7)
                     Button() {
                         let selectedDrafts = drafts.filter { $0.isSelected }
                         deleteDrafts(selectedDrafts)

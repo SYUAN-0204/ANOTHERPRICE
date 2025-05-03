@@ -81,16 +81,12 @@ struct FavoritesView: View {
                         UIComplexUploadArticle(isSelected:.constant(false),selecte: $isMultiSelect, trashcanState: $isTrashSelected, board: "科技", title: "標題", date: "Upload At : 2025-04-03 - Last Comment : 2025-04-03", content: "總之是內容\n總之是內容\n總之是內容\n", heart: 34, message: 45, author: "誠實精靈", code: "TS4F64WX23DW", http: "http://anotherprice.com/TS4F64WX23DW")
                     }
                     .buttonStyle(PlainButtonStyle())
-                    Rectangle()
-                        .fill(.gray)
-                        .frame(height: 1)
+                    UIRectangleLine(opacity: 0.3)
                 }
             }
             Spacer()
             if isMultiSelect {
-                Rectangle()
-                    .fill(.gray)
-                    .frame(height: 1)
+                UIRectangleLine(opacity: 0.7)
                     Button() {
                         
                     } label: {

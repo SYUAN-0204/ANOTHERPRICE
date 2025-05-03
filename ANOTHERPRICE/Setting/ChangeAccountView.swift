@@ -15,35 +15,11 @@ struct ChangeAccountView: View {
     
     var body: some View {
         VStack{
-            HStack {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "arrow.left")
-                        .font(.system(size: 18))
-                        .foregroundColor(.black)
-                }
-                .padding(.leading, 10)
-                Spacer()
-                Text("切換帳號")
-                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
-                    .fontWeight(.semibold)
-                Spacer()
-                Button {} label: {
-                    Image(systemName: "arrow.left")
-                        .font(.system(size: 18))
-                        .opacity(0)
-                }
-                .padding(.trailing, 10)
-            }
-            .frame(height: 36)
-            .background(Color.white)
+            UINavigationBar(title: "切換帳號")
             ScrollView(){
                 VStack(spacing: 0){
                     UIButtonSwitchAccount(switchAccount: $isSwitchingAccount, photo: userAvatar, isLogin: false)
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.1))
-                        .frame(height: 1)
+                    UIRectangleLine(opacity: 0.1)
                     UIButtonSwitchAccount(switchAccount: $isSwitchingAccount, photo: userAvatar, isLogin: true)
                 }
             }
