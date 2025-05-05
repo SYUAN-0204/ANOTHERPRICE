@@ -59,7 +59,7 @@ struct UIComplexUploadArticle: View {
                             if !selecte {
                                 HStack{
                                     Spacer()
-                                    Image(systemName: "heart.fill")
+                                    Image(systemName: "heart")
                                         .font(.system(size: 14))
                                         .foregroundColor(ColorConstants.systemMainColor)
                                     Text("\(heart)")

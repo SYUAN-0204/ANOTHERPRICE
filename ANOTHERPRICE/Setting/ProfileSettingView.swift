@@ -96,6 +96,7 @@ struct ProfileSettingView: View {
         }
         .background(Color.gray.opacity(0.1))
         .navigationBarBackButtonHidden(true)
+        
     }
 }
 

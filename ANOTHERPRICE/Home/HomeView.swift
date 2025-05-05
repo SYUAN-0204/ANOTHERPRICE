@@ -81,7 +81,7 @@ struct HomeView: View {
                         common: draft.lastCommentDate,
                         coin: draft.reward,
                         content: draft.description,
-                        like: true,
+                        like: false,
                         heart: draft.heart,
                         message: draft.commentCount,
                         author: "誠實精靈",
