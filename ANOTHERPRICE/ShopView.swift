@@ -99,7 +99,7 @@ struct ShopView: View {
         .alert("購買成功", isPresented: $showPurchaseSuccess) {
             Button("確認") { }
         } message: {
-            Text("成功購買氣泡主題 主題名稱")
+            Text("成功購買氣泡主題 \(successThemeName)")
         }
     }
     
