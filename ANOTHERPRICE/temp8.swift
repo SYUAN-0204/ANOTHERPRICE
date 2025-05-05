@@ -11,7 +11,7 @@ struct temp8: View {
     @Environment(\.dismiss) var dismiss
     
     let name: String
-    @State private var 獎勵是否領取: Bool = true
+    @State private var 獎勵是否領取: Bool = false
     @State private var 提問是否存在: Bool = true
     
     var body: some View {

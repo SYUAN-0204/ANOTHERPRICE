@@ -96,8 +96,8 @@ struct UIComplexReward: View {
         } message: {
             Text("是否領取獎勵 \(point) 點")
         }
-        .alert("成功領取獎勵", isPresented: $showAlert) {
-            Button("確定", role: .destructive) {
+        .alert("成功領取獎勵", isPresented: $showRewardAlert) {
+            Button("確定", role: .cancel) {
                 rewardExist = false
             }
         } message: {
