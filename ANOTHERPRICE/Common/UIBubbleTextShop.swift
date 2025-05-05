@@ -60,7 +60,7 @@ struct UIBubbleTextShop: View {
                 .alert("購買聊天氣泡", isPresented: $showPurchasedAlert) {
                     Button("取消", role: .cancel) { }
                     Button("確定", role: .destructive) {
-                        isPurchased = true
+                        onApply()
                     }
                 } message: {
                     Text("是否確認購買 \(name) 聊天氣泡")
@@ -98,6 +98,8 @@ struct UIBubbleTextShop: View {
             }
         }
     }
+    
+    
 }
 
 #Preview {

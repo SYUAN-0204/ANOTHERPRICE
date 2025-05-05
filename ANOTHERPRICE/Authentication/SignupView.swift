@@ -180,7 +180,8 @@ struct SignupView: View {
                     "exp": 100,
                     "bio": "",
                     "questionPrivacy": "公開",
-                    "answerPrivacy": "公開"
+                    "answerPrivacy": "公開",
+                    "appliedThemeName": "經典黑白"
                 ]) { error in
                     if let error = error {
                         errorMessage = "儲存資料到 Firestore 時發生錯誤: \(error.localizedDescription)"

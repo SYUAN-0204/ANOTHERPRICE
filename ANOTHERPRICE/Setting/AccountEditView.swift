@@ -93,7 +93,7 @@ struct AccountEditView: View {
         .alert("點數不足", isPresented: $showPointAlert) {
             Button("確認") { }
         } message: {
-            Text("變更暱稱需要 100 點，請前往任務中心獲得更多點數。")
+            Text("變更暱稱需要 100 點，請前往任務中心獲得更多點數")
         }
     }
     
