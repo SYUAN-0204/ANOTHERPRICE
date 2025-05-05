@@ -46,7 +46,7 @@ struct ToolView: View {
                             .environment(\.symbolVariants, .none)
                     }
                     .tag(TabIdentifier.message)
-                    .badge(訊息數量 > 0 ? (訊息數量 > 999 ? "999+" : "\(訊息數量)") : nil)
+                    .badge(訊息數量 > 0 ? (訊息數量 > 99 ? "99+" : "\(訊息數量)") : nil)
                 ProfileView(selectedTab: $selectedTab)
                     .tabItem {
                         Label("會員", systemImage: "person")

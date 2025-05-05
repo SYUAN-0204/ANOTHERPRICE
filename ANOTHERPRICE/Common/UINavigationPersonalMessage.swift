@@ -41,7 +41,7 @@ struct UINavigationPersonalMessage<Destination: View>: View {
                             .padding(.leading, 2)
                         Spacer()
                         if badgeCount > 0 {
-                            let badgeText = badgeCount > 999 ? "999+" : "\(badgeCount)"
+                            let badgeText = badgeCount > 99 ? "99+" : "\(badgeCount)"
                             Text(badgeText)
                                 .font(.system(size: 11))
                                 .foregroundColor(.white)

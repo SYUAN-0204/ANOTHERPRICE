@@ -73,7 +73,7 @@ struct ProfileSettingView: View {
                 .frame(height: 50)
                 UIRectangleLine(opacity: 0.1)
                 NavigationLink{
-                    userNameEditView()
+                    UserNameEditView()
                 } label: {
                     HStack {
                         Text("暱稱")

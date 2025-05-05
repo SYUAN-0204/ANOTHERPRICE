@@ -10,7 +10,7 @@ import FirebaseFirestore
 import FirebaseAuth
 import KeychainSwift
 
-struct userNameEditView: View {
+struct UserNameEditView: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var userName: String = ""
@@ -169,5 +169,5 @@ struct userNameEditView: View {
 }
 
 #Preview {
-    userNameEditView()
+    UserNameEditView()
 }

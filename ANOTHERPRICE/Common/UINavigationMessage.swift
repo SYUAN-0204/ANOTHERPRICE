@@ -34,7 +34,7 @@ struct UINavigationMessage<Destination: View>: View {
                             .frame(width: geo.size.width, height: geo.size.height, alignment: .center)
 
                         if badgeCount > 0 {
-                            let badgeText = badgeCount > 999 ? "999+" : "\(badgeCount)"
+                            let badgeText = badgeCount > 99 ? "99+" : "\(badgeCount)"
                             Text(badgeText)
                                 .font(.system(size: 12))
                                 .foregroundColor(.white)
