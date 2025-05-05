@@ -31,6 +31,7 @@ struct DisplayView: View {
     let isMyDisplayView: Bool
     @State private var isSelected: Bool = true
     @State private var follow: Bool = false
+    @State private var cancelFollow: Bool = false
     @State private var isMessaging: Bool = false
     @State private var isVisitorBlocked: Bool = true
     @State private var isFanBlocked: Bool = true
@@ -197,8 +198,50 @@ struct DisplayView: View {
                     .padding(.top, 10)
                     Spacer()
                     if !isMyDisplayView {
-                        UIButtonFollow(follow: $follow)
+                        Button{
+                            if !follow {
+                                follow = true
+                            }
+                            else {
+                                cancelFollow = true
+                            }
+                        } label: {
+                            if follow {
+                                ZStack{
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(ColorConstants.systemMainColor, lineWidth: 1)
+                                        .frame(width: 66, height: 24)
+                                    HStack{
+                                        Text("已關注")
+                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                            .foregroundColor(ColorConstants.systemMainColor)
+                                    }
+                                }
+                            }
+                            else {
+                                ZStack{
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(ColorConstants.systemMainColor)
+                                        .frame(width: 66, height: 24)
+                                    HStack{
+                                        Image(systemName: "plus")
+                                            .font(.system(size: 12))
+                                            .foregroundColor(.white)
+                                            .padding(.trailing, -7)
+                                        Text("關注")
+                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                            }
+                        }
                         .padding(.trailing, 7)
+                        .alert("取消關注 帳戶暱稱", isPresented: $cancelFollow) {
+                            Button("取消", role: .cancel) { }
+                            Button("確定", role: .destructive) {
+                                follow = false
+                            }
+                        }
                         Button{
                             isMessaging = true
                         } label: {
