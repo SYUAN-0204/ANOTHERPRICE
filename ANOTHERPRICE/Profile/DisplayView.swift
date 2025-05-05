@@ -89,10 +89,11 @@ struct DisplayView: View {
                             Spacer()
                             Button {
                             } label: {
-                                Image(systemName: "ellipsis")
+                                Image(systemName: "arrow.left")
                                     .font(.system(size: 18))
-                                    .foregroundColor(.white)
+                                    .opacity(0)
                             }
+                            .disabled(true)
                         }
                         .frame(width: 80)
                     }
@@ -262,7 +263,7 @@ struct DisplayView: View {
                         }
                         .padding(.trailing, 7)
                         .sheet(isPresented: $isMessaging) {
-                            temp13(name: userName)
+                            temp9(name: userName)
                                 .presentationDetents([.fraction(0.7)])
                         }
                     }
@@ -301,7 +302,7 @@ struct DisplayView: View {
                         else {
                             LazyVStack {
                                 ForEach(drafts) { draft in
-                                    UIComplexIssueCard(destination: PostDetailView(isMyDisplayView: false), title: draft.title, date: draft.deadLine, common: draft.lastCommentDate, coin: draft.reward, content: draft.title, like: true, heart: draft.heart, message: draft.commentCount, author: "author", code: "code", http: "http")
+                                    UIComplexIssueCard(destination: PostDetailView(isMyDisplayView: false), title: draft.title, date: draft.deadLine, common: draft.lastCommentDate, coin: draft.reward, content: draft.title, like: false, heart: draft.heart, message: draft.commentCount, author: "author", code: "code", http: "http")
                                         .onAppear {
                                             if draft.id == drafts.last?.id && hasMoreData && !isFetchingMore {
                                                 fetchDrafts(initial: false)

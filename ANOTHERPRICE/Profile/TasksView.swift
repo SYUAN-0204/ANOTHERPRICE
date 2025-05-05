@@ -60,7 +60,7 @@ struct TasksView: View {
                     UIComplexTask(title: "分享問答", description: "分享任意問答，獲得任務獎勵 5 點", complish: isCompleted, destination: HomeView(), tabIdentifier: TabIdentifier.home, isQuestion: false, selectedTab: $selectedTab)
                     UIRectangleLine(opacity: 0.1)
                         .padding(.horizontal, 3)
-                    UIComplexTask(title: "消耗 30 點", description: "消耗點數 30 點，獲得任務獎勵 10 點", complish: isCompleted, destination: LazyView(temp12()), tabIdentifier: TabIdentifier.profile, isQuestion: true, selectedTab: $selectedTab)
+                    UIComplexTask(title: "消耗 30 點", description: "消耗點數 30 點，獲得任務獎勵 10 點", complish: isCompleted, destination: LazyView(ShopView()), tabIdentifier: TabIdentifier.profile, isQuestion: true, selectedTab: $selectedTab)
                     Spacer()
                 }
                 .frame(height: 285)

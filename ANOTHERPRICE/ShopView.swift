@@ -6,8 +6,13 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
+import FirebaseAuth
+import KeychainSwift
 
-struct temp12: View {
+struct ShopView: View {
+    @State private var showPointAlert = false
+    
     struct BubbleItem: Identifiable {
         let id = UUID()
         let name: String
@@ -62,9 +67,39 @@ struct temp12: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .alert("點數不足", isPresented: $showPointAlert) {
+            Button("確認") { }
+        } message: {
+            Text("購買需要 300 點，請前往任務中心獲得更多點數。")
+        }
+    }
+    
+    private func updateAccount() async{
+        let keychain = KeychainSwift()
+        guard let userUid = keychain.get("authUid") else {
+            return
+        }
+        
+        let userRef = Firestore.firestore().collection("users").document(userUid)
+        
+        do {
+            let snapshot = try await userRef.getDocument()
+            if let data = snapshot.data(),
+               let currentPoints = data["point"] as? Int,
+               currentPoints >= 100 {
+                
+                try await userRef.updateData([
+                    "point": currentPoints - 300
+                ])
+            } else {
+                showPointAlert = true
+                print("(userNameEditView)點數不足")            }
+        } catch {
+            print("(userNameEditView)更新暱稱失敗：\(error.localizedDescription)")
+        }
     }
 }
 
 #Preview {
-    temp12()
+    ShopView()
 }

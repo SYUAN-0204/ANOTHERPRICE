@@ -241,7 +241,7 @@ struct IssueSettingView: View {
                         Text("-")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                             .foregroundColor(.gray)
-                        Text("Point : \(point)")
+                        Text("Point : \(reward)")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                             .foregroundColor(.gray)
                     }

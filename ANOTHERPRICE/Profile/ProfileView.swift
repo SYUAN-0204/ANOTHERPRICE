@@ -115,7 +115,7 @@ struct ProfileView: View {
                             Spacer()
                             UINavigationLinkProfileTool(destination: FavoritesView(), icon: "book.pages", title: "我的收藏")
                             Spacer()
-                            UINavigationLinkProfileTool(destination: temp12(), icon: "bag", title: "點數商城")
+                            UINavigationLinkProfileTool(destination: ShopView(), icon: "bag", title: "點數商城")
                         }
                         .padding(.horizontal, 30)
                     }
