@@ -70,7 +70,7 @@ struct temp1: View {
                         .padding(.horizontal, 15)
                         if 是否存在口令 {
                             UIComplexIssueCard(
-                                destination: PostDetailView(isMyDisplayView: false),
+                                destination: PostDetailView(category: "12",documentID:"123",isMyDisplayView: false),
                                 title: "draft.title",
                                 date: "draft.deadLine",
                                 common: "draft.lastCommentDate",
@@ -101,7 +101,7 @@ struct temp1: View {
                         .padding(.horizontal, 15)
                         ForEach(0..<5){_ in
                             UIComplexIssueCard(
-                                destination: PostDetailView(isMyDisplayView: false),
+                                destination: PostDetailView(category: "12",documentID:"123",isMyDisplayView: false),
                                 title: "draft.title",
                                 date: "draft.deadLine",
                                 common: "draft.lastCommentDate",
@@ -169,7 +169,7 @@ struct temp1: View {
                         .padding(.horizontal, 15)
                         ForEach(0..<5){_ in
                             UIComplexIssueCard(
-                                destination: PostDetailView(isMyDisplayView: false),
+                                destination: PostDetailView(category: "12",documentID:"123",isMyDisplayView: false),
                                 title: "draft.title",
                                 date: "draft.deadLine",
                                 common: "draft.lastCommentDate",
@@ -260,7 +260,7 @@ struct temp1: View {
                     .padding(.horizontal, 15)
                     ForEach(0..<5){_ in
                         UIComplexIssueCard(
-                            destination: PostDetailView(isMyDisplayView: false),
+                            destination: PostDetailView(category: "12",documentID:"123",isMyDisplayView: false),
                             title: "draft.title",
                             date: "draft.deadLine",
                             common: "draft.lastCommentDate",

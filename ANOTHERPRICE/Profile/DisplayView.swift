@@ -271,18 +271,6 @@ struct DisplayView: View {
                 .frame(height: 20)
                 .padding(.horizontal, 5)
                 
-                if isFetchingMore {
-                    ProgressView("載入更多中...")
-                        .padding(.vertical, 10)
-                }
-                
-                if !hasMoreData && !drafts.isEmpty {
-                    Text("沒有更多提問了")
-                        .foregroundColor(.gray)
-                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
-                        .padding(.vertical, 10)
-                }
-                
                 if isSelected {
                     ScrollView{
                         if isVisitorBlocked && !isMyDisplayView {
@@ -302,7 +290,7 @@ struct DisplayView: View {
                         else {
                             LazyVStack {
                                 ForEach(drafts) { draft in
-                                    UIComplexIssueCard(destination: PostDetailView(isMyDisplayView: false), title: draft.title, date: draft.deadLine, common: draft.lastCommentDate, coin: draft.reward, content: draft.title, like: false, heart: draft.heart, message: draft.commentCount, author: "author", code: "code", http: "http")
+                                    UIComplexIssueCard(destination:                     PostDetailView(category: "12",documentID:"123",isMyDisplayView: false), title: draft.title, date: draft.deadLine, common: draft.lastCommentDate, coin: draft.reward, content: draft.title, like: false, heart: draft.heart, message: draft.commentCount, author: "author", code: "code", http: "http")
                                         .onAppear {
                                             if draft.id == drafts.last?.id && hasMoreData && !isFetchingMore {
                                                 fetchDrafts(initial: false)
@@ -336,11 +324,24 @@ struct DisplayView: View {
                         }
                         else {
                             ForEach(0..<12) { _ in
-                                UIComplexIssueCard(destination: PostDetailView(isMyDisplayView: true), title: "標題", date: "2025-09-04", common: "2025-04-23", coin: 344, content: "好東西", like: true, heart: 3, message: 4, author: "author", code: "code", http: "http")
+                                UIComplexIssueCard(destination:                     PostDetailView(category: "12",documentID:"123",isMyDisplayView: false), title: "標題", date: "2025-09-04", common: "2025-04-23", coin: 344, content: "好東西", like: true, heart: 3, message: 4, author: "author", code: "code", http: "http")
                             }
                         }
                     }
                 }
+                
+                if isFetchingMore {
+                    ProgressView("載入更多中...")
+                        .padding(.vertical, 10)
+                }
+                
+                if !hasMoreData && !drafts.isEmpty {
+                    Text("沒有更多提問了")
+                        .foregroundColor(.gray)
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                        .padding(.vertical, 10)
+                }
+                
             }
             .padding(.horizontal, 10)
         }

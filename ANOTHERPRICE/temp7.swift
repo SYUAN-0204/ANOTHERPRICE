@@ -57,7 +57,7 @@ struct temp7: View {
                 ForEach(0..<10, id: \.self) { _ in
                     //這裡要收合成UI，但是變數有點複雜，等你綁完我再來收
                     NavigationLink{
-                        PostDetailView(isMyDisplayView: true)
+                        PostDetailView(category: "12",documentID:"123",isMyDisplayView: false)
                     } label: {
                         HStack{
                             UIProfileImage(photo: userAvatar, width: 40, height: 40)

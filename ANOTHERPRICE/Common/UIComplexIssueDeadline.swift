@@ -45,7 +45,7 @@ struct UIComplexIssueDeadline: View {
                     .padding(.top, -3)
                 UIRectangleLine(opacity: 0.1)
                 NavigationLink{
-                        PostDetailView(isMyDisplayView: false)
+                    PostDetailView(category: "12",documentID:"123",isMyDisplayView: false)
                 } label: {
                     ZStack{
                         RoundedRectangle(cornerRadius: 5)

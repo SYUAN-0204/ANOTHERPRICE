@@ -11,8 +11,8 @@ import FirebaseAuth
 import KeychainSwift
 
 struct HomeView: View {
-    @State private var categoryList = ["我的關注", "生活", "學術", "科技", "健康", "理財", "情感", "娛樂", "其他"]
-    @State private var selectedCategory: String = "我的關注"
+    @State private var categoryList = ["生活", "學術", "科技", "健康", "理財", "情感", "娛樂", "其他"]
+    @State private var selectedCategory: String = "生活"
     @State private var drafts: [Draft] = []
     @State private var isLoading = false
     @State private var lastDocument: DocumentSnapshot? = nil
@@ -75,7 +75,7 @@ struct HomeView: View {
             ScrollView {
                 ForEach(drafts) { draft in
                     UIComplexIssueCard(
-                        destination: PostDetailView(isMyDisplayView: false),
+                        destination: PostDetailView(category: draft.board,documentID: draft.id, isMyDisplayView: false),
                         title: draft.title,
                         date: draft.deadLine,
                         common: draft.lastCommentDate,

@@ -49,7 +49,7 @@ struct UIComplexReward: View {
                 HStack{
                     NavigationLink{
                         if issueExist {
-                            PostDetailView(isMyDisplayView: false)
+                            PostDetailView(category: "12",documentID:"123",isMyDisplayView: false)
                         }
                         else {
                             LazyView(temp11())

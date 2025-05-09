@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct UIComplexAnswer: View {
+    let userName: String
     let isSelfIssue: Bool
     let userAvatar: UIImage
     let anonymous: Bool
@@ -26,7 +27,7 @@ struct UIComplexAnswer: View {
                 UIProfileImage(photo: userAvatar, width: 30, height: 30)
                 VStack(alignment: .leading){
                     HStack{
-                        Text(anonymous ? "神秘旅人":"用戶名稱")
+                        Text(anonymous ? "神秘旅人":userName)
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 15))
                             .foregroundColor(ColorConstants.systemSubColor)
                         UITextLevel(totalExp: totalExp, width: 26, height: 12, size: 10)
@@ -101,5 +102,5 @@ struct UIComplexAnswer: View {
 }
 
 #Preview {
-    UIComplexAnswer(isSelfIssue: true, userAvatar: UIImage(named: "Logo_122D3E") ?? UIImage(), anonymous: false, comment: "这是用户的评论内容", totalExp: 123, like: .constant(false), heart: 12)
+    UIComplexAnswer(userName: "用戶名稱",isSelfIssue: true, userAvatar: UIImage(named: "Logo_122D3E") ?? UIImage(), anonymous: false, comment: "这是用户的评论内容", totalExp: 123, like: .constant(false), heart: 12)
 }

@@ -12,14 +12,13 @@ struct UIButtonFollow: View {
     @State var cancelFollow: Bool = false
     
     var body: some View {
-        Button{
-            if !follow {
-                follow = true
-            }
-            else {
-                cancelFollow = true
-            }
-        } label: {
+               Button{
+                   if follow {
+                       cancelFollow = true
+                   } else {
+                       follow.toggle()
+                   }
+               }  label: {
             if follow {
                 ZStack{
                     RoundedRectangle(cornerRadius: 3)
@@ -52,7 +51,7 @@ struct UIButtonFollow: View {
         .alert("取消關注 帳戶暱稱", isPresented: $cancelFollow) {
             Button("取消", role: .cancel) { }
             Button("確定", role: .destructive) {
-                follow = false
+                follow.toggle()
             }
         }
     }

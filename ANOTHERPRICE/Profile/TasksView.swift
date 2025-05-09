@@ -48,10 +48,10 @@ struct TasksView: View {
                     }
                     .padding(.top, 10)
                     Spacer()
-                    UIComplexTask(title: "指定答題", description: "回答指定題目，獲得任務獎勵 15 點", complish: false, destination: PostDetailView(isMyDisplayView: false), tabIdentifier: TabIdentifier.profile, isQuestion: true, selectedTab: $selectedTab)
+                    UIComplexTask(title: "指定答題", description: "回答指定題目，獲得任務獎勵 15 點", complish: false, destination: PostDetailView(category: "12",documentID:"123",isMyDisplayView: false), tabIdentifier: TabIdentifier.profile, isQuestion: true, selectedTab: $selectedTab)
                     UIRectangleLine(opacity: 0.1)
                         .padding(.horizontal, 3)
-                    UIComplexTask(title: "任意答題", description: "回答任意題目，獲得任務獎勵 10 點", complish: false, destination: PostDetailView(isMyDisplayView: false), tabIdentifier: TabIdentifier.home, isQuestion: false, selectedTab: $selectedTab)
+                    UIComplexTask(title: "任意答題", description: "回答任意題目，獲得任務獎勵 10 點", complish: false, destination: PostDetailView(category: "12",documentID:"123",isMyDisplayView: false), tabIdentifier: TabIdentifier.home, isQuestion: false, selectedTab: $selectedTab)
                     UIRectangleLine(opacity: 0.1)
                         .padding(.horizontal, 3)
                     UIComplexTask(title: "發布問答", description: "發布任意問答，獲得任務獎勵 15 點", complish: false, destination: IssueView(), tabIdentifier: TabIdentifier.issue, isQuestion: false, selectedTab: $selectedTab)
