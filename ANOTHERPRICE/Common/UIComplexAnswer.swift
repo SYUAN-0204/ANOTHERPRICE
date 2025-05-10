@@ -14,6 +14,7 @@ struct UIComplexAnswer: View {
     let anonymous: Bool
     let comment: String
     let totalExp: Int
+    let timestamp: String
     @State var expand: Bool = false
     @Binding var like: Bool
     let heart: Int
@@ -32,7 +33,7 @@ struct UIComplexAnswer: View {
                             .foregroundColor(ColorConstants.systemSubColor)
                         UITextLevel(totalExp: totalExp, width: 26, height: 12, size: 10)
                     }
-                    Text("2025-04-13 16:32")
+                    Text(timestamp)
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 10))
                         .foregroundColor(.gray)
                 }
@@ -102,5 +103,5 @@ struct UIComplexAnswer: View {
 }
 
 #Preview {
-    UIComplexAnswer(userName: "用戶名稱",isSelfIssue: true, userAvatar: UIImage(named: "Logo_122D3E") ?? UIImage(), anonymous: false, comment: "这是用户的评论内容", totalExp: 123, like: .constant(false), heart: 12)
+    UIComplexAnswer(userName: "用戶名稱",isSelfIssue: true, userAvatar: UIImage(named: "Logo_122D3E") ?? UIImage(), anonymous: false, comment: "这是用户的评论内容", totalExp: 123, timestamp: "2012/03/22 12:22", like: .constant(false), heart: 12)
 }

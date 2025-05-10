@@ -7,12 +7,13 @@
 
 import SwiftUI
 
-struct temp4: View {
+struct InputView: View {
     @Environment(\.dismiss) var dismiss
     
     @Binding var input: String
     let hint: String
     let button: String
+    let action: () -> Void
     
     var body: some View {
         VStack{
@@ -51,7 +52,8 @@ struct temp4: View {
             HStack{
                 Spacer()
                 Button{
-                    
+                    dismiss()
+                    action()
                 } label: {
                     ZStack{
                         RoundedRectangle(cornerRadius: 5)
@@ -69,5 +71,5 @@ struct temp4: View {
 }
 
 #Preview {
-    temp4(input: .constant(""), hint: "wer", button: "nm")
+    InputView(input: .constant(""), hint: "wer", button: "nm", action: {})
 }

@@ -40,11 +40,12 @@ struct PostDetailView: View {
     @State private var http: String = "https://www.anotherprice.com"
     @State private var order: Bool = false
     @State private var response: String = ""
-    @State private var 評論: String = "一條很長長長長e長的評論，一條很長長長長長的評論，一條很長長長長長的評論，一條很長長長長長的評論，一條很長長長長長的評論"
     @State private var 展開狀態: Bool = false
     @State private var 展開回覆: Bool = false
     @State private var showAlert: Bool = false
     @State private var responses: [Response] = []
+    @State private var isResponse: Bool = false
+    @State private var hasResponded: Bool = false
     
     struct Response: Identifiable {
         let id: String
@@ -52,7 +53,7 @@ struct PostDetailView: View {
         let heart: Int
         let author: String
         let authorUid: String
-        let timestamp: Date
+        let timestamp: String
         let exp: Int
     }
     
@@ -236,6 +237,7 @@ struct PostDetailView: View {
                     Spacer()
                     Button{
                         order.toggle()
+                        fetchResponses()
                     } label: {
                         Image(systemName: "line.3.horizontal")
                             .font(.system(size: 12))
@@ -254,14 +256,26 @@ struct PostDetailView: View {
                         anonymous: isAnonymous,
                         comment: responseData.response,
                         totalExp: responseData.exp,
+                        timestamp: responseData.timestamp,
                         like: $like,
                         heart: responseData.heart
                     )
                 }
+                if isResponse && responses.isEmpty {
+                    Text("誠實精靈翻了翻箱子，還沒有任何回答")
+                        .foregroundColor(.gray)
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                        .padding(.vertical, 10)
+                } else if isResponse {
+                    Text("沒有更多回答了")
+                        .foregroundColor(.gray)
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                        .padding(.vertical, 10)
+                }
             }
             .padding(.horizontal, 10)
             .padding(.bottom, 5)
-            if !isSelfIssue {
+            if !isSelfIssue && !hasResponded{
                 HStack{
                     HStack{
                         TextField("睡著了也等不到你的回答" ,text: $response)
@@ -281,8 +295,10 @@ struct PostDetailView: View {
                                 .padding(.trailing, 5)
                         }
                         .sheet(isPresented: $展開回覆) {
-                            temp4(input: $response, hint: "睡著了也等不到你的回答", button: "送出")
-                                .presentationDetents([.fraction(0.96)])
+                            InputView(input: $response, hint: "睡著了也等不到你的回答", button: "送出") {
+                                uploadToFirebase()
+                            }
+                            .presentationDetents([.fraction(0.96)])
                         }
                     }
                     .overlay {
@@ -312,6 +328,7 @@ struct PostDetailView: View {
             self.currentUserId = keychain.get("authUid") ?? "unknown"
             fetchPostDetails()
             fetchResponses()
+            checkIfUserResponded()
         }
     }
     
@@ -368,7 +385,7 @@ struct PostDetailView: View {
                                 print("取得 follow 狀態失敗: \(error.localizedDescription)")
                                 return
                             }
-
+                            
                             if let document = document, document.exists {
                                 self.follow = true
                             } else {
@@ -389,18 +406,27 @@ struct PostDetailView: View {
     func fetchResponses() {
         let targetCollection = categoryToCollection[category] ?? "life"
         let responseRef = db.collection(targetCollection).document(documentID).collection("response").order(by: "timestamp", descending: !order)
-
+        
+        // 根據 order 決定是否按時間戳或熱度排序
+            var query: Query
+            if order {
+                query = responseRef.order(by: "timestamp", descending: true)  // 時間戳從新到舊
+            } else {
+                query = responseRef.order(by: "heart", descending: true)  // 按熱度從高到低
+            }
+        
         responseRef.getDocuments { snapshot, error in
             if let error = error {
                 print("取得回答失敗：\(error.localizedDescription)")
                 return
             }
-
+            
             guard let documents = snapshot?.documents else { return }
-
+            
             var tempResponses: [Response] = []
             let group = DispatchGroup()
-
+            var userOwnResponse: Response? = nil
+            
             for doc in documents {
                 let data = doc.data()
                 let id = doc.documentID
@@ -409,6 +435,9 @@ struct PostDetailView: View {
                 let author = data["author"] as? String ?? "未知"
                 let authorUid = data["authorUid"] as? String ?? ""
                 let timestamp = (data["timestamp"] as? Timestamp)?.dateValue() ?? Date()
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd mm:ss"
+                let formattedDate = dateFormatter.string(from: timestamp)
                 
                 group.enter()
                 db.collection("users").document(authorUid).getDocument { userDoc, error in
@@ -416,24 +445,61 @@ struct PostDetailView: View {
                     if let userData = userDoc?.data() {
                         exp = userData["exp"] as? Int ?? 0
                     }
-
+                    
                     let response = Response(
                         id: id,
                         response: responseText,
                         heart: heart,
                         author: author,
                         authorUid: authorUid,
-                        timestamp: timestamp,
+                        timestamp: formattedDate,
                         exp: exp
                     )
-
-                    tempResponses.append(response)
+                    
+                    if authorUid == currentUserId {
+                        userOwnResponse = response
+                    } else {
+                        tempResponses.append(response)
+                    }
                     group.leave()
                 }
             }
-
+            
             group.notify(queue: .main) {
-                self.responses = tempResponses.sorted { $0.timestamp > $1.timestamp }
+                // 排序回覆（按時間或按熱度）
+                tempResponses.sort {
+                    order ? $0.timestamp > $1.timestamp : $0.heart > $1.heart
+                }
+                
+                if let ownResponse = userOwnResponse {
+                    tempResponses.insert(ownResponse, at: 0)
+                }
+                
+                self.responses = tempResponses
+                self.isResponse = true
+                self.hasResponded = userOwnResponse != nil
+            }
+        }
+    }
+    
+    func checkIfUserResponded() {
+        let targetCollection = categoryToCollection[category] ?? "life"
+        let responseRef = db.collection(targetCollection)
+            .document(documentID)
+            .collection("response")
+            .whereField("authorUid", isEqualTo: currentUserId)
+        
+        responseRef.getDocuments { snapshot, error in
+            if let error = error {
+                print("(PostDetailView)檢查使用者回覆失敗：\(error.localizedDescription)")
+                return
+            }
+            
+            if let documents = snapshot?.documents, !documents.isEmpty {
+                self.hasResponded = true
+                print("(PostDetailView)使用者已經回覆過了")
+            } else {
+                self.hasResponded = false
             }
         }
     }
@@ -465,6 +531,8 @@ struct PostDetailView: View {
                     print("(PostDetailView) 儲存 documentId 失敗: \(error.localizedDescription)")
                 } else {
                     print("(PostDetailView) 成功儲存 documentId 到 response")
+                    self.response = ""
+                    self.fetchResponses()
                 }
             }
     }

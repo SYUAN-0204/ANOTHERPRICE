@@ -85,7 +85,7 @@ struct temp9: View {
                             .padding(.trailing, 5)
                     }
                     .sheet(isPresented: $展開回覆) {
-                        temp4(input: $response, hint: "睡著了也等不到你的訊息", button: "傳送")
+                        InputView(input: $response, hint: "睡著了也等不到你的訊息", button: "傳送", action: {})
                             .presentationDetents([.fraction(0.96)])
                     }
                 }
