@@ -16,7 +16,8 @@ struct UIComplexUser: View {
     
     var body: some View {
         NavigationLink{
-            DisplayView(isMyDisplayView: false)
+            //DisplayView(isMyDisplayView: false)
+            temp11()
         } label: {
             HStack{
                 UIProfileImage(photo: userAvatar, width: 50, height: 50)

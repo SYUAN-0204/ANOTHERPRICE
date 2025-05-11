@@ -230,7 +230,7 @@ struct PostDetailView: View {
                         Text("\(message)")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                             .foregroundColor(ColorConstants.systemMainColor)
-                        ShareLink(item: "✨「\(author)發布了一則問答《\(title)》，快來看看吧！」\n打開 APP 搜尋口令：/*\(code)*/🪄\n🔗  \(http)") {
+                        ShareLink(item: "✨「\(author)發布了一則問答《\(title)》，快來看看吧！」\n打開 APP 搜尋口令：/*\(category)_\(documentID)*/🪄\n🔗  \(http)") {
                             Image(systemName: "arrowshape.turn.up.right")
                                 .font(.system(size: 14))
                                 .foregroundColor(ColorConstants.systemMainColor)

@@ -13,6 +13,7 @@ import KeychainSwift
 struct MessageView: View {
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
     @State var showAlert: Bool = false
+    @State var systemCount: Int = 0
     @State private var messageSummaries: [MessageSummary] = []
     @State private var keychain = KeychainSwift()
     
@@ -75,7 +76,7 @@ struct MessageView: View {
                 .padding(.horizontal, 30)
                 .padding(.vertical, 16)
                 //小精靈跟小助手一起按照日期排
-                UINavigationPersonalMessage(destination: temp8(name: "獎勵小精靈"), userAvatar: userAvatar, name: "獎勵小精靈", date: "2-25", content: "您的獎勵已送達", badgeCount: 5)
+                UINavigationPersonalMessage(destination: RewardMessageView(name: "獎勵小精靈"), userAvatar: userAvatar, name: "獎勵小精靈", date: "2-25", content: "您的獎勵已送達", badgeCount: systemCount)
                 UINavigationPersonalMessage(destination: temp13(name: "提問小助手"), userAvatar: userAvatar, name: "提問小助手", date: "2-24", content: "您的提問已到期", badgeCount: 5)
                 ForEach(messageSummaries) { summary in
                     UINavigationPersonalMessage(
@@ -93,6 +94,27 @@ struct MessageView: View {
             fetchMessages()
         }
     }
+    
+    private func fetchBadgeCount() {
+        let keychain = KeychainSwift()
+        let db = Firestore.firestore()
+        let uid = keychain.get("authUid") ?? ""
+
+        db.collection("users")
+            .document(uid)
+            .getDocument { snapshot, error in
+                if let error = error {
+                    print("取得 systemCount 錯誤：\(error.localizedDescription)")
+                    return
+                }
+                
+                let data = snapshot?.data()
+                systemCount = data?["systemCount"] as? Int ?? 0
+                
+                print("目前 systemCount: \(systemCount)")
+            }
+    }
+
     
     func fetchMessages() {
         let db = Firestore.firestore()

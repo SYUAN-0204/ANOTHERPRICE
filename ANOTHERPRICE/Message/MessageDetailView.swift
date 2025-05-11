@@ -226,6 +226,7 @@ struct MessageDetailView: View {
         .onChange(of: docID) {
             if !docID.isEmpty {
                 loadMessages()
+                observeBadgeCount()
             }
         }
     }
