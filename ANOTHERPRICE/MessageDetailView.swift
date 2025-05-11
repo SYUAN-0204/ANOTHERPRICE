@@ -218,7 +218,6 @@ struct MessageDetailView: View {
             Task {
                 await loadUserThemeOnce()  // 確保主題資料載入完成
                 if !docID.isEmpty {
-                    clearBadgeCount()
                     loadMessages()
                     observeBadgeCount()
                 }
@@ -260,7 +259,7 @@ struct MessageDetailView: View {
     private func observeBadgeCount() {
         let keychain = KeychainSwift()
         let db = Firestore.firestore()
-
+        
         db.collection("users")
             .document(keychain.get("authUid") ?? "")
             .collection("message")
@@ -270,10 +269,11 @@ struct MessageDetailView: View {
                     print("監聽錯誤：\(error?.localizedDescription ?? "未知錯誤")")
                     return
                 }
-
+                
                 // 取得 badgeCount
                 if let badgeCount = document.data()?["badgeCount"] as? Int {
-                    // 這裡可以做 UI 更新，或進行其他處理
+                    if badgeCount != 0{
+                        clearBadgeCount()}
                     print("當前 badgeCount: \(badgeCount)")
                 }
             }
@@ -354,7 +354,7 @@ struct MessageDetailView: View {
             if let currentBadgeCount = userDoc.data()?["badgeCount"] as? Int {
                 // 更新對方的 badgeCount，將其加 1
                 let newBadgeCount = currentBadgeCount + 1
-
+                
                 try await db.collection("users").document(otherUid).collection("message").document(docID).updateData([
                     "lastMessage": responseTemp,
                     "lastUpdated": timestamp,
