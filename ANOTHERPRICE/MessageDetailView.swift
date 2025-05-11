@@ -218,7 +218,9 @@ struct MessageDetailView: View {
             Task {
                 await loadUserThemeOnce()  // 確保主題資料載入完成
                 if !docID.isEmpty {
+                    clearBadgeCount()
                     loadMessages()
+                    observeBadgeCount()
                 }
             }
         }
@@ -252,6 +254,46 @@ struct MessageDetailView: View {
                     }
                     return Message(id: doc.documentID, content: content, senderID: senderID, timestamp: timestamp, bubbleColor: bubbleColor, textColor: textColor)
                 } ?? []
+            }
+    }
+    
+    private func observeBadgeCount() {
+        let keychain = KeychainSwift()
+        let db = Firestore.firestore()
+
+        db.collection("users")
+            .document(keychain.get("authUid") ?? "")
+            .collection("message")
+            .document(docID)
+            .addSnapshotListener { documentSnapshot, error in
+                guard let document = documentSnapshot else {
+                    print("監聽錯誤：\(error?.localizedDescription ?? "未知錯誤")")
+                    return
+                }
+
+                // 取得 badgeCount
+                if let badgeCount = document.data()?["badgeCount"] as? Int {
+                    // 這裡可以做 UI 更新，或進行其他處理
+                    print("當前 badgeCount: \(badgeCount)")
+                }
+            }
+    }
+    
+    private func clearBadgeCount() {
+        let keychain = KeychainSwift()
+        let db = Firestore.firestore()
+        db.collection("users")
+            .document(keychain.get("authUid") ?? "")
+            .collection("message")
+            .document(docID)
+            .updateData([
+                "badgeCount": 0
+            ]) { error in
+                if let error = error {
+                    print("更新未讀訊息數量失敗：\(error.localizedDescription)")
+                } else {
+                    print("未讀訊息數量已重設")
+                }
             }
     }
     
@@ -306,13 +348,21 @@ struct MessageDetailView: View {
         
         do {
             try await db.collection(docID).addDocument(data: messageData)
+            // 先取得對方的當前 badgeCount
+            let userDoc = try await db.collection("users").document(otherUid).collection("message").document(docID).getDocument()
+            
+            if let currentBadgeCount = userDoc.data()?["badgeCount"] as? Int {
+                // 更新對方的 badgeCount，將其加 1
+                let newBadgeCount = currentBadgeCount + 1
+
+                try await db.collection("users").document(otherUid).collection("message").document(docID).updateData([
+                    "lastMessage": responseTemp,
+                    "lastUpdated": timestamp,
+                    "badgeCount": newBadgeCount
+                ])
+            }
             
             try await db.collection("users").document(myUid).collection("message").document(docID).updateData([
-                "lastMessage": responseTemp,
-                "lastUpdated": timestamp
-            ])
-            
-            try await db.collection("users").document(otherUid).collection("message").document(docID).updateData([
                 "lastMessage": responseTemp,
                 "lastUpdated": timestamp
             ])

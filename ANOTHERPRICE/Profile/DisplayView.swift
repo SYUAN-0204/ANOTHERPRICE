@@ -568,13 +568,15 @@ struct DisplayView: View {
                         "friendUid": authUid ?? "error",
                         "friendName": userName,
                         "lastMessage": "",
-                        "lastUpdated": FieldValue.serverTimestamp()
+                        "lastUpdated": FieldValue.serverTimestamp(),
+                        "badgeCount": 0
                     ]
                     let otherMessageData: [String: Any] = [
                         "friendUid": myUid,
                         "friendName": myName,
                         "lastMessage": "",
-                        "lastUpdated": FieldValue.serverTimestamp()
+                        "lastUpdated": FieldValue.serverTimestamp(),
+                        "badgeCount": 0
                     ]
                     
                     db.collection("users").document(myUid).collection("message").document(newDocID).setData(myMessageData)
