@@ -63,6 +63,7 @@ struct InputView: View {
                             .foregroundColor(.white)
                     }
                 }
+                .disabled(input.isEmpty)
                 .frame(width: 60, height: 28)
             }
         }

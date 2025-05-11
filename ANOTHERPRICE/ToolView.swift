@@ -29,7 +29,7 @@ struct ToolView: View {
                             .environment(\.symbolVariants, .none)
                     }
                     .tag(TabIdentifier.home)
-                temp1()
+                SearchView()
                     .tabItem {
                         Label("搜尋", systemImage: "magnifyingglass")
                     }

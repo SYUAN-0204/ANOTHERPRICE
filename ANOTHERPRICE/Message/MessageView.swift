@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-struct temp7: View {
+struct MessageView: View {
     @Environment(\.dismiss) var dismiss
     let title: String
     
     @State var userAvatar: UIImage = UIImage(named: "Advertise") ?? UIImage()
     @State var showAlert: Bool = false
-    @State var 已讀: Bool = false
+    @State var isRead: Bool = false
     
     var body: some View {
         VStack(alignment: .leading){
@@ -109,7 +109,7 @@ struct temp7: View {
                                         .lineLimit(1)
                                     }
                                     Spacer()
-                                    if !已讀 {
+                                    if !isRead {
                                         Rectangle()
                                             .fill(ColorConstants.systemMainColor)
                                             .frame(width: 4, height: 4)
@@ -128,7 +128,7 @@ struct temp7: View {
                             Label("刪除通知", systemImage: "trash")
                         }
                         Button {
-                            已讀 = true
+                            isRead = true
                             print("標記已讀")
                         } label: {
                             Label("標記已讀", systemImage: "envelope.open")
@@ -145,5 +145,5 @@ struct temp7: View {
 }
 
 #Preview {
-    temp7(title: "我的")
+    MessageView(title: "我的")
 }

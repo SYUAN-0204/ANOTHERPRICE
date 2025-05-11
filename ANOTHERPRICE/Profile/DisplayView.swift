@@ -16,6 +16,7 @@ struct DisplayView: View {
     
     @State private var db = Firestore.firestore()
     @State private var authUid: String? = nil
+    @State private var docID: String = ""
     @State private var keychain = KeychainSwift()
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
     @State var userName: String = "這是另外的價錢"
@@ -163,6 +164,10 @@ struct DisplayView: View {
                 HStack{
                     Button(){
                         isSelected = true
+                        drafts = []
+                        isLoading = true
+                        isFetchingMore = false
+                        hasMoreData = true
                     } label: {
                         VStack{
                             Text("提問")
@@ -181,6 +186,10 @@ struct DisplayView: View {
                     .padding(.top, 10)
                     Button(){
                         isSelected = false
+                        drafts = []
+                        isLoading = true
+                        isFetchingMore = false
+                        hasMoreData = true
                     } label: {
                         VStack{
                             Text("回答")
@@ -244,7 +253,7 @@ struct DisplayView: View {
                             }
                         }
                         Button{
-                            isMessaging = true
+                            selfMessage()
                         } label: {
                             ZStack{
                                 RoundedRectangle(cornerRadius: 12)
@@ -263,7 +272,7 @@ struct DisplayView: View {
                         }
                         .padding(.trailing, 7)
                         .sheet(isPresented: $isMessaging) {
-                            temp9(name: userName)
+                            temp9(otherUid: authUid ?? "error", docID: docID, name: userName)
                                 .presentationDetents([.fraction(0.7)])
                         }
                     }
@@ -274,7 +283,7 @@ struct DisplayView: View {
                 if isSelected {
                     ScrollView{
                         if isVisitorBlocked && !isMyDisplayView {
-                            Text("這是另外的價錢沒有向\(isFanBlocked ? " 訪客 ":" 任何用戶 ")開放他的提問")
+                            Text("\(userName)沒有向\(isFanBlocked ? " 訪客 ":" 任何用戶 ")開放他的提問")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                                 .foregroundColor(.gray)
                                 .padding(.top, 20)
@@ -290,26 +299,37 @@ struct DisplayView: View {
                         else {
                             LazyVStack {
                                 ForEach(drafts) { draft in
-                                    UIComplexIssueCard(destination:                     PostDetailView(category: "12",documentID:"123",isMyDisplayView: false), title: draft.title, date: draft.deadLine, common: draft.lastCommentDate, coin: draft.reward, content: draft.title, like: false, heart: draft.heart, message: draft.commentCount, author: "author", code: "code", http: "http")
+                                    UIComplexIssueCard(destination: LazyView(temp11()), title: draft.title, date: draft.deadLine, common: draft.lastCommentDate, coin: draft.reward, content: draft.title, like: false, heart: draft.heart, message: draft.commentCount, author: "author", code: "code", http: "http")
                                         .onAppear {
                                             if draft.id == drafts.last?.id && hasMoreData && !isFetchingMore {
-                                                fetchDrafts(initial: false)
+                                                fetchDrafts(initial: false, selectName: "publish")
                                             }
                                         }
                                 }
                             }
                             .onAppear {
                                 if drafts.isEmpty {
-                                    fetchDrafts(initial: true)
+                                    fetchDrafts(initial: true, selectName: "publish")
                                 }
                             }
+                        }
+                        if isFetchingMore {
+                            ProgressView("載入更多中...")
+                                .padding(.vertical, 10)
+                        }
+                        
+                        if !hasMoreData && !drafts.isEmpty {
+                            Text("沒有更多提問了")
+                                .foregroundColor(.gray)
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                                .padding(.vertical, 10)
                         }
                     }
                 }
                 else {
                     ScrollView{
                         if isVisitorBlocked && !isMyDisplayView {
-                            Text("這是另外的價錢沒有向\(isFanBlocked ? " 訪客 ":" 任何用戶 ")開放他的回答")
+                            Text("\(userName)沒有向\(isFanBlocked ? " 訪客 ":" 任何用戶 ")開放他的回答")
                                 .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                                 .foregroundColor(.gray)
                                 .padding(.top, 20)
@@ -323,39 +343,62 @@ struct DisplayView: View {
                                 .padding(.top, 10)
                         }
                         else {
-                            ForEach(0..<12) { _ in
-                                UIComplexIssueCard(destination:                     PostDetailView(category: "12",documentID:"123",isMyDisplayView: false), title: "標題", date: "2025-09-04", common: "2025-04-23", coin: 344, content: "好東西", like: true, heart: 3, message: 4, author: "author", code: "code", http: "http")
+                            LazyVStack {
+                                ForEach(drafts) { draft in
+                                    UIComplexIssueCard(destination: LazyView(temp11()), title: draft.title, date: draft.deadLine, common: draft.lastCommentDate, coin: draft.reward, content: draft.title, like: false, heart: draft.heart, message: draft.commentCount, author: "author", code: "code", http: "http")
+                                        .onAppear {
+                                            if draft.id == drafts.last?.id && hasMoreData && !isFetchingMore {
+                                                fetchDrafts(initial: false, selectName: "favorites")
+                                            }
+                                        }
+                                }
                             }
+                            .onAppear {
+                                if drafts.isEmpty {
+                                    fetchDrafts(initial: true,selectName: "favorites")
+                                }
+                            }
+                        }
+                        if isFetchingMore {
+                            ProgressView("載入更多中...")
+                                .padding(.vertical, 10)
+                        }
+                        
+                        if !hasMoreData && !drafts.isEmpty {
+                            Text("沒有更多提問了")
+                                .foregroundColor(.gray)
+                                .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
+                                .padding(.vertical, 10)
                         }
                     }
                 }
-                
-                if isFetchingMore {
-                    ProgressView("載入更多中...")
-                        .padding(.vertical, 10)
-                }
-                
-                if !hasMoreData && !drafts.isEmpty {
-                    Text("沒有更多提問了")
-                        .foregroundColor(.gray)
-                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
-                        .padding(.vertical, 10)
-                }
-                
             }
             .padding(.horizontal, 10)
         }
         .navigationBarBackButtonHidden(true)
         .onAppear {
-            self.authUid = keychain.get("authUid")
-            self.userName = keychain.get("userName") ?? "這是另外"
+            if(isMyDisplayView){
+                self.authUid = keychain.get("authUid")
+                self.userName = keychain.get("userName") ?? "這是另外"
+            } else {
+                self.authUid = keychain.get("authorUid")
+                self.userName = keychain.get("authorName") ?? "這是另外"
+            }
             self.registrationDays = daysSinceRegistration() + 1
             fetchUserDetails()
         }
     }
     
     private func fetchUserDetails() {
-        guard let userUid = keychain.get("authUid") else { return }
+        let userUid: String?
+        
+        if isMyDisplayView {
+            userUid = keychain.get("authUid")
+        } else {
+            userUid = keychain.get("authorUid")
+        }
+        
+        guard let userUid = userUid else { return }
         
         db.collection("users").document(userUid).getDocument { document, error in
             if let error = error {
@@ -380,9 +423,16 @@ struct DisplayView: View {
     }
     
     private func daysSinceRegistration() -> Int {
-        guard let registDayString = keychain.get("registDay") else {
-            return 0
+        let registDayString: String?
+        
+        if isMyDisplayView {
+            registDayString = keychain.get("registDay")
+        } else {
+            registDayString = keychain.get("authRegistTime")
         }
+        
+        guard let registDayString = registDayString else { return 0}
+        
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
@@ -399,11 +449,11 @@ struct DisplayView: View {
         return components.day ?? 0
     }
     
-    func fetchDrafts(initial: Bool) {
+    func fetchDrafts(initial: Bool, selectName: String) {
         guard let userUid = keychain.get("authUid") else { return }
         guard !isFetchingMore else { return }
         
-        var query: Query = db.collection("users").document(userUid).collection("publish")
+        var query: Query = db.collection("users").document(userUid).collection(selectName)
             .order(by: "createdAt", descending: true)
         
         if initial {
@@ -487,8 +537,56 @@ struct DisplayView: View {
             }
         }
     }
+    
+    //message
+    private func selfMessage(){
+        guard let myUid = keychain.get("authUid") else { return }
+        guard let myName = keychain.get("userName") else { return }
+        let db = Firestore.firestore()
+        
+        db.collection("users").document(myUid).collection("message")
+            .whereField("friendUid", isEqualTo: authUid ?? "error")
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("查詢私訊失敗：\(error)")
+                    return
+                }
+                
+                if let document = snapshot?.documents.first {
+                    // 聊天室已存在
+                    docID = document.documentID
+                    if !docID.isEmpty {
+                        isMessaging = true
+                    }
+                } else {
+                    // 建立新的聊天室
+                    let newDocID = UUID().uuidString
+                    docID = newDocID
+                    
+                    if !docID.isEmpty {
+                        isMessaging = true
+                    }
+                    
+                    let myMessageData: [String: Any] = [
+                        "friendUid": authUid ?? "error",
+                        "friendName": userName,
+                        "lastMessage": "",
+                        "lastUpdated": FieldValue.serverTimestamp()
+                    ]
+                    let otherMessageData: [String: Any] = [
+                        "friendUid": myUid,
+                        "friendName": myName,
+                        "lastMessage": "",
+                        "lastUpdated": FieldValue.serverTimestamp()
+                    ]
+                    
+                    db.collection("users").document(myUid).collection("message").document(newDocID).setData(myMessageData)
+                    db.collection("users").document(authUid ?? "error").collection("message").document(newDocID).setData(otherMessageData)
+                }
+            }
+    }
 }
 
 #Preview {
-    DisplayView(isMyDisplayView: true)
+    DisplayView(isMyDisplayView: false)
 }

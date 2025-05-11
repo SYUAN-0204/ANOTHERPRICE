@@ -330,7 +330,8 @@ struct IssueSettingView: View {
             "deadline": selectedDate,
             "createdAt": Timestamp(),
             "heart": 0,
-            "commentCount": 0
+            "commentCount": 0,
+            "star": 0
         ]
         
         postRef.setData(draftData) { error in

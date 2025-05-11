@@ -6,8 +6,12 @@
 //
 
 import SwiftUI
+import KeychainSwift
 
 struct UIComplexAnswer: View {
+    @State private var keychain = KeychainSwift()
+    let authorUid: String
+    let docId: String
     let userName: String
     let isSelfIssue: Bool
     let userAvatar: UIImage
@@ -17,8 +21,9 @@ struct UIComplexAnswer: View {
     let timestamp: String
     @State var expand: Bool = false
     @Binding var like: Bool
-    let heart: Int
+    @Binding var heart: Int
     @State var showAlert: Bool = false
+    var toggleResponseHeart: (_ docId: String, _ authorUid: String, _ isLike: Bool) -> Void
     
     var body: some View {
         NavigationLink{
@@ -83,11 +88,18 @@ struct UIComplexAnswer: View {
                 Spacer()
                 Button{
                     like.toggle()
+                    if(like){
+                        toggleResponseHeart(docId, authorUid, false)
+                    }else{
+                        toggleResponseHeart(docId, authorUid, true)
+                    }
+                    heart += like ? 1 : -1
                 } label: {
                     Image(systemName: like ? "heart.fill":"heart")
                         .font(.system(size: 14))
                         .foregroundColor(ColorConstants.systemMainColor)
                 }
+                .disabled(authorUid == keychain.get("authUid"))
                 Text("\(heart)")
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                     .foregroundColor(ColorConstants.systemMainColor)
@@ -103,5 +115,5 @@ struct UIComplexAnswer: View {
 }
 
 #Preview {
-    UIComplexAnswer(userName: "用戶名稱",isSelfIssue: true, userAvatar: UIImage(named: "Logo_122D3E") ?? UIImage(), anonymous: false, comment: "这是用户的评论内容", totalExp: 123, timestamp: "2012/03/22 12:22", like: .constant(false), heart: 12)
+    UIComplexAnswer(authorUid: "uid", docId: "docId", userName: "用戶名稱",isSelfIssue: true, userAvatar: UIImage(named: "Logo_122D3E") ?? UIImage(), anonymous: false, comment: "这是用户的评论内容", totalExp: 123, timestamp: "2012/03/22 12:22", like: .constant(false), heart: .constant(12), toggleResponseHeart: {_,_,_  in })
 }

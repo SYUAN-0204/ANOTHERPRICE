@@ -81,13 +81,13 @@ struct ProfileView: View {
                     UITextProfileDetails(detailInput: $peopleHelped, detailTitle: "幫助數")
                     Spacer()
                     NavigationLink{
-                        temp5()
+                        FansView()
                     } label: {
                         UITextProfileDetails(detailInput: $followers, detailTitle: "粉絲")
                     }
                     Spacer()
                     NavigationLink{
-                        temp3()
+                        FollowView()
                     } label: {
                         UITextProfileDetails(detailInput: $following, detailTitle: "關注")
                     }

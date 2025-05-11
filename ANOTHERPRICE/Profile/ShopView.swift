@@ -190,7 +190,6 @@ struct ShopView: View {
             print("套用主題失敗：\(error.localizedDescription)")
         }
     }
-
 }
 
 #Preview {

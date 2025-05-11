@@ -6,15 +6,65 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
+import FirebaseAuth
+import KeychainSwift
+
+extension Color {
+    func toHex() -> String {
+        let uiColor = UIColor(self)
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        
+        uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        
+        let r = Int(red * 255)
+        let g = Int(green * 255)
+        let b = Int(blue * 255)
+        
+        return String(format: "#%02X%02X%02X", r, g, b)
+    }
+}
 
 struct temp9: View {
     @Environment(\.dismiss) var dismiss
     
+    let otherUid: String
+    let docID: String
     let name: String
     @State var userAvatar: UIImage = UIImage(named: "Advertise") ?? UIImage()
     @State private var response: String = ""
     @State private var 展開回覆: Bool = false
     @State var showAlert: Bool = false
+    @State private var appliedThemeName: String = ""
+    @State private var bubbleColorHex: String = "#FFFFFF"
+    @State private var textColorHex: String = "#000000"
+    
+    struct BubbleItem: Identifiable {
+        let id = UUID()
+        let name: String
+        let bubbleColor: Color
+        let textColor: Color
+        var isPurchased: Bool
+        var isApplied: Bool
+        let opacity: Double
+    }
+    
+    @State private var bubbleItems: [BubbleItem] = [
+        BubbleItem(name: "經典黑白", bubbleColor: Color(hex: "#FFFFFF"), textColor: Color(hex: "#000000"), isPurchased: true, isApplied: false, opacity: 0.1),
+        BubbleItem(name: "霜枝染雪", bubbleColor: Color(hex: "#86908A"), textColor: Color(hex: "#F5F2E9"), isPurchased: false, isApplied: false, opacity: 0.4),
+        BubbleItem(name: "朝露初凝", bubbleColor: Color(hex: "#F5F2E9"), textColor: Color(hex: "#86908A"), isPurchased: false, isApplied: false, opacity: 0.1),
+        BubbleItem(name: "塵翠如煙", bubbleColor: Color(hex: "#6B8770"), textColor: Color(hex: "#EDEDED"), isPurchased: false, isApplied: false, opacity: 0.4),
+        BubbleItem(name: "落墨浮青", bubbleColor: Color(hex: "#EDEDED"), textColor: Color(hex: "#6B8770"), isPurchased: false, isApplied: false, opacity: 0.1),
+        BubbleItem(name: "月華紫夢", bubbleColor: Color(hex: "#7C739F"), textColor: Color(hex: "#E5DFD5"), isPurchased: false, isApplied: false, opacity: 0.4),
+        BubbleItem(name: "落日紫歌", bubbleColor: Color(hex: "#E5DFD5"), textColor: Color(hex: "#7C739F"), isPurchased: false, isApplied: false, opacity: 0.1),
+        BubbleItem(name: "空庭春盡", bubbleColor: Color(hex: "#425066"), textColor: Color(hex: "#E4C6D0"), isPurchased: false, isApplied: false, opacity: 0.4),
+        BubbleItem(name: "春曉微寒", bubbleColor: Color(hex: "#E4C6D0"), textColor: Color(hex: "#425066"), isPurchased: false, isApplied: false, opacity: 0.1),
+        BubbleItem(name: "澄海無聲", bubbleColor: Color(hex: "#28517F"), textColor: Color(hex: "#C7E1FA"), isPurchased: false, isApplied: false, opacity: 0.4),
+        BubbleItem(name: "天水長流", bubbleColor: Color(hex: "#C7E1FA"), textColor: Color(hex: "#28517F"), isPurchased: false, isApplied: false, opacity: 0.1)
+    ]
     
     var body: some View {
         VStack{
@@ -85,8 +135,10 @@ struct temp9: View {
                             .padding(.trailing, 5)
                     }
                     .sheet(isPresented: $展開回覆) {
-                        InputView(input: $response, hint: "睡著了也等不到你的訊息", button: "傳送", action: {})
-                            .presentationDetents([.fraction(0.96)])
+                        InputView(input: $response, hint: "睡著了也等不到你的訊息", button: "傳送", action: {Task {
+                            await sendMessage()
+                        }})
+                        .presentationDetents([.fraction(0.96)])
                     }
                 }
                 .overlay {
@@ -94,7 +146,9 @@ struct temp9: View {
                         .stroke(ColorConstants.systemDarkColor, lineWidth: 0.5)
                 }
                 Button{
-                    
+                    Task {
+                        await sendMessage()
+                    }
                 } label: {
                     ZStack{
                         RoundedRectangle(cornerRadius: 5)
@@ -111,9 +165,80 @@ struct temp9: View {
             .padding(.bottom, 10)
         }
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            Task {
+                await loadUserThemeOnce()
+            }
+        }
+    }
+    
+    private func loadUserThemeOnce() async {
+        let keychain = KeychainSwift()
+        guard let userUid = keychain.get("authUid") else {
+            print("無法取得使用者 UID")
+            return
+        }
+        
+        let userRef = Firestore.firestore().collection("users").document(userUid)
+        
+        do {
+            let snapshot = try await userRef.getDocument()
+            if let themeName = snapshot.data()?["appliedThemeName"] as? String {
+                appliedThemeName = themeName
+                if let bubble = getBubbleItemByName(themeName) {
+                    bubbleColorHex = bubble.bubbleColor.toHex()
+                    textColorHex = bubble.textColor.toHex()
+                }
+            }
+        } catch {
+            print("讀取使用者主題失敗：\(error.localizedDescription)")
+        }
+    }
+    
+    private func getBubbleItemByName(_ name: String) -> BubbleItem? {
+        return bubbleItems.first { $0.name == name }
+    }
+    
+    private func sendMessage() async {
+        guard !response.isEmpty else { return }
+        
+        let keychain = KeychainSwift()
+        guard let myUid = keychain.get("authUid"),
+              let myName = keychain.get("userName") else { return }
+        
+        let db = Firestore.firestore()
+        let timestamp = Timestamp(date: Date())
+        
+        let messageData: [String: Any] = [
+            "content": response,
+            "timestamp": timestamp,
+            "bubbleColor": bubbleColorHex,
+            "textColor": textColorHex,
+            "senderID": myUid,
+            "type": "text"
+        ]
+        
+        do {
+            try await db.collection(docID).addDocument(data: messageData)
+            
+            try await db.collection("users").document(myUid).collection("message").document(docID).updateData([
+                "lastMessage": response,
+                "lastUpdated": timestamp
+            ])
+            
+            try await db.collection("users").document(otherUid).collection("message").document(docID).updateData([
+                "lastMessage": response,
+                "lastUpdated": timestamp
+            ])
+            
+            response = ""
+            print("訊息與聊天室資訊更新成功")
+        } catch {
+            print("訊息或聊天室資訊更新失敗：\(error.localizedDescription)")
+        }
     }
 }
 
 #Preview {
-    temp9(name: "name")
+    temp9(otherUid: "", docID: "測試聊天室ID", name: "對方名稱")
 }

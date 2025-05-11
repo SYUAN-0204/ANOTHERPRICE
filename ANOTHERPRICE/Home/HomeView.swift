@@ -74,8 +74,9 @@ struct HomeView: View {
             .background(ColorConstants.systemMainColor)
             ScrollView {
                 ForEach(drafts) { draft in
+                    let category = categoryToCollection[draft.board] ?? "life"
                     UIComplexIssueCard(
-                        destination: PostDetailView(category: draft.board,documentID: draft.id, isMyDisplayView: false),
+                        destination: PostDetailView(category: draft.board,documentID: draft.id,isMyDisplayView: false),
                         title: draft.title,
                         date: draft.deadLine,
                         common: draft.lastCommentDate,
@@ -85,7 +86,7 @@ struct HomeView: View {
                         heart: draft.heart,
                         message: draft.commentCount,
                         author: "誠實精靈",
-                        code: "/*edwefwec8*/",
+                        code: "\(category)_\(draft.id)",
                         http: "https://www.anotherprice.com"
                     )
                 }
@@ -167,7 +168,7 @@ struct HomeView: View {
                         description: data["description"] as? String ?? "無敘述",
                         createdAt: (data["createdAt"] as? Timestamp)?.dateValue() ?? Date(),
                         deadLine: formattedDate,
-                        lastCommentDate: lastCommentDate,
+                        lastCommentDate: lastCommentDate.isEmpty ? "none" : lastCommentDate,
                         heart: data["heart"] as? Int ?? 0,
                         commentCount: data["commentCount"] as? Int ?? 0,
                         reward: data["reward"] as? Int ?? 0

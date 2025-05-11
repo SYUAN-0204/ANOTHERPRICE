@@ -11,6 +11,8 @@ struct UIComplexUser: View {
     @Binding var follow: Bool
     let userAvatar: UIImage
     let fans: Int
+    let exp:Int
+    let userName: String
     
     var body: some View {
         NavigationLink{
@@ -20,15 +22,12 @@ struct UIComplexUser: View {
                 UIProfileImage(photo: userAvatar, width: 50, height: 50)
                 VStack(alignment: .leading, spacing: 0){
                     HStack{
-                        Text("用戶名稱")
+                        Text(userName)
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 16))
                             .foregroundColor(ColorConstants.systemSubColor)
-                        UITextLevel(totalExp: 832, width: 26, height: 12, size: 10)
+                        UITextLevel(totalExp: exp, width: 26, height: 12, size: 10)
                     }
                     Text("粉絲・\(fans)")
-                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
-                        .foregroundColor(.gray)
-                    Text("帳號・rfrerecd")
                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
                         .foregroundColor(.gray)
                 }
@@ -40,5 +39,5 @@ struct UIComplexUser: View {
 }
 
 #Preview {
-    UIComplexUser(follow: .constant(true), userAvatar: UIImage(), fans: 35)
+    UIComplexUser(follow: .constant(true), userAvatar: UIImage(), fans: 35,exp: 50,userName: "用戶名稱")
 }

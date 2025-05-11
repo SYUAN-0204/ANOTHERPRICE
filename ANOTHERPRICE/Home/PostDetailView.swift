@@ -12,8 +12,8 @@ import KeychainSwift
 struct PostDetailView: View {
     @Environment(\.dismiss) var dismiss
     
-    let category: String
-    let documentID: String
+    @State var category: String
+    @State var documentID: String
     let isMyDisplayView: Bool
     @State private var keychain = KeychainSwift()
     @State private var db = Firestore.firestore()
@@ -30,7 +30,8 @@ struct PostDetailView: View {
     @State private var like: Bool = false
     @State private var isSet: Bool = false
     @State private var authorUid: String = ""
-    @State private var star: Bool = false
+    @State private var star: Int = 0
+    @State private var isStar: Bool = false
     @State private var heart: Int = 54
     @State private var upload: String = "2025/4/20"
     @State private var message: Int = 43
@@ -40,8 +41,8 @@ struct PostDetailView: View {
     @State private var http: String = "https://www.anotherprice.com"
     @State private var order: Bool = false
     @State private var response: String = ""
-    @State private var 展開狀態: Bool = false
-    @State private var 展開回覆: Bool = false
+    @State private var isExpanded: Bool = false
+    @State private var isReplyExpanded: Bool = false
     @State private var showAlert: Bool = false
     @State private var responses: [Response] = []
     @State private var isResponse: Bool = false
@@ -50,11 +51,12 @@ struct PostDetailView: View {
     struct Response: Identifiable {
         let id: String
         let response: String
-        let heart: Int
+        var heart: Int
         let author: String
         let authorUid: String
         let timestamp: String
         let exp: Int
+        var like: Bool
     }
     
     let categoryToCollection: [String: String] = [
@@ -120,7 +122,7 @@ struct PostDetailView: View {
                     if !isSelfIssue && isSet{
                         UIButtonFollow(follow: $follow)
                             .onChange(of: follow) {
-                                toggleFollowStatus() // 當 follow 狀態改變時，呼叫關注邏輯
+                                toggleFollowStatus()
                             }
                     }
                 }
@@ -192,22 +194,34 @@ struct PostDetailView: View {
                     HStack{
                         Button{
                             like.toggle()
+                            if(like) {
+                                saveToHeart()
+                            } else{
+                                deleteFromHeart()
+                            }
                         } label: {
                             Image(systemName: like ? "heart.fill":"heart")
                                 .font(.system(size: 14))
                                 .foregroundColor(ColorConstants.systemMainColor)
                         }
+                        .disabled(isSelfIssue)
                         Text("\(heart)")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                             .foregroundColor(ColorConstants.systemMainColor)
                         Button{
-                            star.toggle()
+                            isStar.toggle()
+                            if(isStar) {
+                                saveToFavorites()
+                            } else{
+                                deleteFromFavorites()
+                            }
                         } label: {
-                            Image(systemName: star ? "star.fill":"star")
+                            Image(systemName: isStar ? "star.fill":"star")
                                 .font(.system(size: 14))
                                 .foregroundColor(ColorConstants.systemMainColor)
                         }
-                        Text("\(message)")
+                        .disabled(isSelfIssue)
+                        Text("\(star)")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 14))
                             .foregroundColor(ColorConstants.systemMainColor)
                         Image(systemName: "ellipsis.message")
@@ -250,6 +264,8 @@ struct PostDetailView: View {
                 .padding(.horizontal, 5)
                 ForEach(responses) { responseData in
                     UIComplexAnswer(
+                        authorUid: responseData.authorUid,
+                        docId: responseData.id,
                         userName: responseData.author,
                         isSelfIssue: isSelfIssue,
                         userAvatar: userAvatar,
@@ -257,8 +273,11 @@ struct PostDetailView: View {
                         comment: responseData.response,
                         totalExp: responseData.exp,
                         timestamp: responseData.timestamp,
-                        like: $like,
-                        heart: responseData.heart
+                        like: $responses[responses.firstIndex(where: { $0.id == responseData.id })!].like, // 透過 Binding 傳遞
+                        heart: $responses[responses.firstIndex(where: { $0.id == responseData.id })!].heart,
+                        toggleResponseHeart: { docId, authorUid,like in
+                            toggleResponseHeart(docId: docId, authorId: authorUid, isLiked:like)
+                        }
                     )
                 }
                 if isResponse && responses.isEmpty {
@@ -275,10 +294,10 @@ struct PostDetailView: View {
             }
             .padding(.horizontal, 10)
             .padding(.bottom, 5)
-            if !isSelfIssue && !hasResponded{
+            if !isSelfIssue{
                 HStack{
                     HStack{
-                        TextField("睡著了也等不到你的回答" ,text: $response)
+                        TextField(hasResponded ? "誠實精靈已收到你的回答":"睡著了也等不到你的回答", text: $response)
                             .autocapitalization(.none)
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
                             .foregroundColor(ColorConstants.systemSubColor)
@@ -286,20 +305,22 @@ struct PostDetailView: View {
                             .padding(.vertical, 3)
                             .padding(.horizontal, 3)
                             .frame(height: 28)
+                            .disabled(hasResponded)
                         Button{
-                            展開回覆 = true
+                            isReplyExpanded = true
                         } label: {
                             Image(systemName: "arrow.down.left.and.arrow.up.right")
                                 .font(.system(size: 12))
                                 .foregroundColor(ColorConstants.systemDarkColor.opacity(0.6))
                                 .padding(.trailing, 5)
                         }
-                        .sheet(isPresented: $展開回覆) {
+                        .sheet(isPresented: $isReplyExpanded) {
                             InputView(input: $response, hint: "睡著了也等不到你的回答", button: "送出") {
                                 uploadToFirebase()
                             }
                             .presentationDetents([.fraction(0.96)])
                         }
+                        .disabled(hasResponded)
                     }
                     .overlay {
                         RoundedRectangle(cornerRadius: 5)
@@ -316,6 +337,7 @@ struct PostDetailView: View {
                                 .foregroundColor(.white)
                         }
                     }
+                    .disabled(response.isEmpty)
                     .frame(width: 60, height: 28)
                 }
                 .padding(.horizontal, 15)
@@ -325,11 +347,16 @@ struct PostDetailView: View {
         }
         .navigationBarBackButtonHidden(true)
         .onAppear {
-            self.currentUserId = keychain.get("authUid") ?? "unknown"
-            fetchPostDetails()
-            fetchResponses()
-            checkIfUserResponded()
+            setupFromKeychainIfNeeded()
         }
+    }
+    
+    func setupFromKeychainIfNeeded() {
+        self.currentUserId = keychain.get("authUid") ?? "unknown"
+
+        fetchPostDetails()
+        fetchResponses()
+        checkIfUserResponded()
     }
     
     private func fetchPostDetails() {
@@ -359,6 +386,7 @@ struct PostDetailView: View {
                     self.authorUid = data?["authorUid"] as? String ?? "未知"
                     self.isAnonymous = data?["isAnonymous"] as? Bool ?? false
                     self.heart = data?["heart"] as? Int ?? 0
+                    self.star = data?["star"] as? Int ?? 0
                     self.message = data?["commentCount"] as? Int ?? 0
                     self.reward = data?["reward"] as? Int ?? 0
                     self.deadLine = formattedDate
@@ -366,7 +394,31 @@ struct PostDetailView: View {
                     self.code = data?["code"] as? String ?? ""
                     self.http = data?["http"] as? String ?? ""
                     
+                    keychain.set(self.author, forKey: "authorName")
+                    keychain.set(self.authorUid, forKey: "authorUid")
                     if(!isAnonymous){
+                        // 檢查是否收藏
+                        let favoritesRef = db.collection("users").document(currentUserId).collection("favorites").document(documentID)
+                        favoritesRef.getDocument { document, error in
+                            if let error = error {
+                                print("檢查是否已收藏失敗: \(error.localizedDescription)")
+                                return
+                            }
+                            
+                            if let document = document, document.exists {
+                                self.isStar = true
+                            } else {
+                                self.isStar = false
+                            }
+                        }
+                        
+                        // 檢查是否按讚
+                        if let likes = data?["likes"] as? [String], likes.contains(currentUserId) {
+                            self.like = true
+                        } else {
+                            self.like = false
+                        }
+                        
                         db.collection("users").document(authorUid).getDocument { document, error in
                             if let error = error {
                                 print("獲取使用者資料失敗: \(error.localizedDescription)")
@@ -376,6 +428,10 @@ struct PostDetailView: View {
                             if let document = document, document.exists {
                                 let data = document.data()
                                 exp = data?["exp"] as? Int ?? 0
+                                
+                                let registrationTime = data?["registrationTime"] as? Timestamp ?? Timestamp()
+                                let authRegistTime = formatTimestamp(registrationTime)
+                                keychain.set(authRegistTime, forKey: "authRegistTime")
                             }
                         }
                         
@@ -403,17 +459,16 @@ struct PostDetailView: View {
         }
     }
     
+    private func formatTimestamp(_ timestamp: Timestamp) -> String {
+        let date = timestamp.dateValue()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
+        return formatter.string(from: date)
+    }
+    
     func fetchResponses() {
         let targetCollection = categoryToCollection[category] ?? "life"
         let responseRef = db.collection(targetCollection).document(documentID).collection("response").order(by: "timestamp", descending: !order)
-        
-        // 根據 order 決定是否按時間戳或熱度排序
-            var query: Query
-            if order {
-                query = responseRef.order(by: "timestamp", descending: true)  // 時間戳從新到舊
-            } else {
-                query = responseRef.order(by: "heart", descending: true)  // 按熱度從高到低
-            }
         
         responseRef.getDocuments { snapshot, error in
             if let error = error {
@@ -438,6 +493,8 @@ struct PostDetailView: View {
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat = "yyyy-MM-dd mm:ss"
                 let formattedDate = dateFormatter.string(from: timestamp)
+                let likes = data["likes"] as? [String] ?? []
+                let isLiked = likes.contains(currentUserId)
                 
                 group.enter()
                 db.collection("users").document(authorUid).getDocument { userDoc, error in
@@ -453,7 +510,8 @@ struct PostDetailView: View {
                         author: author,
                         authorUid: authorUid,
                         timestamp: formattedDate,
-                        exp: exp
+                        exp: exp,
+                        like: isLiked
                     )
                     
                     if authorUid == currentUserId {
@@ -505,9 +563,10 @@ struct PostDetailView: View {
     }
     
     func uploadToFirebase() {
+        let time = Timestamp()
         let data: [String: Any] = [
             "response": response,
-            "timestamp": Timestamp(),
+            "timestamp": time,
             "heart": 0,
             "author": keychain.get("userName") ?? "error",
             "authorUid": keychain.get("authUid") ?? "error"
@@ -517,6 +576,7 @@ struct PostDetailView: View {
         let postRef = db.collection(targetCollection).document(documentID).collection("response").document()
         let documentId = postRef.documentID
         
+        // 保存response数据
         postRef.setData(data) { error in
             if let error = error {
                 print("Error adding document: \(error.localizedDescription)")
@@ -525,17 +585,33 @@ struct PostDetailView: View {
             }
         }
         
+        // 在用户的 response 集合中保存 documentId
         db.collection("users").document(authorUid).collection("response").document(documentId)
-            .setData(["documentId": documentID, "collection": targetCollection, "createdAt": Timestamp()]) { error in
+            .setData(["documentId": documentID, "collection": targetCollection, "createdAt": time]) { error in
                 if let error = error {
                     print("(PostDetailView) 儲存 documentId 失敗: \(error.localizedDescription)")
                 } else {
                     print("(PostDetailView) 成功儲存 documentId 到 response")
-                    self.response = ""
-                    self.fetchResponses()
                 }
             }
+        
+        let postDocRef = db.collection(targetCollection).document(documentID)
+        
+        postDocRef.updateData([
+            "commentCount": FieldValue.increment(Int64(1)),
+            "lastComment": time
+        ]) { error in
+            if let error = error {
+                print("(PostDetailView) 更新文件的 commentCount 或 lastComment 失败: \(error.localizedDescription)")
+            } else {
+                print("(PostDetailView) 成功更新 commentCount 和 lastComment")
+            }
+        }
+        
+        self.response = ""
+        self.fetchResponses()
     }
+    
     
     //關注問題處理
     func toggleFollowStatus() {
@@ -598,6 +674,135 @@ struct PostDetailView: View {
         }
     }
     
+    // 收藏問題處理
+    func saveToFavorites() {
+        star += 1
+        let targetCollection = categoryToCollection[category] ?? "life"
+        let postRef = db.collection(targetCollection).document(documentID)
+        
+        postRef.updateData([
+            "star": FieldValue.increment(Int64(1))
+        ]) { error in
+            if let error = error {
+                print("(PostDetailView) 更新 star 欄位失敗: \(error.localizedDescription)")
+                return
+            }
+            
+            db.collection("users").document(currentUserId).collection("favorites").document(documentID)
+                .setData(["documentId": documentID, "collection": targetCollection, "createdAt": Timestamp()]) { error in
+                    if let error = error {
+                        print("(PostDetailView) 儲存 documentId 失敗: \(error.localizedDescription)")
+                    } else {
+                        print("(PostDetailView) 成功儲存 documentId 到 favorites")
+                    }
+                }
+        }
+    }
+    
+    func deleteFromFavorites() {
+        star -= 1
+        let targetCollection = categoryToCollection[category] ?? "life"
+        let postRef = db.collection(targetCollection).document(documentID)
+        
+        postRef.updateData([
+            "star": FieldValue.increment(Int64(-1))
+        ]) { error in
+            if let error = error {
+                print("(PostDetailView) 更新 star 欄位失敗: \(error.localizedDescription)")
+                return
+            }
+            
+            db.collection("users").document(currentUserId).collection("favorites").document(documentID)
+                .delete { error in
+                    if let error = error {
+                        print("(PostDetailView) 刪除收藏失敗: \(error.localizedDescription)")
+                    } else {
+                        print("(PostDetailView) 成功刪除收藏")
+                    }
+                }
+        }
+    }
+    
+    // 按讚處理
+    func saveToHeart() {
+        heart += 1
+        let targetCollection = categoryToCollection[category] ?? "life"
+        let postRef = db.collection(targetCollection).document(documentID)
+        
+        postRef.updateData([
+            "heart": FieldValue.increment(Int64(1)),
+            "likes": FieldValue.arrayUnion([currentUserId])  // 在 'likes' 中加入當前用戶的 UID
+        ]) { error in
+            if let error = error {
+                print("(PostDetailView) 更新 heart 欄位或 likes 失敗: \(error.localizedDescription)")
+                return
+            }
+            
+            let authorRef = db.collection("users").document(authorUid)
+            authorRef.updateData([
+                "hearts": FieldValue.increment(Int64(1))
+            ]) { error in
+                if let error = error {
+                    print("(PostDetailView) 更新作者的 hearts 失敗: \(error.localizedDescription)")
+                    return
+                }
+            }
+        }
+    }
+    
+    func deleteFromHeart() {
+        heart -= 1
+        let targetCollection = categoryToCollection[category] ?? "life"
+        let postRef = db.collection(targetCollection).document(documentID)
+        
+        postRef.updateData([
+            "heart": FieldValue.increment(Int64(-1)),
+            "likes": FieldValue.arrayRemove([currentUserId])
+        ]) { error in
+            if let error = error {
+                print("(PostDetailView) 更新 heart 欄位或移除 likes 失敗: \(error.localizedDescription)")
+                return
+            }
+            
+            let authorRef = db.collection("users").document(authorUid)
+            authorRef.updateData([
+                "hearts": FieldValue.increment(Int64(-1))
+            ]) { error in
+                if let error = error {
+                    print("(PostDetailView) 更新作者的 hearts 失敗: \(error.localizedDescription)")
+                    return
+                }
+            }
+        }
+    }
+    
+    func toggleResponseHeart(docId: String, authorId: String, isLiked: Bool) {
+        let targetCollection = categoryToCollection[category] ?? "life"
+        let postRef = db.collection(targetCollection).document(documentID).collection("response").document(docId)
+        
+        let heartUpdate = FieldValue.increment(Int64(isLiked ? -1 : 1))
+        let likesUpdate = isLiked ? FieldValue.arrayRemove([currentUserId]) : FieldValue.arrayUnion([currentUserId])
+        
+        postRef.updateData([
+            "heart": heartUpdate,
+            "likes": likesUpdate
+        ]) { error in
+            if let error = error {
+                print("(PostDetailView) 更新 heart 或 likes 失敗: \(error.localizedDescription)")
+                return
+            }
+            
+            let authorRef = db.collection("users").document(authorId)
+            authorRef.updateData([
+                "hearts": FieldValue.increment(Int64(isLiked ? -1 : 1))
+            ]) { error in
+                if let error = error {
+                    print("(PostDetailView) 更新作者 hearts 失敗: \(error.localizedDescription)")
+                    return
+                }
+            }
+        }
+    }
 }
 
 #Preview {
