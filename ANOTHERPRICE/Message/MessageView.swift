@@ -1,33 +1,42 @@
 //
-//  temp7.swift
+//  temp6.swift
 //  ANOTHERPRICE
 //
 //  Created by 遠上寒山 on 2025/5/2.
 //
 
 import SwiftUI
+import FirebaseAuth
+import FirebaseFirestore
+import KeychainSwift
 
 struct MessageView: View {
-    @Environment(\.dismiss) var dismiss
-    let title: String
-    
-    @State var userAvatar: UIImage = UIImage(named: "Advertise") ?? UIImage()
+    @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
     @State var showAlert: Bool = false
-    @State var isRead: Bool = false
+    @State private var messageSummaries: [MessageSummary] = []
+    @State private var keychain = KeychainSwift()
+    
+    struct MessageSummary: Identifiable {
+        var id: String // Document ID
+        var otherUid: String
+        var name: String
+        var content: String
+        var date: String
+        var badgeCount: Int
+    }
     
     var body: some View {
         VStack(alignment: .leading){
             HStack {
                 Button {
-                    dismiss()
                 } label: {
                     Image(systemName: "arrow.left")
                         .font(.system(size: 18))
-                        .foregroundColor(.black)
+                        .opacity(0)
                 }
                 .padding(.leading, 10)
                 Spacer()
-                Text(title)
+                Text("訊息")
                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
                     .fontWeight(.semibold)
                 Spacer()
@@ -53,97 +62,64 @@ struct MessageView: View {
             }
             .frame(height: 36)
             .background(Color.white)
-            ScrollView {
-                ForEach(0..<10, id: \.self) { _ in
-                    //這裡要收合成UI，但是變數有點複雜，等你綁完我再來收
-                    NavigationLink{
-                        PostDetailView(category: "12",documentID:"123",isMyDisplayView: false)
-                    } label: {
-                        HStack{
-                            UIProfileImage(photo: userAvatar, width: 40, height: 40)
-                                .padding(.leading, 5)
-                            VStack(alignment: .leading){
-                                HStack{
-                                    if title == "我的提問" {
-                                        Text("用戶名稱 回答了你的提問")
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
-                                            .foregroundColor(ColorConstants.systemDarkColor)
-                                    }
-                                    if title == "我的獲讚" {
-                                        Text("用戶名稱 點讚了你的提問")
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
-                                            .foregroundColor(ColorConstants.systemDarkColor)
-                                        /*
-                                         Text("用戶名稱 點讚了你的回答")
-                                         .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
-                                         .foregroundColor(ColorConstants.systemDarkColor)
-                                         */
-                                    }
-                                    if title == "我的關注" {
-                                        Text("用戶名稱 發布了一篇問答")
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
-                                            .foregroundColor(ColorConstants.systemDarkColor)
-                                    }
-                                    if title == "系統通知" {
-                                        Text("異地登入提示")
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 17))
-                                            .foregroundColor(ColorConstants.systemDarkColor)
-                                    }
-                                    Spacer()
-                                    Text("4-22")
-                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 12))
-                                        .foregroundColor(ColorConstants.systemDarkColor.opacity(0.7))
-                                        .padding(.trailing, 5)
-                                }
-                                HStack{
-                                    if title == "系統通知" {
-                                        Text("您的帳號於 4-22 17:54 在其他裝置登入")
-                                            .font(.custom("LXGWWenKaiMonoTC-Regular", size: 15))
-                                            .foregroundColor(ColorConstants.systemDarkColor.opacity(0.8))
-                                            .lineLimit(1)
-                                    }
-                                    else {
-                                    Text("提問標題")
-                                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 15))
-                                        .foregroundColor(ColorConstants.systemDarkColor.opacity(0.8))
-                                        .lineLimit(1)
-                                    }
-                                    Spacer()
-                                    if !isRead {
-                                        Rectangle()
-                                            .fill(ColorConstants.systemMainColor)
-                                            .frame(width: 4, height: 4)
-                                            .cornerRadius(2)
-                                            .padding(.trailing, 15)
-                                    }
-                                }
-                                .padding(.top, -5)
-                            }
-                        }
-                    }
-                    .contextMenu {
-                        Button {
-                            print("刪除通知")
-                        } label: {
-                            Label("刪除通知", systemImage: "trash")
-                        }
-                        Button {
-                            isRead = true
-                            print("標記已讀")
-                        } label: {
-                            Label("標記已讀", systemImage: "envelope.open")
-                        }
-                    }
-                    UIRectangleLine(opacity: 0.1)
-                        .padding(.horizontal, 3)
+            ScrollView{
+                HStack{
+                    UINavigationMessage(destination: SystemMessageView(title: "我的提問"), icon: "questionmark.message", color: Color.teal, title: "我的提問", badgeCount: 1004)
+                    Spacer()
+                    UINavigationMessage(destination: SystemMessageView(title: "我的獲讚"), icon: "hand.thumbsup", color: Color.pink, title: "我的獲讚", badgeCount: 0)
+                    Spacer()
+                    UINavigationMessage(destination: SystemMessageView(title: "我的關注"), icon: "star", color: Color.orange, title: "我的關注", badgeCount: 5)
+                    Spacer()
+                    UINavigationMessage(destination: SystemMessageView(title: "系統通知"), icon: "bell", color: Color.cyan, title: "系統通知", badgeCount: 13)
                 }
-                .padding(.horizontal, 10)
+                .padding(.horizontal, 30)
+                .padding(.vertical, 16)
+                //小精靈跟小助手一起按照日期排
+                UINavigationPersonalMessage(destination: temp8(name: "獎勵小精靈"), userAvatar: userAvatar, name: "獎勵小精靈", date: "2-25", content: "您的獎勵已送達", badgeCount: 5)
+                UINavigationPersonalMessage(destination: temp13(name: "提問小助手"), userAvatar: userAvatar, name: "提問小助手", date: "2-24", content: "您的提問已到期", badgeCount: 5)
+                ForEach(messageSummaries) { summary in
+                    UINavigationPersonalMessage(
+                        destination: MessageDetailView(docID: summary.id, otherUid: summary.otherUid, name: summary.name),
+                        userAvatar: userAvatar,
+                        name: summary.name,
+                        date: summary.date,
+                        content: summary.content,
+                        badgeCount: summary.badgeCount
+                    )
+                }
             }
         }
-        .navigationBarBackButtonHidden(true)
+        .onAppear {
+            fetchMessages()
+        }
+    }
+    
+    func fetchMessages() {
+        let db = Firestore.firestore()
+        db.collection("users")
+            .document(keychain.get("authUid") ?? "")
+            .collection("message")
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error getting messages: \(error)")
+                    return
+                }
+                
+                self.messageSummaries = snapshot?.documents.compactMap { doc in
+                    let data = doc.data()
+                    return MessageSummary(
+                        id: doc.documentID,
+                        otherUid: data["friendUid"] as? String ?? "",
+                        name: data["friendName"] as? String ?? "未知使用者",
+                        content: data["lastMessage"] as? String ?? "",
+                        date: (data["lastUpdated"] as? Timestamp)?.dateValue().formatted(date: .abbreviated, time: .omitted) ?? "",
+                        badgeCount: data["badgeCount"] as? Int ?? 0
+                    )
+                } ?? []
+            }
     }
 }
 
 #Preview {
-    MessageView(title: "我的")
+    MessageView()
 }

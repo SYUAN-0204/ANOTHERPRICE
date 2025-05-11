@@ -28,12 +28,13 @@ extension Color {
     }
 }
 
-struct temp9: View {
+struct MessageDetailView: View {
     @Environment(\.dismiss) var dismiss
     
-    let otherUid: String
     let docID: String
+    let otherUid: String
     let name: String
+    @State private var isReadyToShowSheet: Bool = false  // 控制顯示 temp9 的狀態
     @State var userAvatar: UIImage = UIImage(named: "Advertise") ?? UIImage()
     @State private var response: String = ""
     @State private var 展開回覆: Bool = false
@@ -41,6 +42,16 @@ struct temp9: View {
     @State private var appliedThemeName: String = ""
     @State private var bubbleColorHex: String = "#FFFFFF"
     @State private var textColorHex: String = "#000000"
+    @State private var messages: [Message] = []
+    
+    struct Message: Identifiable {
+        var id: String
+        var content: String
+        var senderID: String
+        var timestamp: Timestamp
+        var bubbleColor: String
+        var textColor: String
+    }
     
     struct BubbleItem: Identifiable {
         let id = UUID()
@@ -104,18 +115,56 @@ struct temp9: View {
             }
             .frame(height: 30)
             .background(Color.white)
-            ScrollView {
-                UITextMessageDate(date: "0225-04-21")
-                UIComplexMessageLeft(userAvatar: userAvatar, content: "對話內容", bubbleColor: Color(hex: "#FFFFFF"), textColor: Color(hex: "#000000"))
-                UIComplexMessageLeft(userAvatar: userAvatar, content: "對話內容", bubbleColor: Color(hex: "#FFFFFF"), textColor: Color(hex: "#000000"))
-                UIComplexMessageRight(userAvatar: userAvatar, content: "對話內容對話內容對話內容對話內容對話內容對話內容", bubbleColor: Color(hex: "#FFFFFF"), textColor: Color(hex: "#000000"))
-                UITextMessageDate(date: "0225-04-21")
-                UIComplexMessageRight(userAvatar: userAvatar, content: "對話內容", bubbleColor: Color(hex: "#FFFFFF"), textColor: Color(hex: "#000000"))
-                UIComplexMessageLeft(userAvatar: userAvatar, content: "對話內容", bubbleColor: Color(hex: "#FFFFFF"), textColor: Color(hex: "#000000"))
-                UIComplexMessageLeft(userAvatar: userAvatar, content: "對話內容", bubbleColor: Color(hex: "#FFFFFF"), textColor: Color(hex: "#000000"))
+            ScrollViewReader { proxy in
+                
+                ScrollView {
+                    ForEach(Array(messages.enumerated()), id: \.element.id) { index, message in
+                        let currentDate = formattedDate(from: message.timestamp.dateValue())
+                        let previousDate = index > 0 ? formattedDate(from: messages[index - 1].timestamp.dateValue()) : nil
+                        
+                        // 插入日期分隔（如果是第一則或日期不同）
+                        if previousDate == nil || currentDate != previousDate {
+                            UITextMessageDate(date: currentDate)
+                        }
+                        
+                        HStack {
+                            if message.senderID == otherUid {
+                                UIComplexMessageLeft(
+                                    userAvatar: userAvatar,
+                                    content: message.content,
+                                    bubbleColor: Color(hex: message.bubbleColor),
+                                    textColor: Color(hex: message.textColor)
+                                )
+                            } else {
+                                UIComplexMessageRight(
+                                    userAvatar: userAvatar,
+                                    content: message.content,
+                                    bubbleColor: Color(hex: message.bubbleColor),
+                                    textColor: Color(hex: message.textColor)
+                                )
+                            }
+                        }
+                    }
+                    
+                    // 這是捲動的標記點
+                    Color.clear
+                        .frame(height: 1)
+                        .id("Bottom")
+                }
+                .padding(.horizontal, 15)
+                .background(Color.gray.opacity(0.1))
+                .onChange(of: messages.count) {
+                    // 當訊息數變動時，自動捲到底部
+                    withAnimation {
+                        proxy.scrollTo("Bottom", anchor: .bottom)
+                    }
+                }
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        proxy.scrollTo("Bottom", anchor: .bottom)
+                    }
+                }
             }
-            .padding(.horizontal, 15)
-            .background(Color.gray.opacity(0.1))
             HStack{
                 HStack{
                     TextField("睡著了也等不到你的訊息" ,text: $response)
@@ -167,9 +216,43 @@ struct temp9: View {
         .navigationBarBackButtonHidden(true)
         .onAppear {
             Task {
-                await loadUserThemeOnce()
+                await loadUserThemeOnce()  // 確保主題資料載入完成
+                if !docID.isEmpty {
+                    loadMessages()
+                }
             }
         }
+        .onChange(of: docID) {
+            if !docID.isEmpty {
+                loadMessages()
+            }
+        }
+    }
+    
+    private func loadMessages() {
+        let db = Firestore.firestore()
+        // 使用實時監聽
+        db.collection(docID)
+            .order(by: "timestamp")
+            .addSnapshotListener { querySnapshot, error in
+                if let error = error {
+                    print("讀取訊息失敗：\(error.localizedDescription)")
+                    return
+                }
+                
+                // 更新訊息
+                self.messages = querySnapshot?.documents.compactMap { doc -> Message? in
+                    let data = doc.data()
+                    guard let content = data["content"] as? String,
+                          let senderID = data["senderID"] as? String,
+                          let timestamp = data["timestamp"] as? Timestamp,
+                          let bubbleColor = data["bubbleColor"] as? String,
+                          let textColor = data["textColor"] as? String else {
+                        return nil
+                    }
+                    return Message(id: doc.documentID, content: content, senderID: senderID, timestamp: timestamp, bubbleColor: bubbleColor, textColor: textColor)
+                } ?? []
+            }
     }
     
     private func loadUserThemeOnce() async {
@@ -201,16 +284,19 @@ struct temp9: View {
     
     private func sendMessage() async {
         guard !response.isEmpty else { return }
+        let responseTemp = response
         
         let keychain = KeychainSwift()
         guard let myUid = keychain.get("authUid"),
               let myName = keychain.get("userName") else { return }
         
+        response = ""
+        
         let db = Firestore.firestore()
         let timestamp = Timestamp(date: Date())
         
         let messageData: [String: Any] = [
-            "content": response,
+            "content": responseTemp,
             "timestamp": timestamp,
             "bubbleColor": bubbleColorHex,
             "textColor": textColorHex,
@@ -222,23 +308,28 @@ struct temp9: View {
             try await db.collection(docID).addDocument(data: messageData)
             
             try await db.collection("users").document(myUid).collection("message").document(docID).updateData([
-                "lastMessage": response,
+                "lastMessage": responseTemp,
                 "lastUpdated": timestamp
             ])
             
             try await db.collection("users").document(otherUid).collection("message").document(docID).updateData([
-                "lastMessage": response,
+                "lastMessage": responseTemp,
                 "lastUpdated": timestamp
             ])
-            
-            response = ""
             print("訊息與聊天室資訊更新成功")
         } catch {
             print("訊息或聊天室資訊更新失敗：\(error.localizedDescription)")
         }
     }
+    
+    private func formattedDate(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd" // 可改成 "MM/dd" 或其他格式
+        return formatter.string(from: date)
+    }
+    
 }
 
 #Preview {
-    temp9(otherUid: "", docID: "測試聊天室ID", name: "對方名稱")
+    MessageDetailView(docID: "測試聊天室ID", otherUid: "", name: "對方名稱")
 }

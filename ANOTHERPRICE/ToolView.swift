@@ -40,7 +40,7 @@ struct ToolView: View {
                             .environment(\.symbolVariants, .none)
                     }
                     .tag(TabIdentifier.issue)
-                temp6()
+                MessageView()
                     .tabItem {
                         Label("訊息", systemImage: "envelope")
                             .environment(\.symbolVariants, .none)

@@ -272,7 +272,7 @@ struct DisplayView: View {
                         }
                         .padding(.trailing, 7)
                         .sheet(isPresented: $isMessaging) {
-                            temp9(otherUid: authUid ?? "error", docID: docID, name: userName)
+                            MessageDetailView(docID: docID, otherUid: authUid ?? "error", name: userName)
                                 .presentationDetents([.fraction(0.7)])
                         }
                     }
@@ -555,6 +555,7 @@ struct DisplayView: View {
                 if let document = snapshot?.documents.first {
                     // 聊天室已存在
                     docID = document.documentID
+                    
                     if !docID.isEmpty {
                         isMessaging = true
                     }
@@ -562,10 +563,6 @@ struct DisplayView: View {
                     // 建立新的聊天室
                     let newDocID = UUID().uuidString
                     docID = newDocID
-                    
-                    if !docID.isEmpty {
-                        isMessaging = true
-                    }
                     
                     let myMessageData: [String: Any] = [
                         "friendUid": authUid ?? "error",
@@ -582,6 +579,10 @@ struct DisplayView: View {
                     
                     db.collection("users").document(myUid).collection("message").document(newDocID).setData(myMessageData)
                     db.collection("users").document(authUid ?? "error").collection("message").document(newDocID).setData(otherMessageData)
+                    
+                    if !docID.isEmpty {
+                        isMessaging = true
+                    }
                 }
             }
     }
