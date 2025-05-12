@@ -11,6 +11,7 @@ import FirebaseFirestore
 import KeychainSwift
 
 struct MessageView: View {
+    @State private var showLoginView = false
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
     @State var showAlert: Bool = false
     @State var systemCount: Int = 0
@@ -27,69 +28,88 @@ struct MessageView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading){
-            HStack {
-                Button {
-                } label: {
-                    Image(systemName: "arrow.left")
-                        .font(.system(size: 18))
-                        .opacity(0)
+        ZStack{
+            VStack(alignment: .leading){
+                HStack {
+                    Button {
+                    } label: {
+                        Image(systemName: "arrow.left")
+                            .font(.system(size: 18))
+                            .opacity(0)
+                    }
+                    .padding(.leading, 10)
+                    Spacer()
+                    Text("訊息")
+                        .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
+                        .fontWeight(.semibold)
+                    Spacer()
+                    Button {
+                        showAlert = true
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.system(size: 18))
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.trailing, 10)
+                    .alert("提示", isPresented: $showAlert) {
+                        Button("全部已讀") {
+                        }
+                        Button("全部刪除", role: .destructive) {
+                        }
+                        Button("取消", role: .cancel) {
+                            showAlert = false
+                        }
+                    } message: {
+                        Text("用戶 用戶名稱 的提問")
+                    }
                 }
-                .padding(.leading, 10)
-                Spacer()
-                Text("訊息")
-                    .font(.custom("LXGWWenKaiMonoTC-Regular", size: 20))
-                    .fontWeight(.semibold)
-                Spacer()
-                Button {
-                    showAlert = true
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .font(.system(size: 18))
-                        .foregroundColor(.gray)
-                }
-                .padding(.trailing, 10)
-                .alert("提示", isPresented: $showAlert) {
-                    Button("全部已讀") {
+                .frame(height: 36)
+                .background(Color.white)
+                ScrollView{
+                    HStack{
+                        UINavigationMessage(destination: SystemMessageView(title: "我的提問"), icon: "questionmark.message", color: Color.teal, title: "我的提問", badgeCount: 1004)
+                        Spacer()
+                        UINavigationMessage(destination: SystemMessageView(title: "我的獲讚"), icon: "hand.thumbsup", color: Color.pink, title: "我的獲讚", badgeCount: 0)
+                        Spacer()
+                        UINavigationMessage(destination: SystemMessageView(title: "我的關注"), icon: "star", color: Color.orange, title: "我的關注", badgeCount: 5)
+                        Spacer()
+                        UINavigationMessage(destination: SystemMessageView(title: "系統通知"), icon: "bell", color: Color.cyan, title: "系統通知", badgeCount: 13)
                     }
-                    Button("全部刪除", role: .destructive) {
+                    .padding(.horizontal, 30)
+                    .padding(.vertical, 16)
+                    //小精靈跟小助手一起按照日期排
+                    UINavigationPersonalMessage(destination: RewardMessageView(name: "獎勵小精靈"), userAvatar: userAvatar, name: "獎勵小精靈", date: "2-25", content: "您的獎勵已送達", badgeCount: systemCount)
+                    UINavigationPersonalMessage(destination: temp13(name: "提問小助手"), userAvatar: userAvatar, name: "提問小助手", date: "2-24", content: "您的提問已到期", badgeCount: 5)
+                    ForEach(messageSummaries) { summary in
+                        UINavigationPersonalMessage(
+                            destination: MessageDetailView(docID: summary.id, otherUid: summary.otherUid, name: summary.name),
+                            userAvatar: userAvatar,
+                            name: summary.name,
+                            date: summary.date,
+                            content: summary.content,
+                            badgeCount: summary.badgeCount
+                        )
                     }
-                    Button("取消", role: .cancel) {
-                        showAlert = false
-                    }
-                } message: {
-                    Text("用戶 用戶名稱 的提問")
                 }
             }
-            .frame(height: 36)
-            .background(Color.white)
-            ScrollView{
-                HStack{
-                    UINavigationMessage(destination: SystemMessageView(title: "我的提問"), icon: "questionmark.message", color: Color.teal, title: "我的提問", badgeCount: 1004)
-                    Spacer()
-                    UINavigationMessage(destination: SystemMessageView(title: "我的獲讚"), icon: "hand.thumbsup", color: Color.pink, title: "我的獲讚", badgeCount: 0)
-                    Spacer()
-                    UINavigationMessage(destination: SystemMessageView(title: "我的關注"), icon: "star", color: Color.orange, title: "我的關注", badgeCount: 5)
-                    Spacer()
-                    UINavigationMessage(destination: SystemMessageView(title: "系統通知"), icon: "bell", color: Color.cyan, title: "系統通知", badgeCount: 13)
-                }
-                .padding(.horizontal, 30)
-                .padding(.vertical, 16)
-                //小精靈跟小助手一起按照日期排
-                UINavigationPersonalMessage(destination: RewardMessageView(name: "獎勵小精靈"), userAvatar: userAvatar, name: "獎勵小精靈", date: "2-25", content: "您的獎勵已送達", badgeCount: systemCount)
-                UINavigationPersonalMessage(destination: temp13(name: "提問小助手"), userAvatar: userAvatar, name: "提問小助手", date: "2-24", content: "您的提問已到期", badgeCount: 5)
-                ForEach(messageSummaries) { summary in
-                    UINavigationPersonalMessage(
-                        destination: MessageDetailView(docID: summary.id, otherUid: summary.otherUid, name: summary.name),
-                        userAvatar: userAvatar,
-                        name: summary.name,
-                        date: summary.date,
-                        content: summary.content,
-                        badgeCount: summary.badgeCount
-                    )
+            if (keychain.get("authUid") == nil) {
+                Color.white.opacity(0.9)
+                VStack {
+                    Text("登入即可體驗完整功能")
+                        .font(.custom("NotoSerifTC-Regular", size: 20))
+                        .foregroundColor(ColorConstants.systemSubColor)
+                    UIButtonAccountCustom(title: "登入", action: {
+                        showLoginView = true
+                    })
+                    .frame(width: 160)
+                    .sheet(isPresented: $showLoginView) {
+                        LoginView()
+                            .presentationDetents([.fraction(0.9)])
+                    }
                 }
             }
         }
+        .background(Color.gray.opacity(0.1))
         .onAppear {
             fetchMessages()
         }
@@ -99,7 +119,7 @@ struct MessageView: View {
         let keychain = KeychainSwift()
         let db = Firestore.firestore()
         let uid = keychain.get("authUid") ?? ""
-
+        
         db.collection("users")
             .document(uid)
             .getDocument { snapshot, error in
@@ -114,7 +134,7 @@ struct MessageView: View {
                 print("目前 systemCount: \(systemCount)")
             }
     }
-
+    
     
     func fetchMessages() {
         let db = Firestore.firestore()
