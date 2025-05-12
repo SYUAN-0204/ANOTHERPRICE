@@ -34,6 +34,9 @@ struct MessageDetailView: View {
     let docID: String
     let otherUid: String
     let name: String
+    @State private var listener: ListenerRegistration?
+    @State private var badgeListener: ListenerRegistration?
+    @State private var hasLoadedMessages = false
     @State private var isReadyToShowSheet: Bool = false  // 控制顯示 temp9 的狀態
     @State var userAvatar: UIImage = UIImage(named: "Advertise") ?? UIImage()
     @State private var response: String = ""
@@ -217,9 +220,10 @@ struct MessageDetailView: View {
         .onAppear {
             Task {
                 await loadUserThemeOnce()  // 確保主題資料載入完成
-                if !docID.isEmpty {
+                if !docID.isEmpty && !hasLoadedMessages {
                     loadMessages()
                     observeBadgeCount()
+                    hasLoadedMessages = true
                 }
             }
         }
@@ -229,12 +233,16 @@ struct MessageDetailView: View {
                 observeBadgeCount()
             }
         }
+        .onDisappear(){
+            listener?.remove()
+            badgeListener?.remove()
+        }
     }
     
     private func loadMessages() {
         let db = Firestore.firestore()
         // 使用實時監聽
-        db.collection(docID)
+        listener = db.collection(docID)
             .order(by: "timestamp")
             .addSnapshotListener { querySnapshot, error in
                 if let error = error {
@@ -261,7 +269,7 @@ struct MessageDetailView: View {
         let keychain = KeychainSwift()
         let db = Firestore.firestore()
         
-        db.collection("users")
+        badgeListener = db.collection("users")
             .document(keychain.get("authUid") ?? "")
             .collection("message")
             .document(docID)
