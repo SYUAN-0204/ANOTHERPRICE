@@ -111,7 +111,9 @@ struct MessageView: View {
         }
         .background(Color.gray.opacity(0.1))
         .onAppear {
-            fetchMessages()
+            if (keychain.get("authUid") != nil) {
+                fetchMessages()
+            }
         }
     }
     
