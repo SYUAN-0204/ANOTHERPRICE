@@ -299,7 +299,7 @@ struct DisplayView: View {
                         else {
                             LazyVStack {
                                 ForEach(drafts) { draft in
-                                    UIComplexIssueCard(destination: LazyView(temp11()), title: draft.title, date: draft.deadLine, common: draft.lastCommentDate, coin: draft.reward, content: draft.title, like: false, heart: draft.heart, message: draft.commentCount, author: "author", code: "code", http: "http")
+                                    UIComplexIssueCard(destination: LazyView(ErrorView()), title: draft.title, date: draft.deadLine, common: draft.lastCommentDate, coin: draft.reward, content: draft.title, like: false, heart: draft.heart, message: draft.commentCount, author: "author", code: "code", http: "http")
                                         .onAppear {
                                             if draft.id == drafts.last?.id && hasMoreData && !isFetchingMore {
                                                 fetchDrafts(initial: false, selectName: "publish")
@@ -345,7 +345,7 @@ struct DisplayView: View {
                         else {
                             LazyVStack {
                                 ForEach(drafts) { draft in
-                                    UIComplexIssueCard(destination: LazyView(temp11()), title: draft.title, date: draft.deadLine, common: draft.lastCommentDate, coin: draft.reward, content: draft.title, like: false, heart: draft.heart, message: draft.commentCount, author: "author", code: "code", http: "http")
+                                    UIComplexIssueCard(destination: LazyView(ErrorView()), title: draft.title, date: draft.deadLine, common: draft.lastCommentDate, coin: draft.reward, content: draft.title, like: false, heart: draft.heart, message: draft.commentCount, author: "author", code: "code", http: "http")
                                         .onAppear {
                                             if draft.id == drafts.last?.id && hasMoreData && !isFetchingMore {
                                                 fetchDrafts(initial: false, selectName: "favorites")

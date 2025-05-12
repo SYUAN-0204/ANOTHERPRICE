@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct temp13: View {
+struct IssueMessageView: View {
     @Environment(\.dismiss) var dismiss
     
     let name: String
@@ -51,5 +51,5 @@ struct temp13: View {
 }
 
 #Preview {
-    temp13(name: "rty")
+    IssueMessageView(name: "rty")
 }

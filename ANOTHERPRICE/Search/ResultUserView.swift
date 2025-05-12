@@ -2,7 +2,7 @@ import SwiftUI
 import FirebaseFirestore
 import KeychainSwift
 
-struct temp2: View {
+struct ResultUserView: View {
     @Environment(\.dismiss) var dismiss
     @State private var keychain = KeychainSwift()
     @State private var currentUserId: String = "unknown"
@@ -88,5 +88,5 @@ struct temp2: View {
 }
 
 #Preview {
-    temp2(keyword: "搜尋")
+    ResultUserView(keyword: "搜尋")
 }

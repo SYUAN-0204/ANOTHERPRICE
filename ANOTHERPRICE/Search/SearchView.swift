@@ -177,7 +177,7 @@ struct SearchView: View {
                                     .font(.custom("LXGWWenKaiMonoTC-Regular", size: 18))
                                 Spacer()
                                 NavigationLink{
-                                    temp2(keyword: 搜尋)
+                                    ResultUserView(keyword: 搜尋)
                                 } label: {
                                     Text("查看更多")
                                         .foregroundColor(ColorConstants.systemDarkColor.opacity(0.7))

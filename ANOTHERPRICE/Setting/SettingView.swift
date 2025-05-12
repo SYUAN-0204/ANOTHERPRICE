@@ -54,7 +54,7 @@ struct SettingView: View {
                     .padding(.horizontal, 10)
                     UIRectangleLine(opacity: 0.1)
                     NavigationLink{
-                        temp10()
+                        MessageSettingView()
                     } label: {
                         HStack{
                             Text("訊息設定")

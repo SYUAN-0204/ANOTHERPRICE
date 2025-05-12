@@ -79,7 +79,7 @@ struct MessageView: View {
                     .padding(.vertical, 16)
                     //小精靈跟小助手一起按照日期排
                     UINavigationPersonalMessage(destination: RewardMessageView(name: "獎勵小精靈"), userAvatar: userAvatar, name: "獎勵小精靈", date: "2-25", content: "您的獎勵已送達", badgeCount: systemCount)
-                    UINavigationPersonalMessage(destination: temp13(name: "提問小助手"), userAvatar: userAvatar, name: "提問小助手", date: "2-24", content: "您的提問已到期", badgeCount: 5)
+                    UINavigationPersonalMessage(destination: IssueMessageView(name: "提問小助手"), userAvatar: userAvatar, name: "提問小助手", date: "2-24", content: "您的提問已到期", badgeCount: 5)
                     ForEach(messageSummaries) { summary in
                         UINavigationPersonalMessage(
                             destination: MessageDetailView(docID: summary.id, otherUid: summary.otherUid, name: summary.name),

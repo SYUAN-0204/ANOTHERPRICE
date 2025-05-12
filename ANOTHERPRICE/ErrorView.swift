@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct temp11: View {
+struct ErrorView: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var countdown:Int = 5
@@ -40,5 +40,5 @@ struct temp11: View {
 }
 
 #Preview {
-    temp11()
+    ErrorView()
 }

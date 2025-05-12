@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct temp10: View {
+struct MessageSettingView: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var 我的提問:String = "on"
@@ -39,5 +39,5 @@ struct temp10: View {
 }
 
 #Preview {
-    temp10()
+    MessageSettingView()
 }

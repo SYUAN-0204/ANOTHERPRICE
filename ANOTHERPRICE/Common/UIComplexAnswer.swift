@@ -28,7 +28,7 @@ struct UIComplexAnswer: View {
     var body: some View {
         NavigationLink{
             //DisplayView(isMyDisplayView: false)
-            temp11()
+            ErrorView()
         } label: {
             HStack{
                 UIProfileImage(photo: userAvatar, width: 30, height: 30)

@@ -52,7 +52,7 @@ struct UIComplexReward: View {
                             PostDetailView(category: "12",documentID:"123",isMyDisplayView: false)
                         }
                         else {
-                            LazyView(temp11())
+                            LazyView(ErrorView())
                         }
                     } label: {
                         ZStack{
