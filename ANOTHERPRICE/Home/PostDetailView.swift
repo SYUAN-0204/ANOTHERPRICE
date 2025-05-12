@@ -551,8 +551,8 @@ struct PostDetailView: View {
             "response": response,
             "timestamp": time,
             "heart": 0,
-            "author": keychain.get("userName") ?? "error",
-            "authorUid": keychain.get("authUid") ?? "error"
+            "author": keychain.get("userName") ?? "路過的旅人",
+            "authorUid": keychain.get("authUid") ?? "wybTvK80tjfkltfK8TBXTyy1hIf1"
         ]
         
         let targetCollection = categoryToCollection[category] ?? "life"
@@ -569,7 +569,7 @@ struct PostDetailView: View {
         }
         
         // 在用户的 response 集合中保存 documentId
-        db.collection("users").document(authorUid).collection("response").document(documentId)
+        db.collection("users").document(keychain.get("userName") ?? "路過的旅人").collection("response").document(documentId)
             .setData(["documentId": documentID, "collection": targetCollection, "createdAt": time]) { error in
                 if let error = error {
                     print("(PostDetailView) 儲存 documentId 失敗: \(error.localizedDescription)")
