@@ -34,7 +34,7 @@ struct UIComplexAnswer: View {
                 UIProfileImage(photo: userAvatar, width: 30, height: 30)
                 VStack(alignment: .leading){
                     HStack{
-                        Text(anonymous ? "神秘旅人":userName)
+                        Text(anonymous ? userName : "神秘旅人")
                             .font(.custom("LXGWWenKaiMonoTC-Regular", size: 15))
                             .foregroundColor(ColorConstants.systemSubColor)
                         UITextLevel(totalExp: totalExp, width: 26, height: 12, size: 10)
