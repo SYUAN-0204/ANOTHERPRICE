@@ -38,7 +38,7 @@ struct MessageDetailView: View {
     @State private var badgeListener: ListenerRegistration?
     @State private var hasLoadedMessages = false
     @State private var isReadyToShowSheet: Bool = false  // 控制顯示 temp9 的狀態
-    @State var userAvatar: UIImage = UIImage(named: "Advertise") ?? UIImage()
+    @State var userAvatar: UIImage = UIImage(named: "Logo_122D31") ?? UIImage()
     @State private var response: String = ""
     @State private var 展開回覆: Bool = false
     @State var showAlert: Bool = false

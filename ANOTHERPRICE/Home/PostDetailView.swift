@@ -252,7 +252,7 @@ struct PostDetailView: View {
                         userName: responseData.author,
                         isSelfIssue: isSelfIssue,
                         userAvatar: userAvatar,
-                        anonymous: isAnonymous,
+                        anonymous: false,
                         comment: responseData.response,
                         totalExp: responseData.exp,
                         timestamp: responseData.timestamp,
@@ -277,7 +277,7 @@ struct PostDetailView: View {
             }
             .padding(.horizontal, 10)
             .padding(.bottom, 5)
-            if !isSelfIssue{
+            if !isSelfIssue || !hasResponded{
                 HStack{
                     HStack{
                         TextField(hasResponded ? "誠實精靈已收到你的回答":"睡著了也等不到你的回答", text: $response)
