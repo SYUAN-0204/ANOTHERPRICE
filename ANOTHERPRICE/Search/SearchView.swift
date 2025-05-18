@@ -163,7 +163,7 @@ struct SearchView: View {
                                 code: "/*\(draft.board)_\(draft.id)*/",
                                 http: "https://www.anotherprice.com"
                             )
-                            .padding(.vertical, -10)
+                            .padding(.vertical, -5)
                         }
                         .padding(.horizontal, 5)
                     }
@@ -207,6 +207,7 @@ struct SearchView: View {
                                         }
                                     }
                                 }
+                                Spacer()
                             }
                             .padding(.bottom, 10)
                             HStack{
@@ -233,7 +234,7 @@ struct SearchView: View {
                                 code: "/*\(draft.board)_\(draft.id)*/",
                                 http: "https://www.anotherprice.com"
                             )
-                            .padding(.vertical, -10)
+                            .padding(.vertical, -5)
                         }
                         .padding(.horizontal, 5)
                     }
@@ -321,7 +322,7 @@ struct SearchView: View {
                             code: "/*\(draft.board)_\(draft.id)*/",
                             http: "https://www.anotherprice.com"
                         )
-                        .padding(.vertical, -10)
+                        .padding(.vertical, -5)
                     }
                     .padding(.horizontal, 5)
                 }
