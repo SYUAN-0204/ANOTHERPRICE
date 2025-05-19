@@ -15,7 +15,6 @@ struct MessageView: View {
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
     @State var showAlert: Bool = false
     @State var systemCount: Int = 0
-    @Binding var total: Int
     @State private var messageSummaries: [MessageSummary] = []
     @State private var keychain = KeychainSwift()
     
@@ -164,12 +163,12 @@ struct MessageView: View {
                 
                 self.messageSummaries = summaries
                 
-                total = summaries.map { $0.badgeCount }.reduce(0, +)
-                print("總 badgeCount：\(total)")
+                //total = summaries.map { $0.badgeCount }.reduce(0, +)
+                //print("總 badgeCount：\(total)")
             }
     }
 }
 
 #Preview {
-    MessageView(total: .constant(0))
+    MessageView()
 }

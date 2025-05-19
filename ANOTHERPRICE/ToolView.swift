@@ -7,6 +7,8 @@
 
 import SwiftUI
 import KeychainSwift
+import FirebaseAuth
+import FirebaseFirestore
 
 struct ToolView: View {
     @State private var isLoggedIn = false
@@ -15,6 +17,11 @@ struct ToolView: View {
     @State private var selectedTab: TabIdentifier = .home
     @StateObject private var nav = NavigationCoordinator()
     @State private var 訊息數量: Int = 0
+    @State private var messageSummaries: [MessageSummary] = []
+    
+    struct MessageSummary {
+        var badgeCount: Int
+    }
     
     init() {
         UITabBar.appearance().backgroundColor = UIColor.white
@@ -40,7 +47,7 @@ struct ToolView: View {
                             .environment(\.symbolVariants, .none)
                     }
                     .tag(TabIdentifier.issue)
-                MessageView(total: $訊息數量)
+                MessageView()
                     .tabItem {
                         Label("訊息", systemImage: "envelope")
                             .environment(\.symbolVariants, .none)
@@ -71,9 +78,39 @@ struct ToolView: View {
         .onAppear {
             if let token = keychain.get("authUid"), !token.isEmpty {
                 isLoggedIn = true
+                listenToMessages()
             }
         }
         .environmentObject(nav)
+    }
+    
+    func listenToMessages() {
+        let db = Firestore.firestore()
+        let uid = keychain.get("authUid") ?? ""
+        
+        db.collection("users")
+            .document(uid)
+            .collection("message")
+            .addSnapshotListener { snapshot, error in
+                if let error = error {
+                    print("Error listening to messages: \(error)")
+                    return
+                }
+                
+                guard let documents = snapshot?.documents else { return }
+                
+                let summaries = documents.compactMap { doc -> MessageSummary? in
+                    let data = doc.data()
+                    return MessageSummary(
+                        badgeCount: data["badgeCount"] as? Int ?? 0
+                    )
+                }
+                
+                self.messageSummaries = summaries
+                
+                訊息數量 = summaries.map { $0.badgeCount }.reduce(0, +)
+                print("總 badgeCount：\(訊息數量)")
+            }
     }
 }
 
