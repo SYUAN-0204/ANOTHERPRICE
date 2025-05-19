@@ -15,6 +15,7 @@ struct MessageView: View {
     @State var userAvatar: UIImage = UIImage(named: "Logo_122D3E") ?? UIImage()
     @State var showAlert: Bool = false
     @State var systemCount: Int = 0
+    @Binding var total: Int
     @State private var messageSummaries: [MessageSummary] = []
     @State private var keychain = KeychainSwift()
     
@@ -112,44 +113,44 @@ struct MessageView: View {
         .background(Color.gray.opacity(0.1))
         .onAppear {
             if (keychain.get("authUid") != nil) {
-                fetchMessages()
+                listenToMessages()
+                listenToSystemCount()
             }
         }
     }
     
-    private func fetchBadgeCount() {
-        let keychain = KeychainSwift()
+    func listenToSystemCount() {
         let db = Firestore.firestore()
         let uid = keychain.get("authUid") ?? ""
         
         db.collection("users")
             .document(uid)
-            .getDocument { snapshot, error in
+            .addSnapshotListener { snapshot, error in
                 if let error = error {
-                    print("取得 systemCount 錯誤：\(error.localizedDescription)")
+                    print("System count listener error: \(error)")
                     return
                 }
-                
                 let data = snapshot?.data()
-                systemCount = data?["systemCount"] as? Int ?? 0
-                
-                print("目前 systemCount: \(systemCount)")
+                self.systemCount = data?["systemCount"] as? Int ?? 0
             }
     }
     
-    
-    func fetchMessages() {
+    func listenToMessages() {
         let db = Firestore.firestore()
+        let uid = keychain.get("authUid") ?? ""
+        
         db.collection("users")
-            .document(keychain.get("authUid") ?? "")
+            .document(uid)
             .collection("message")
-            .getDocuments { snapshot, error in
+            .addSnapshotListener { snapshot, error in
                 if let error = error {
-                    print("Error getting messages: \(error)")
+                    print("Error listening to messages: \(error)")
                     return
                 }
                 
-                self.messageSummaries = snapshot?.documents.compactMap { doc in
+                guard let documents = snapshot?.documents else { return }
+                
+                let summaries = documents.compactMap { doc -> MessageSummary? in
                     let data = doc.data()
                     return MessageSummary(
                         id: doc.documentID,
@@ -159,11 +160,16 @@ struct MessageView: View {
                         date: (data["lastUpdated"] as? Timestamp)?.dateValue().formatted(date: .abbreviated, time: .omitted) ?? "",
                         badgeCount: data["badgeCount"] as? Int ?? 0
                     )
-                } ?? []
+                }
+                
+                self.messageSummaries = summaries
+                
+                total = summaries.map { $0.badgeCount }.reduce(0, +)
+                print("總 badgeCount：\(total)")
             }
     }
 }
 
 #Preview {
-    MessageView()
+    MessageView(total: .constant(0))
 }

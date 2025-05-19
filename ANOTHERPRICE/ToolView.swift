@@ -14,7 +14,7 @@ struct ToolView: View {
     
     @State private var selectedTab: TabIdentifier = .home
     @StateObject private var nav = NavigationCoordinator()
-    @State private var 訊息數量: Int = 24543
+    @State private var 訊息數量: Int = 0
     
     init() {
         UITabBar.appearance().backgroundColor = UIColor.white
@@ -40,7 +40,7 @@ struct ToolView: View {
                             .environment(\.symbolVariants, .none)
                     }
                     .tag(TabIdentifier.issue)
-                MessageView()
+                MessageView(total: $訊息數量)
                     .tabItem {
                         Label("訊息", systemImage: "envelope")
                             .environment(\.symbolVariants, .none)
